@@ -13,7 +13,7 @@
 .float {
 	animation: float 7s ease-in-out infinite;
 
-	&--delay {
+	&.delay {
 		animation-delay: -3.5s;
 	}
 }

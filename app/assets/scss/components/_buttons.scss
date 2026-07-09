@@ -31,21 +31,21 @@
 		outline-offset: 3px;
 	}
 
-	&--primary {
+	&.primary {
 		background: var(--primary);
 		color: var(--surface);
 	}
 
-	&--outline {
+	&.outline {
 		background: transparent;
 	}
 
-	&--lg {
+	&.lg {
 		font-size: $text-base;
 		padding: $space-md $space-xl;
 	}
 
-	&--sm {
+	&.sm {
 		font-size: $text-sm;
 		padding: $space-xs $space-md;
 	}
