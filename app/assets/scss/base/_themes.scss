@@ -1,14 +1,99 @@
-@use '../tokens' as *;
-
+/* LIGHT THEME (default) */
 :root {
-	--bg: #{$color-cream};
-	--surface: #{$color-white};
-	--text: #{$color-navy};
+	// backgrounds
+	--bg: #f1faee; // Honeydew
+	--bg-alt: color-mix(in srgb, var(--bg) 90%, var(--text) 5%);
+	--bg-muted: color-mix(in srgb, var(--bg) 80%, var(--text) 12%);
+
+	// surfaces
+	--surface: #fff;
+	--surface-muted: color-mix(in srgb, var(--surface) 96%, var(--bg) 4%);
+	--surface-hover: color-mix(in srgb, var(--surface) 92%, var(--text) 8%);
+
+	// text
+	--text: #1d3557; // Oxford Navy
+	--text-secondary: color-mix(in srgb, var(--text) 80%, var(--bg) 20%);
 	--text-muted: rgb(29 53 87 / 65%);
+	--text-inverse: #fff;
+
+	// brand — the core palette, never swapped between themes
+	--primary: #e63946; // Punch Red
+	--primary-light: color-mix(in srgb, var(--primary) 75%, white 25%);
+	--primary-dark: #d22d3a;
+	--secondary: #457b9d; // Cerulean
+	--accent: #a8dadc; // Frosted Blue
+
+	// semantic
+	--success: #3a9d5d;
+	--success-bg: color-mix(in srgb, var(--success) 15%, var(--surface) 85%);
+	--error: #c1121f;
+	--error-bg: color-mix(in srgb, var(--error) 15%, var(--surface) 85%);
+	--warning: #e9a23b;
+	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--surface) 82%);
+	--info: var(--secondary);
+	--info-bg: color-mix(in srgb, var(--info) 15%, var(--surface) 85%);
+
+	// links
+	--link: var(--secondary);
+	--link-hover: var(--primary);
+
+	// borders
 	--border: rgb(29 53 87 / 14%);
-	--primary: #{$color-red};
-	--primary-hover: #d22d3a;
-	--secondary: #{$color-cerulean};
-	--accent: #{$color-frost};
+	--border-strong: rgb(29 53 87 / 28%);
+
+	// shadows — soft elevation tiers, separate from the hard poster shadow below
+	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%);
+	--shadow: 0 4px 10px rgb(29 53 87 / 12%);
+	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%);
+	--shadow-block: 6px 6px 0 var(--text);
+}
+
+/* DARK THEME — opt in per section with data-theme="dark" */
+[data-theme='dark'] {
+	// backgrounds — built from Oxford Navy, not a generic slate
+	--bg: #1d3557;
+	--bg-alt: #24406b;
+	--bg-muted: #2c4d80;
+
+	// surfaces
+	--surface: #24406b;
+	--surface-muted: #2c4d80;
+	--surface-hover: #35598f;
+
+	// text
+	--text: #f1faee;
+	--text-secondary: color-mix(in srgb, var(--text) 80%, var(--bg) 20%);
+	--text-muted: rgb(241 250 238 / 60%);
+	--text-inverse: #1d3557;
+
+	// brand — primary stays identical to light mode, still sacred
+	--primary: #e63946;
+	--primary-light: color-mix(in srgb, var(--primary) 70%, white 30%);
+	--primary-dark: color-mix(in srgb, var(--primary) 80%, black 20%);
+	--secondary: #6ba3c7;
+	--accent: #a8dadc;
+
+	// semantic — brightened for contrast against navy
+	--success: #4cb376;
+	--success-bg: rgb(76 179 118 / 15%);
+	--error: #e0524a;
+	--error-bg: rgb(224 82 74 / 15%);
+	--warning: #f0b25c;
+	--warning-bg: rgb(240 178 92 / 15%);
+	--info: var(--secondary);
+	--info-bg: rgb(107 163 199 / 15%);
+
+	// links
+	--link: var(--accent);
+	--link-hover: var(--primary);
+
+	// borders
+	--border: rgb(241 250 238 / 14%);
+	--border-strong: rgb(241 250 238 / 26%);
+
+	// shadows
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+	--shadow: 0 4px 10px rgb(0 0 0 / 40%);
+	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%);
 	--shadow-block: 6px 6px 0 var(--text);
 }

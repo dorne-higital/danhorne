@@ -1,10 +1,4 @@
-// ─── Brand Palette ───────────────────────────────────────────────────────────
-$color-red: #e63946; // Punch Red — primary / CTAs
-$color-cream: #f1faee; // Honeydew — background
-$color-frost: #a8dadc; // Frosted Blue — accent
-$color-cerulean: #457b9d; // Cerulean — secondary / links
-$color-navy: #1d3557; // Oxford Navy — text / ink
-$color-white: #fff;
+// Shared scale — spacing, type, motion. Color lives entirely in base/_themes.scss.
 
 // ─── Typography ──────────────────────────────────────────────────────────────
 $font-display:

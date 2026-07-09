@@ -45,6 +45,7 @@
 
 <style lang="scss" scoped>
 	.footer {
+		background-color: var(--bg);
 		border-top: 2px solid var(--text);
 		margin-top: auto;
 		padding-bottom: $space-lg;
@@ -76,7 +77,7 @@
 
 					.logo-mark {
 						align-items: center;
-						background: var(--accent);
+						background: var(--primary);
 						border: 2px solid var(--text);
 						border-radius: $radius-sm;
 						color: var(--text);

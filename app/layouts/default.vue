@@ -4,7 +4,7 @@
 		<main>
 			<slot />
 		</main>
-		<AppFooter />
+		<AppFooter data-theme="dark" />
 	</div>
 </template>
 
