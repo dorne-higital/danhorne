@@ -1,0 +1,36 @@
+@use 'tokens' as *;
+
+// Base
+@use 'base/reset';
+@use 'base/themes';
+@use 'base/typography';
+@use 'base/layout';
+
+// Components
+@use 'components/buttons';
+
+// ─── Floating accent shapes ──────────────────────────────────────────────────
+.float {
+	animation: float 7s ease-in-out infinite;
+
+	&--delay {
+		animation-delay: -3.5s;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.float {
+		animation: none;
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+
+	50% {
+		transform: translateY(-18px) rotate(4deg);
+	}
+}

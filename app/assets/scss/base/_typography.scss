@@ -1,0 +1,33 @@
+@use '../tokens' as *;
+
+body {
+	background-color: var(--bg);
+	color: var(--text);
+	font-family: $font-sans;
+	font-size: $text-base;
+}
+
+.display-xl {
+	font-family: $font-display;
+	font-size: clamp($text-3xl, 7vw, $text-4xl);
+	font-weight: $weight-bold;
+	line-height: $leading-tight;
+}
+
+.body-lg {
+	font-size: $text-lg;
+	line-height: $leading-normal;
+}
+
+.caption {
+	color: var(--text-muted);
+	font-size: $text-sm;
+}
+
+.text-muted {
+	color: var(--text-muted);
+}
+
+.text-primary {
+	color: var(--primary);
+}

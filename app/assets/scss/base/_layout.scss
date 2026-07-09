@@ -1,0 +1,24 @@
+@use '../tokens' as *;
+
+.container {
+	margin-inline: auto;
+	max-width: $container-xl;
+	padding-inline: $space-md;
+	width: 100%;
+
+	@media (width >= $container-lg) {
+		padding-inline: $space-xl;
+	}
+}
+
+.flex-center {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+}
+
+.flex-between {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+}

@@ -1,0 +1,14 @@
+@use '../tokens' as *;
+
+:root {
+	--bg: #{$color-cream};
+	--surface: #{$color-white};
+	--text: #{$color-navy};
+	--text-muted: rgb(29 53 87 / 65%);
+	--border: rgb(29 53 87 / 14%);
+	--primary: #{$color-red};
+	--primary-hover: #d22d3a;
+	--secondary: #{$color-cerulean};
+	--accent: #{$color-frost};
+	--shadow-block: 6px 6px 0 var(--text);
+}

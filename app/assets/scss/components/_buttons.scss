@@ -1,0 +1,52 @@
+@use '../tokens' as *;
+
+.btn {
+	align-items: center;
+	background: var(--surface);
+	border: 2px solid var(--text);
+	border-radius: $radius-sm;
+	box-shadow: var(--shadow-block);
+	color: var(--text);
+	cursor: pointer;
+	display: inline-flex;
+	font-family: $font-sans;
+	font-size: $text-sm;
+	font-weight: $weight-semibold;
+	gap: $space-xs;
+	padding: $space-sm $space-lg;
+	text-decoration: none;
+	transition: transform $transition-spring;
+
+	&:hover {
+		transform: translate(-2px, -2px);
+	}
+
+	&:active {
+		box-shadow: none;
+		transform: translate(4px, 4px);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--secondary);
+		outline-offset: 3px;
+	}
+
+	&--primary {
+		background: var(--primary);
+		color: var(--surface);
+	}
+
+	&--outline {
+		background: transparent;
+	}
+
+	&--lg {
+		font-size: $text-base;
+		padding: $space-md $space-xl;
+	}
+
+	&--sm {
+		font-size: $text-sm;
+		padding: $space-xs $space-md;
+	}
+}
