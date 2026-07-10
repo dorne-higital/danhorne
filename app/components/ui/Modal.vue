@@ -93,15 +93,20 @@
 
 <style lang="scss" scoped>
 	.overlay {
-		align-items: center;
+		align-items: flex-end;
 		background: rgb(0 0 0 / 55%);
 		display: flex;
 		inset: 0;
 		justify-content: center;
 		overflow-y: auto;
-		padding: $space-lg;
+		padding: 0;
 		position: fixed;
 		z-index: 100;
+
+		@media (width >= 640px) {
+			align-items: center;
+			padding: $space-lg;
+		}
 
 		&.top {
 			align-items: flex-start;
@@ -112,10 +117,9 @@
 	.panel {
 		background: var(--surface);
 		border: 2px solid var(--text);
-		border-radius: $radius-md;
+		border-radius: $radius-md $radius-md 0 0;
 		box-shadow: var(--shadow-lg);
-		margin: auto;
-		max-height: calc(100dvh - #{$space-lg} * 2);
+		max-height: calc(90dvh - #{$space-lg} * 2);
 		overflow-y: auto;
 		position: relative;
 		width: 100%;
@@ -135,6 +139,12 @@
 		&.full {
 			height: calc(100dvh - #{$space-lg} * 2);
 			max-width: none;
+		}
+
+		@media (width >= 640px) {
+			border-radius: $radius-md;
+			margin: auto;
+			max-height: calc(100dvh - #{$space-lg} * 2);
 		}
 	}
 
