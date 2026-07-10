@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 	useHead({
-		title: 'Dan Horne — Web Developer',
+		title: 'Dan Horne | Web Developer',
 		// meta: [
 		// 	{
 		// 		name: 'description',

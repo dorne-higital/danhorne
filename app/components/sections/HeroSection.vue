@@ -109,6 +109,11 @@
 				top: 18%;
 				transform: rotate(12deg);
 				width: 6rem;
+
+				@media (width >= 640px) {
+					height: 12rem;
+					width: 12rem;
+				}
 			}
 
 			&.shape-2 {
@@ -118,6 +123,12 @@
 				right: 12%;
 				top: 30%;
 				width: 4rem;
+
+				@media (width >= 640px) {
+					height: 9rem;
+					top: 40%;
+					width: 9rem;
+				}
 			}
 		}
 
