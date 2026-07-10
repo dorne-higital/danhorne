@@ -2,7 +2,7 @@ export default defineNuxtConfig({
 	compatibilityDate: '2025-01-01',
 	devtools: { enabled: true },
 
-	modules: ['@nuxt/image'],
+	modules: ['@nuxt/image', '@nuxt/icon'],
 
 	components: [{ path: '~/components', pathPrefix: false }],
 

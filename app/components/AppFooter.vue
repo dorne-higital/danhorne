@@ -21,36 +21,28 @@
 								type="button"
 								@click="contactOpen = true"
 							>
-								<svg
+								<Icon
+									name="lucide:mail"
 									class="icon"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
 									aria-hidden="true"
-								>
-									<rect
-										x="2"
-										y="4"
-										width="20"
-										height="16"
-										rx="2"
-									/>
-									<path d="m22 6-10 7L2 6" />
-								</svg>
+								/>
 								hello@danhorne.co.uk
 							</button>
 						</li>
-						<!-- <li>
+						<li>
 							<a
 								href="https://linkedin.com/in/daniel-horne92"
 								target="_blank"
 								rel="noopener"
-								>LinkedIn</a
 							>
-						</li> -->
+								<Icon
+									name="simple-icons:linkedin"
+									class="icon"
+									aria-hidden="true"
+								/>
+								LinkedIn
+							</a>
+						</li>
 					</ul>
 				</div>
 			</div>
