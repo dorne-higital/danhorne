@@ -21,15 +21,16 @@
 				v-html="heading"
 			/>
 
-			<p class="sub body-lg text-muted">{{ sub }}</p>
+			<p class="sub body-lg text-secondary">{{ sub }}</p>
 
 			<div class="ctas">
-				<a
-					:href="primaryCta.href"
+				<button
+					type="button"
 					class="btn primary lg"
+					@click="contactOpen = true"
 				>
 					{{ primaryCta.label }}
-				</a>
+				</button>
 			</div>
 
 			<ul
@@ -51,12 +52,19 @@
 			</ul>
 		</div>
 	</section>
+
+	<Modal
+		v-model:open="contactOpen"
+		size="lg"
+		title="Get in touch"
+	>
+		<ContactForm />
+	</Modal>
 </template>
 
 <script setup lang="ts">
 	interface Cta {
 		label: string
-		href: string
 	}
 
 	interface Social {
@@ -71,6 +79,8 @@
 		primaryCta: Cta
 		socials: Social[]
 	}>()
+
+	const contactOpen = ref(false)
 </script>
 
 <style lang="scss" scoped>
@@ -79,7 +89,7 @@
 		display: flex;
 		min-height: calc(100dvh - 72px);
 		overflow: hidden;
-		padding-block: $space-3xl;
+		padding-block: $space-lg;
 		position: relative;
 
 		.shape {
@@ -166,7 +176,7 @@
 					transition: color $transition-base;
 
 					&:hover {
-						color: var(--primary);
+						color: var(--primary-text);
 					}
 				}
 			}

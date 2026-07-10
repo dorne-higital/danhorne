@@ -32,7 +32,8 @@
 	}
 
 	&.primary {
-		background: var(--primary);
+		// plain --primary only gives white text ~4.2:1 — --primary-dark clears AA (4.5:1+)
+		background: var(--primary-dark);
 		color: var(--surface);
 	}
 

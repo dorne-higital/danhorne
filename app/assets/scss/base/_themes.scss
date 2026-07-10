@@ -1,7 +1,7 @@
 /* LIGHT THEME (default) */
 :root {
 	// backgrounds
-	--bg: #f1faee; // Honeydew
+	--bg: #fff8f8;
 	--bg-alt: color-mix(in srgb, var(--bg) 90%, var(--text) 5%);
 	--bg-muted: color-mix(in srgb, var(--bg) 80%, var(--text) 12%);
 
@@ -11,15 +11,16 @@
 	--surface-hover: color-mix(in srgb, var(--surface) 92%, var(--text) 8%);
 
 	// text
-	--text: #1d3557; // Oxford Navy
-	--text-secondary: color-mix(in srgb, var(--text) 80%, var(--bg) 20%);
-	--text-muted: rgb(29 53 87 / 65%);
+	--text: #0b1626;
+	--text-secondary: #162439;
+	--text-muted: rgb(29 53 87 / 70%);
 	--text-inverse: #fff;
 
 	// brand — the core palette, never swapped between themes
 	--primary: #e63946; // Punch Red
 	--primary-light: color-mix(in srgb, var(--primary) 75%, white 25%);
 	--primary-dark: #d22d3a;
+	--primary-text: var(--primary-dark); // plain --primary on this bg is only ~4:1 — use this for small/normal red text
 	--secondary: #457b9d; // Cerulean
 	--accent: #a8dadc; // Frosted Blue
 
@@ -68,8 +69,14 @@
 
 	// brand — primary stays identical to light mode, still sacred
 	--primary: #e63946;
-	--primary-light: color-mix(in srgb, var(--primary) 70%, white 30%);
+	--primary-light: color-mix(
+		in srgb,
+		var(--primary) 60%,
+		white 40%
+	); // 70/30 measured ~4.4:1 on navy, fails AA — 60/40 clears 4.5:1
+
 	--primary-dark: color-mix(in srgb, var(--primary) 80%, black 20%);
+	--primary-text: var(--primary-light); // plain --primary on navy is only ~3:1 — use this for small/normal red text
 	--secondary: #6ba3c7;
 	--accent: #a8dadc;
 

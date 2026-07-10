@@ -1,24 +1,48 @@
 <template>
-	<footer class="footer">
+	<footer
+		class="footer"
+		v-bind="$attrs"
+	>
 		<div class="sw">
 			<div class="footer-top">
 				<div class="brand">
-					<NuxtLink
-						to="/"
-						class="logo"
-					>
-						<span class="logo-mark">DH</span>
-						<!-- <span>Dan Horne</span> -->
-					</NuxtLink>
-					<p class="tagline text-muted">
+					<AppLogo />
+
+					<p class="tagline text-secondary">
 						Crafting fast, modern web experiences<br />for ambitious businesses.
 					</p>
 				</div>
 
 				<div class="column">
-					<p class="col-heading">Connect</p>
-					<ul>
-						<li><a href="mailto:hello@danhorne.co.uk">Email</a></li>
+					<p class="col-heading text-primary">Connect</p>
+					<ul class="text-secondary">
+						<li>
+							<button
+								type="button"
+								@click="contactOpen = true"
+							>
+								<svg
+									class="icon"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									aria-hidden="true"
+								>
+									<rect
+										x="2"
+										y="4"
+										width="20"
+										height="16"
+										rx="2"
+									/>
+									<path d="m22 6-10 7L2 6" />
+								</svg>
+								hello@danhorne.co.uk
+							</button>
+						</li>
 						<!-- <li>
 							<a
 								href="https://linkedin.com/in/daniel-horne92"
@@ -33,14 +57,24 @@
 
 			<div class="footer-bottom">
 				<p class="caption">© {{ year }} Dan Horne. All rights reserved.</p>
-				<!-- <p class="caption">Built with Nuxt 4</p> -->
 			</div>
 		</div>
 	</footer>
+
+	<Modal
+		v-model:open="contactOpen"
+		size="lg"
+		title="Get in touch"
+	>
+		<ContactForm />
+	</Modal>
 </template>
 
 <script setup lang="ts">
+	defineOptions({ inheritAttrs: false })
+
 	const year = new Date().getFullYear()
+	const contactOpen = ref(false)
 </script>
 
 <style lang="scss" scoped>
@@ -66,34 +100,11 @@
 				display: flex;
 				flex-direction: column;
 				gap: $space-sm;
+			}
 
-				.logo {
-					align-items: center;
-					color: var(--text);
-					display: inline-flex;
-					font-size: $text-lg;
-					font-weight: $weight-semibold;
-					gap: $space-sm;
-
-					.logo-mark {
-						align-items: center;
-						background: var(--primary);
-						border: 2px solid var(--text);
-						border-radius: $radius-sm;
-						color: var(--text);
-						display: flex;
-						font-size: $text-sm;
-						font-weight: $weight-bold;
-						height: 32px;
-						justify-content: center;
-						width: 32px;
-					}
-				}
-
-				.tagline {
-					font-size: $text-sm;
-					line-height: $leading-normal;
-				}
+			.tagline {
+				font-size: $text-sm;
+				line-height: $leading-normal;
 			}
 
 			.column {
@@ -102,7 +113,6 @@
 				gap: $space-xs;
 
 				.col-heading {
-					color: var(--text-muted);
 					font-size: $text-sm;
 					font-weight: $weight-semibold;
 					letter-spacing: 0.08em;
@@ -116,13 +126,28 @@
 					gap: $space-xs;
 				}
 
-				a {
+				a,
+				button {
+					align-items: center;
+					background: none;
+					border: none;
 					color: var(--text-muted);
-					font-size: $text-sm;
+					cursor: pointer;
+					display: inline-flex;
+					font: inherit;
+					gap: $space-xs;
+					padding: 0;
+					text-align: left;
 					transition: color $transition-base;
 
 					&:hover {
-						color: var(--primary);
+						color: var(--primary-text);
+					}
+
+					.icon {
+						flex-shrink: 0;
+						height: 16px;
+						width: 16px;
 					}
 				}
 			}
