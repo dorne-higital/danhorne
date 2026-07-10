@@ -87,10 +87,13 @@
 	.hero {
 		align-items: center;
 		display: flex;
-		min-height: calc(100dvh - 72px);
 		overflow: hidden;
 		padding-block: $space-lg;
 		position: relative;
+
+		@media (width >= 640px) {
+			min-height: calc(100dvh - 72px);
+		}
 
 		.shape {
 			border: 1px solid var(--text-muted);
