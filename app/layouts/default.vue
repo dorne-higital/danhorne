@@ -5,8 +5,22 @@
 			<slot />
 		</main>
 		<AppFooter data-theme="dark" />
+
+		<Modal
+			:open="variant !== null"
+			:title="title"
+			size="lg"
+			@update:open="(value) => !value && close()"
+		>
+			<ContactForm v-if="variant === 'contact'" />
+			<QuoteForm v-else-if="variant === 'quote'" />
+		</Modal>
 	</div>
 </template>
+
+<script setup lang="ts">
+	const { variant, title, close } = useAppModal()
+</script>
 
 <style lang="scss">
 	.app-wrap {

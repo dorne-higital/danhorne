@@ -6,24 +6,16 @@
 			<button
 				type="button"
 				class="btn outline sm"
-				@click="contactOpen = true"
+				@click="open('contact')"
 			>
 				Say hello
 			</button>
 		</nav>
 	</header>
-
-	<Modal
-		v-model:open="contactOpen"
-		size="lg"
-		title="Get in touch"
-	>
-		<ContactForm />
-	</Modal>
 </template>
 
 <script setup lang="ts">
-	const contactOpen = ref(false)
+	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>

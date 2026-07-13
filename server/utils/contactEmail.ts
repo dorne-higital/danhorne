@@ -13,6 +13,7 @@ const SUBJECT_LABELS: Record<string, string> = {
 	general: 'General enquiry',
 	project: 'New project',
 	other: 'Something else',
+	'quote-request': 'Quote request',
 }
 
 const BUDGET_LABELS: Record<string, string> = {

@@ -10,8 +10,8 @@
 		/>
 
 		<div class="inner sw">
-			<div class="badge">
-				<span class="dot" />
+			<div class="eyebrow">
+				<!-- <span class="dot" /> -->
 				{{ badge }}
 			</div>
 
@@ -27,7 +27,7 @@
 				<button
 					type="button"
 					class="btn primary lg"
-					@click="contactOpen = true"
+					@click="open('contact')"
 				>
 					{{ primaryCta.label }}
 				</button>
@@ -52,14 +52,6 @@
 			</ul>
 		</div>
 	</section>
-
-	<Modal
-		v-model:open="contactOpen"
-		size="lg"
-		title="Get in touch"
-	>
-		<ContactForm />
-	</Modal>
 </template>
 
 <script setup lang="ts">
@@ -80,7 +72,7 @@
 		socials: Social[]
 	}>()
 
-	const contactOpen = ref(false)
+	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>
@@ -139,19 +131,7 @@
 			position: relative;
 			z-index: 1;
 
-			.badge {
-				align-items: center;
-				background: var(--surface);
-				border: 2px solid var(--text);
-				border-radius: $radius-full;
-				color: var(--text);
-				display: inline-flex;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
-				gap: $space-xs;
-				padding: $space-xs $space-md;
-				width: fit-content;
-
+			.eyebrow {
 				.dot {
 					animation: pulse 2s infinite;
 					background: var(--primary);

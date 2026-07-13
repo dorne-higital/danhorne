@@ -5,25 +5,27 @@
 	background: var(--surface);
 	border: 2px solid var(--text);
 	border-radius: $radius-sm;
-	box-shadow: var(--shadow-block);
 	color: var(--text);
 	cursor: pointer;
 	display: inline-flex;
+	filter: drop-shadow($shadow-offset $shadow-offset 0 var(--text));
 	font-family: $font-sans;
 	font-size: $text-sm;
 	font-weight: $weight-semibold;
 	gap: $space-xs;
 	padding: $space-sm $space-lg;
 	text-decoration: none;
-	transition: transform $transition-spring;
+	transition:
+		filter $transition-base,
+		transform $transition-spring;
 
 	&:hover {
 		transform: translate(-2px, -2px);
 	}
 
 	&:active {
-		box-shadow: none;
-		transform: translate(4px, 4px);
+		filter: none;
+		transform: translate($shadow-offset, $shadow-offset);
 	}
 
 	&:focus-visible {
@@ -39,6 +41,11 @@
 
 	&.outline {
 		background: transparent;
+		filter: none; // no opaque fill behind it to sell the shadow — stays flat instead
+
+		&:active {
+			transform: translate(0, 0);
+		}
 	}
 
 	&.lg {

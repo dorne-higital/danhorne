@@ -43,3 +43,9 @@ $radius-full: 9999px;
 // ─── Motion ──────────────────────────────────────────────────────────────────
 $transition-base: 200ms ease;
 $transition-spring: 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// ─── Effects ─────────────────────────────────────────────────────────────────
+// Offset for the solid "poster shadow" block (see .btn / .work-card) — a real
+// element behind, not box-shadow, which mis-rasterizes at rounded corners with
+// a same-color border.
+$shadow-offset: 6px;

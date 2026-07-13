@@ -67,3 +67,24 @@ h5 {
 h6 {
 	font-size: $text-sm;
 }
+
+.eyebrow {
+	align-items: center;
+	color: var(--text);
+	display: flex;
+	flex-direction: row;
+	font-size: $text-sm;
+	gap: 0.5rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+
+	&::before,
+	&::after {
+		background: var(--primary-text);
+		content: '';
+		display: block;
+		flex-shrink: 0;
+		height: 1px;
+		width: 0.5rem;
+	}
+}

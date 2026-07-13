@@ -1,8 +1,5 @@
 <template>
-	<footer
-		class="footer"
-		v-bind="$attrs"
-	>
+	<footer class="footer">
 		<div class="sw">
 			<div class="footer-top">
 				<div class="brand">
@@ -19,7 +16,7 @@
 						<li>
 							<button
 								type="button"
-								@click="contactOpen = true"
+								@click="open('contact')"
 							>
 								<Icon
 									name="lucide:mail"
@@ -52,21 +49,12 @@
 			</div>
 		</div>
 	</footer>
-
-	<Modal
-		v-model:open="contactOpen"
-		size="lg"
-		title="Get in touch"
-	>
-		<ContactForm />
-	</Modal>
 </template>
 
 <script setup lang="ts">
-	defineOptions({ inheritAttrs: false })
+	const { open } = useAppModal()
 
 	const year = new Date().getFullYear()
-	const contactOpen = ref(false)
 </script>
 
 <style lang="scss" scoped>

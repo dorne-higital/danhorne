@@ -42,11 +42,10 @@
 	--border: rgb(29 53 87 / 14%);
 	--border-strong: rgb(29 53 87 / 28%);
 
-	// shadows — soft elevation tiers, separate from the hard poster shadow below
+	// shadows — soft elevation tiers (the hard "poster shadow" is a pseudo-element, not box-shadow — see .btn/.work-card)
 	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%);
 	--shadow: 0 4px 10px rgb(29 53 87 / 12%);
 	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%);
-	--shadow-block: 6px 6px 0 var(--text);
 }
 
 /* DARK THEME — opt in per section with data-theme="dark" */
@@ -95,12 +94,11 @@
 	--link-hover: var(--primary);
 
 	// borders
-	--border: rgb(241 250 238 / 14%);
+	--border: rgb(255 255 255 / 14%);
 	--border-strong: rgb(241 250 238 / 26%);
 
 	// shadows
 	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
 	--shadow: 0 4px 10px rgb(0 0 0 / 40%);
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%);
-	--shadow-block: 6px 6px 0 var(--text);
 }
