@@ -3,6 +3,17 @@
 		<nav class="nav-container sw flex-between">
 			<AppLogo />
 
+			<ul
+				v-if="menu?.items?.length"
+				class="main-nav"
+			>
+				<AppNavItem
+					v-for="item in menu.items"
+					:key="item.id"
+					:item="item"
+				/>
+			</ul>
+
 			<button
 				type="button"
 				class="btn outline sm"
@@ -15,7 +26,14 @@
 </template>
 
 <script setup lang="ts">
+	import type { MenuRecord } from '#shared/types/cms'
+
 	const { open } = useAppModal()
+
+	// "main" is the conventional key for the header nav — created under
+	// /admin/menus. A missing menu is expected on a fresh install; useFetch
+	// leaves `menu` null on a 404 rather than throwing, so this stays quiet.
+	const { data: menu } = await useFetch<MenuRecord>('/api/menus/main')
 </script>
 
 <style lang="scss" scoped>
@@ -30,6 +48,15 @@
 
 		.nav-container {
 			height: 72px;
+		}
+
+		.main-nav {
+			display: none;
+			gap: $space-lg;
+
+			@media (width >= 900px) {
+				display: flex;
+			}
 		}
 	}
 </style>

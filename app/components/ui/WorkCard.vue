@@ -59,7 +59,7 @@
 		monogram?: string
 		href?: string
 		external?: boolean
-		accent?: 1 | 2 | 3
+		accent?: 1 | 2 | 3 | 4
 	}
 
 	const props = withDefaults(defineProps<Props>(), {

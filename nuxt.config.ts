@@ -2,9 +2,22 @@ export default defineNuxtConfig({
 	compatibilityDate: '2025-01-01',
 	devtools: { enabled: true },
 
-	modules: ['@nuxt/image', '@nuxt/icon'],
+	modules: ['@nuxt/image', '@nuxt/icon', '@nuxtjs/supabase'],
 
-	components: [{ path: '~/components', pathPrefix: false }],
+	// We drive /admin protection ourselves via app/middleware/admin-auth.global.ts
+	// (already scoped to just /admin/**) — the module's own auto-redirect would
+	// otherwise gate the whole site, including the public catch-all pages.
+	supabase: {
+		redirect: false,
+	},
+
+	components: [
+		{ path: '~/components', pathPrefix: false },
+		// global: true — BlockRenderer/BlockCanvas resolve these by name at
+		// runtime via resolveComponent(block.type), which only finds
+		// components registered app-wide, not ones merely auto-imported.
+		{ path: '~~/content-blocks', pathPrefix: false, extensions: ['vue'], global: true },
+	],
 
 	css: ['~/assets/scss/main.scss'],
 
@@ -12,6 +25,8 @@ export default defineNuxtConfig({
 		resendApiKey: '',
 		contactEmailTo: 'hello@danhorne.co.uk',
 		contactEmailFrom: 'Dan Horne <onboarding@resend.dev>',
+		supabaseUrl: '',
+		supabaseServiceKey: '',
 	},
 
 	vite: {

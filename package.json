@@ -9,14 +9,22 @@
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"format": "prettier --write .",
-		"lint:css": "stylelint \"app/**/*.{vue,scss}\"",
-		"lint:css:fix": "stylelint \"app/**/*.{vue,scss}\" --fix"
+		"lint:css": "stylelint \"{app,content-blocks}/**/*.{vue,scss}\"",
+		"lint:css:fix": "stylelint \"{app,content-blocks}/**/*.{vue,scss}\" --fix",
+		"add-block": "node scripts/add-block.mjs"
 	},
 	"dependencies": {
+		"@nuxtjs/supabase": "^2.0.9",
+		"@supabase/supabase-js": "^2.110.3",
+		"@tiptap/extension-link": "^3.27.4",
+		"@tiptap/pm": "^3.27.4",
+		"@tiptap/starter-kit": "^3.27.4",
+		"@tiptap/vue-3": "^3.27.4",
 		"nuxt": "^4.4.8",
 		"resend": "^6.17.2",
 		"vue": "^3.5.0",
-		"vue-router": "^4.4.0"
+		"vue-router": "^4.4.0",
+		"vuedraggable": "^4.1.0"
 	},
 	"devDependencies": {
 		"@iconify-json/lucide": "^1.2.116",
