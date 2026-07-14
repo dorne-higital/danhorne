@@ -19,7 +19,7 @@
 	// brand — the core palette, never swapped between themes
 	--primary: #e63946; // Punch Red
 	--primary-light: color-mix(in srgb, var(--primary) 75%, white 25%);
-	--primary-dark: #d22d3a;
+	--primary-dark: color-mix(in srgb, var(--primary) 80%, black 20%);
 	--primary-text: var(--primary-dark); // plain --primary on this bg is only ~4:1 — use this for small/normal red text
 	--secondary: #457b9d; // Cerulean
 	--accent: #a8dadc; // Frosted Blue

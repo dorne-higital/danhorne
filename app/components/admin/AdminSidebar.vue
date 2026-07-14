@@ -4,7 +4,7 @@
 			to="/admin"
 			class="brand"
 		>
-			Admin
+			<AppLogo />
 		</NuxtLink>
 
 		<nav class="nav">
@@ -17,26 +17,35 @@
 			>
 				{{ item.label }}
 			</NuxtLink>
-
-			<span
-				v-for="item in comingSoonItems"
-				:key="item.label"
-				class="nav-item disabled"
-			>
-				{{ item.label }}
-				<span class="badge">Soon</span>
-			</span>
 		</nav>
 
 		<div class="account">
-			<span class="name">{{ me?.profile.nickname || me?.user.email }}</span>
+			<div class="name">
+				<NuxtLink to="/admin/profile">
+					<Icon
+						name="lucide:circle-user"
+						class="profile"
+						aria-label="Go to your profile"
+						size="1.5rem"
+					/>
+
+					{{ me?.profile.nickname || me?.user.email }}
+				</NuxtLink>
+			</div>
 			<div class="account-links">
-				<NuxtLink to="/admin/profile">Profile</NuxtLink>
 				<button
 					type="button"
+					class="logout"
 					@click="logout"
 				>
-					Log out
+					<Icon
+						name="lucide:log-out"
+						class="logout"
+						aria-label="Log out"
+						size="1rem"
+					/>
+
+					Logout
 				</button>
 			</div>
 		</div>
@@ -54,13 +63,10 @@
 			{ label: 'Menus', to: '/admin/menus' },
 		]
 		if (me.value?.profile.role === 'admin') {
-			items.push({ label: 'Users', to: '/admin/users' })
+			items.push({ label: 'Users', to: '/admin/users' }, { label: 'Settings', to: '/admin/settings' })
 		}
 		return items
 	})
-
-	// Placeholders for queued CMS features — flip to real nav items once built.
-	const comingSoonItems = [{ label: 'Theme' }]
 
 	const supabase = useSupabaseClient()
 
@@ -111,21 +117,6 @@
 				background: var(--surface-muted);
 				color: var(--text);
 			}
-
-			&.disabled {
-				color: var(--text-muted);
-				cursor: default;
-			}
-		}
-
-		.badge {
-			background: var(--bg-muted);
-			border-radius: $radius-full;
-			color: var(--text-muted);
-			font-size: 0.6875rem;
-			font-weight: $weight-semibold;
-			padding: 2px $space-xs;
-			text-transform: uppercase;
 		}
 
 		.account {
@@ -136,17 +127,30 @@
 			padding-top: $space-md;
 
 			.name {
+				align-items: center;
 				color: var(--text);
+				display: flex;
+				flex-direction: row;
 				font-size: $text-sm;
 				font-weight: $weight-semibold;
+				gap: 0.5rem;
+				line-height: 1.5rem;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+
+				a {
+					align-items: center;
+					display: flex;
+					flex-direction: row;
+					gap: 0.5rem;
+				}
 			}
 
 			.account-links {
 				display: flex;
 				gap: $space-sm;
+				margin-top: auto;
 
 				a,
 				button {
@@ -157,6 +161,14 @@
 					font-size: $text-sm;
 					font-weight: $weight-semibold;
 					padding: 0;
+				}
+
+				.logout {
+					align-items: center;
+					color: var(--error);
+					display: flex;
+					flex-direction: row;
+					gap: 0.5rem;
 				}
 			}
 		}

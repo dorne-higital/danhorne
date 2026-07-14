@@ -23,8 +23,28 @@
 									class="icon"
 									aria-hidden="true"
 								/>
-								hello@danhorne.co.uk
+								{{ company?.email || 'hello@danhorne.co.uk' }}
 							</button>
+						</li>
+						<li v-if="company?.phone">
+							<span>
+								<Icon
+									name="lucide:phone"
+									class="icon"
+									aria-hidden="true"
+								/>
+								{{ company.phone }}
+							</span>
+						</li>
+						<li v-if="address">
+							<span>
+								<Icon
+									name="lucide:map-pin"
+									class="icon"
+									aria-hidden="true"
+								/>
+								{{ address }}
+							</span>
 						</li>
 						<li>
 							<a
@@ -45,7 +65,7 @@
 			</div>
 
 			<div class="footer-bottom">
-				<p class="caption">© {{ year }} Dan Horne. All rights reserved.</p>
+				<p class="caption">© {{ year }} {{ company?.name || 'Dan Horne' }}. All rights reserved.</p>
 			</div>
 		</div>
 	</footer>
@@ -53,6 +73,13 @@
 
 <script setup lang="ts">
 	const { open } = useAppModal()
+	const { data: settings } = await useSiteSettings()
+	const company = computed(() => settings.value?.company)
+
+	const address = computed(() => {
+		const { addressLine1, addressLine2, town, county, postcode } = company.value ?? {}
+		return [addressLine1, addressLine2, town, county, postcode].filter(Boolean).join(', ')
+	})
 
 	const year = new Date().getFullYear()
 </script>
@@ -107,27 +134,32 @@
 				}
 
 				a,
-				button {
+				button,
+				span {
 					align-items: center;
-					background: none;
-					border: none;
 					color: var(--text-muted);
-					cursor: pointer;
 					display: inline-flex;
-					font: inherit;
 					gap: $space-xs;
-					padding: 0;
 					text-align: left;
-					transition: color $transition-base;
-
-					&:hover {
-						color: var(--primary-text);
-					}
 
 					.icon {
 						flex-shrink: 0;
 						height: 16px;
 						width: 16px;
+					}
+				}
+
+				a,
+				button {
+					background: none;
+					border: none;
+					cursor: pointer;
+					font: inherit;
+					padding: 0;
+					transition: color $transition-base;
+
+					&:hover {
+						color: var(--primary-text);
 					}
 				}
 			}

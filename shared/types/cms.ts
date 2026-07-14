@@ -101,3 +101,24 @@ export interface MenuRecord {
 }
 
 export type MenuSummary = Omit<MenuRecord, 'items'>
+
+export interface CompanyInfo {
+	name?: string
+	email?: string
+	phone?: string
+	addressLine1?: string
+	addressLine2?: string
+	town?: string
+	county?: string
+	postcode?: string
+}
+
+export interface SiteSettings {
+	id: string
+	primary_color: string
+	secondary_color: string
+	accent_color: string
+	background_color: string
+	site_name: string
+	company: CompanyInfo | null
+}
