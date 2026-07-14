@@ -18,6 +18,7 @@
 			<thead>
 				<tr>
 					<th>Name</th>
+					<th>Nickname</th>
 					<th>Email</th>
 					<th>Role</th>
 					<th></th>
@@ -28,7 +29,8 @@
 					v-for="user in users"
 					:key="user.id"
 				>
-					<td>{{ user.name ?? '—' }}</td>
+					<td>{{ fullName(user) }}</td>
+					<td>{{ user.nickname ?? '—' }}</td>
 					<td>
 						{{ user.email }}
 						<span
@@ -77,10 +79,17 @@
 				class="invite-form"
 				@submit.prevent="invite"
 			>
-				<label for="invite-name">Name</label>
+				<label for="invite-first-name">First name</label>
 				<input
-					id="invite-name"
-					v-model="inviteName"
+					id="invite-first-name"
+					v-model="inviteFirstName"
+					type="text"
+				/>
+
+				<label for="invite-last-name">Last name</label>
+				<input
+					id="invite-last-name"
+					v-model="inviteLastName"
 					type="text"
 				/>
 
@@ -129,10 +138,15 @@
 	const { data: users, refresh } = await useFetch<AdminUser[]>('/api/admin/users')
 
 	const showInvite = ref(false)
-	const inviteName = ref('')
+	const inviteFirstName = ref('')
+	const inviteLastName = ref('')
 	const inviteEmail = ref('')
 	const inviting = ref(false)
 	const inviteError = ref('')
+
+	function fullName(user: AdminUser) {
+		return [user.first_name, user.last_name].filter(Boolean).join(' ') || '—'
+	}
 
 	async function invite() {
 		inviting.value = true
@@ -140,10 +154,15 @@
 		try {
 			await $fetch('/api/admin/users/invite', {
 				method: 'POST',
-				body: { email: inviteEmail.value, name: inviteName.value || undefined },
+				body: {
+					email: inviteEmail.value,
+					first_name: inviteFirstName.value || undefined,
+					last_name: inviteLastName.value || undefined,
+				},
 			})
 			showInvite.value = false
-			inviteName.value = ''
+			inviteFirstName.value = ''
+			inviteLastName.value = ''
 			inviteEmail.value = ''
 			await refresh()
 			toast.show('Invite sent.')

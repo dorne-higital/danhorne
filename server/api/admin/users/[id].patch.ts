@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 		.from('profiles')
 		.update({ role: body.role })
 		.eq('id', id)
-		.select('id, name, role')
+		.select('id, first_name, last_name, nickname, role')
 		.single()
 
 	if (error) {

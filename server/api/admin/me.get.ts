@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 	const supabase = useSupabase()
 	const { data: profile, error } = await supabase
 		.from('profiles')
-		.select('id, name, role')
+		.select('id, first_name, last_name, nickname, role')
 		.eq('id', user.sub)
 		.single()
 

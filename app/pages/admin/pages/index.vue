@@ -66,7 +66,7 @@
 					</td>
 					<td>
 						{{ page.updated_at ? new Date(page.updated_at).toLocaleString() : '—' }}
-						<template v-if="page.updater?.name">by {{ page.updater.name }}</template>
+						<template v-if="page.updater?.nickname">by {{ page.updater.nickname }}</template>
 					</td>
 					<td class="actions">
 						<button

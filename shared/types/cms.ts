@@ -49,7 +49,7 @@ export interface PageRecord {
 	updated_at?: string
 	updated_by?: string | null
 	// Embedded via the pages.updated_by -> profiles(id) foreign key.
-	updater?: { name: string | null } | null
+	updater?: { nickname: string | null } | null
 }
 
 export type PageSummary = Omit<PageRecord, 'blocks'>
@@ -58,14 +58,18 @@ export type UserRole = 'admin' | 'user'
 
 export interface UserProfile {
 	id: string
-	name: string | null
+	first_name: string | null
+	last_name: string | null
+	nickname: string | null
 	role: UserRole
 }
 
 export interface AdminUser {
 	id: string
 	email: string
-	name: string | null
+	first_name: string | null
+	last_name: string | null
+	nickname: string | null
 	role: UserRole
 	banned: boolean
 	createdAt: string

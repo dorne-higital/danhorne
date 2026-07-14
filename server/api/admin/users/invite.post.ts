@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
 	await requireAdminRole(event)
 
-	const body = await readBody<{ email?: string; name?: string }>(event)
+	const body = await readBody<{ email?: string; first_name?: string; last_name?: string }>(event)
 	if (!body?.email) {
 		throw createError({ statusCode: 400, statusMessage: 'email is required' })
 	}
@@ -9,7 +9,8 @@ export default defineEventHandler(async (event) => {
 	const origin = getRequestURL(event).origin
 	const supabase = useSupabase()
 	const { data, error } = await supabase.auth.admin.inviteUserByEmail(body.email, {
-		data: body.name ? { name: body.name } : undefined,
+		data:
+			body.first_name || body.last_name ? { first_name: body.first_name, last_name: body.last_name } : undefined,
 		redirectTo: `${origin}/admin/reset-password`,
 	})
 

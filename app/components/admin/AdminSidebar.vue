@@ -29,7 +29,7 @@
 		</nav>
 
 		<div class="account">
-			<span class="name">{{ me?.profile.name || me?.user.email }}</span>
+			<span class="name">{{ me?.profile.nickname || me?.user.email }}</span>
 			<div class="account-links">
 				<NuxtLink to="/admin/profile">Profile</NuxtLink>
 				<button

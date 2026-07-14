@@ -12,7 +12,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const supabase = useSupabase()
 	const { data, error } = await supabase
 		.from('pages')
-		.select('id, slug, title, blocks, seo, updated_at, updated_by, updater:profiles(name)')
+		.select('id, slug, title, blocks, seo, updated_at, updated_by, updater:profiles(nickname)')
 		.eq('slug', slug)
 		.maybeSingle()
 

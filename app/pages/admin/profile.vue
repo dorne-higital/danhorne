@@ -5,12 +5,27 @@
 		<div class="section-container">
 			<section class="panel">
 				<h2>Name</h2>
-				<p class="hint">Shown next to pages you've saved.</p>
+				<p class="hint">
+					Nickname is shown next to pages you've saved — defaults to your initials, but change it to whatever
+					you like.
+				</p>
 				<form @submit.prevent="saveName">
 					<input
-						v-model="name"
+						v-model="firstName"
 						type="text"
-						required
+						placeholder="First name"
+					/>
+					<input
+						v-model="lastName"
+						type="text"
+						placeholder="Last name"
+					/>
+					<input
+						v-model="nickname"
+						type="text"
+						placeholder="Nickname"
+						maxlength="20"
+						@input="nicknameTouched = true"
 					/>
 					<button
 						type="submit"
@@ -88,16 +103,37 @@
 	const toast = useToast()
 	const { data: me, refresh } = await useAdminProfile()
 
-	const name = ref(me.value?.profile.name ?? '')
+	const firstName = ref(me.value?.profile.first_name ?? '')
+	const lastName = ref(me.value?.profile.last_name ?? '')
+	const nickname = ref(me.value?.profile.nickname ?? '')
+	// Once the user has typed their own nickname, stop overwriting it —
+	// initials are just a starting suggestion, not a locked-in value.
+	const nicknameTouched = ref(!!me.value?.profile.nickname)
 	watch(me, (value) => {
-		if (value) name.value = value.profile.name ?? ''
+		if (!value) return
+		firstName.value = value.profile.first_name ?? ''
+		lastName.value = value.profile.last_name ?? ''
+		nickname.value = value.profile.nickname ?? ''
+		nicknameTouched.value = !!value.profile.nickname
+	})
+
+	watch([firstName, lastName], ([first, last]) => {
+		if (nicknameTouched.value) return
+		nickname.value = `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
 	})
 
 	const savingName = ref(false)
 	async function saveName() {
 		savingName.value = true
 		try {
-			await $fetch('/api/admin/profile', { method: 'PATCH', body: { name: name.value } })
+			await $fetch('/api/admin/profile', {
+				method: 'PATCH',
+				body: {
+					first_name: firstName.value || undefined,
+					last_name: lastName.value || undefined,
+					nickname: nickname.value || undefined,
+				},
+			})
 			await refresh()
 			toast.show('Saved.')
 		} catch (err: any) {

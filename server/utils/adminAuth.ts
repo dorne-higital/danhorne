@@ -14,7 +14,6 @@ export async function requireAdminSession(event: H3Event): Promise<JwtPayload> {
 
 export interface AdminProfile {
 	id: string
-	name: string | null
 	role: 'admin' | 'user'
 }
 
@@ -23,11 +22,7 @@ export async function requireAdminRole(event: H3Event): Promise<{ user: JwtPaylo
 	const user = await requireAdminSession(event)
 
 	const supabase = useSupabase()
-	const { data: profile, error } = await supabase
-		.from('profiles')
-		.select('id, name, role')
-		.eq('id', user.sub)
-		.single()
+	const { data: profile, error } = await supabase.from('profiles').select('id, role').eq('id', user.sub).single()
 
 	if (error || !profile) {
 		throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
