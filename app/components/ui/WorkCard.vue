@@ -10,10 +10,11 @@
 			class="media"
 			:class="`accent-${accent}`"
 		>
-			<img
+			<NuxtImg
 				v-if="image"
 				:src="image"
 				:alt="title"
+				loading="lazy"
 			/>
 			<span
 				v-else

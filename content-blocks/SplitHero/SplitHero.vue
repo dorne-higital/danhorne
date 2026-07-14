@@ -75,9 +75,10 @@
 					class="glow"
 					aria-hidden="true"
 				/>
-				<img
+				<NuxtImg
 					:src="image"
 					:alt="imageAlt"
+					loading="lazy"
 				/>
 			</div>
 		</div>

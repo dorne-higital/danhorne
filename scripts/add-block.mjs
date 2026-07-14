@@ -80,7 +80,9 @@ async function promptField(nested) {
 	const field = { name, label, type }
 
 	if (type === 'select') {
-		const raw = await ask(`${nested ? '  ' : ''}Options as label:value, comma-separated (e.g. Left:left,Center:center): `)
+		const raw = await ask(
+			`${nested ? '  ' : ''}Options as label:value, comma-separated (e.g. Left:left,Center:center): `,
+		)
 		field.options = raw
 			.split(',')
 			.map((pair) => pair.trim())
@@ -181,7 +183,9 @@ function defaultLiteral(field) {
 // the pattern already used by Hero/SplitHero/ImageGallery.
 function altCompanionNames(fields) {
 	const imageNames = new Set(fields.filter((f) => f.type === 'image').map((f) => f.name))
-	return new Set(fields.filter((f) => imageNames.has(f.name.replace(/Alt$/, '')) && f.name.endsWith('Alt')).map((f) => f.name))
+	return new Set(
+		fields.filter((f) => imageNames.has(f.name.replace(/Alt$/, '')) && f.name.endsWith('Alt')).map((f) => f.name),
+	)
 }
 
 function renderField(field, fields, accessor) {
@@ -225,9 +229,7 @@ function buildVue(name, kebab, fields) {
 		.filter(Boolean)
 	const skipped = fields.filter((f) => (f.type === 'select' || f.type === 'boolean') && !altCompanions.has(f.name))
 
-	const templateBody = rendered.length
-		? indentLines(rendered.join('\n\n'), 2)
-		: '\t\t<!-- add markup here -->'
+	const templateBody = rendered.length ? indentLines(rendered.join('\n\n'), 2) : '\t\t<!-- add markup here -->'
 
 	const skipComment = skipped.length
 		? `\n\t\t<!-- not auto-rendered — wire up manually: ${skipped.map((f) => f.name).join(', ')} -->`
@@ -307,12 +309,17 @@ async function main() {
 
 	try {
 		execFileSync('npx', ['prettier', '--write', `content-blocks/${name}`], { stdio: 'inherit' })
-		execFileSync('npx', ['stylelint', `content-blocks/${name}/**/*.vue`, '--fix'], { stdio: 'inherit', shell: true })
+		execFileSync('npx', ['stylelint', `content-blocks/${name}/**/*.vue`, '--fix'], {
+			stdio: 'inherit',
+			shell: true,
+		})
 	} catch {
 		console.log('\nFormatting/lint step hit an issue — run `yarn format` and `yarn lint:css:fix` manually.')
 	}
 
-	console.log(`\nDone. Edit content-blocks/${name}/${name}.vue to finish the markup/styles, then it'll show up in the block picker automatically.`)
+	console.log(
+		`\nDone. Edit content-blocks/${name}/${name}.vue to finish the markup/styles, then it'll show up in the block picker automatically.`,
+	)
 }
 
 main().catch((err) => {

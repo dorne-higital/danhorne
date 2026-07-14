@@ -47,10 +47,11 @@
 			class="image-field"
 		>
 			<div class="preview">
-				<img
+				<NuxtImg
 					v-if="stringValue"
 					:src="stringValue as string"
 					alt=""
+					loading="lazy"
 				/>
 				<span
 					v-else

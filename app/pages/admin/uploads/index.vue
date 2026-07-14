@@ -38,7 +38,7 @@
 				:key="upload.id"
 				class="upload-card"
 			>
-				<img
+				<NuxtImg
 					:src="upload.url"
 					:alt="upload.filename"
 					loading="lazy"

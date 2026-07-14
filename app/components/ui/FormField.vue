@@ -56,7 +56,7 @@
 			:placeholder="placeholder"
 			:required="required"
 			@blur="onBlur"
-		>
+		/>
 
 		<p
 			v-if="hint && !error"
@@ -219,7 +219,6 @@
 		}
 
 		&.invalid {
-
 			input,
 			select,
 			textarea {

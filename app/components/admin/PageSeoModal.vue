@@ -34,10 +34,11 @@
 
 			<label>Social image (og:image)</label>
 			<div class="og-image">
-				<img
+				<NuxtImg
 					v-if="ogImage"
 					:src="ogImage"
 					alt=""
+					loading="lazy"
 				/>
 				<span
 					v-else

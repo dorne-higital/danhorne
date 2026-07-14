@@ -43,7 +43,7 @@
 					class="thumb"
 					@click="choose(item.url)"
 				>
-					<img
+					<NuxtImg
 						:src="item.url"
 						:alt="item.filename"
 						loading="lazy"
