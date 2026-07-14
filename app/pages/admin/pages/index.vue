@@ -15,6 +15,14 @@
 			v-if="topLevelSorted.length"
 			class="page-list"
 		>
+			<colgroup>
+				<col style="width: 28%" />
+				<col style="width: 20%" />
+				<col style="width: 10%" />
+				<col style="width: 12%" />
+				<col style="width: 18%" />
+				<col style="width: 12%" />
+			</colgroup>
 			<thead>
 				<tr>
 					<th>Title</th>
@@ -57,7 +65,12 @@
 							</NuxtLink>
 						</div>
 					</td>
-					<td>{{ row.page.slug }}</td>
+					<td
+						class="slug-cell"
+						:title="row.page.slug"
+					>
+						{{ row.depth > 0 ? childSlugLabel(row.page.slug) : row.page.slug }}
+					</td>
 					<td class="seo-status">
 						<Icon
 							v-if="row.page.seo?.title"
@@ -327,6 +340,15 @@
 	// New page modal (a brand-new page can't be anyone's ancestor yet).
 	const parentOptions = computed(() => flattenPageTree(topLevelSorted.value, childrenByParent.value))
 
+	// Child slugs can get long (parent path + their own segment) — showing
+	// just the page's own segment with a "../" prefix keeps the column a
+	// stable width and still makes it obvious this is a nested page. The
+	// full slug is still available via the cell's title tooltip.
+	function childSlugLabel(slug: string): string {
+		const segments = slug.split('/').filter(Boolean)
+		return `../${segments[segments.length - 1]}`
+	}
+
 	watch(pageSize, () => {
 		currentPage.value = 1
 	})
@@ -450,6 +472,7 @@
 
 		.page-list {
 			border-collapse: collapse;
+			table-layout: fixed;
 			width: 100%;
 
 			tr {
@@ -458,8 +481,11 @@
 
 			th,
 			td {
+				overflow: hidden;
 				padding: $space-sm;
 				text-align: left;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 
 			th {
@@ -473,10 +499,22 @@
 				font-weight: $weight-semibold;
 			}
 
+			.slug-cell {
+				color: var(--text-muted);
+				font-size: $text-sm;
+			}
+
 			.title-cell {
 				align-items: center;
 				display: flex;
 				gap: $space-xs;
+				min-width: 0;
+
+				a {
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
 			}
 
 			.collapse-btn,

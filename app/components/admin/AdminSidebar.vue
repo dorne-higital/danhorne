@@ -83,7 +83,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: $space-lg;
+		max-height: 100dvh;
+		min-height: 100dvh;
 		padding: $space-lg $space-md;
+		position: fixed;
 		width: 220px;
 
 		.brand {
