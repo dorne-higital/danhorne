@@ -46,6 +46,7 @@ export interface PageRecord {
 	title: string
 	blocks: Block[]
 	seo?: PageSeo | null
+	parent_id?: string | null
 	updated_at?: string
 	updated_by?: string | null
 	// Embedded via the pages.updated_by -> profiles(id) foreign key.

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event): Promise<PageSummary[]> => {
 	const supabase = useSupabase()
 	const { data, error } = await supabase
 		.from('pages')
-		.select('id, slug, title, seo, updated_at, updated_by, updater:profiles(nickname)')
+		.select('id, slug, title, seo, parent_id, updated_at, updated_by, updater:profiles(nickname)')
 		.order('updated_at', { ascending: false })
 
 	if (error) {

@@ -110,7 +110,10 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus')
+	// Explicit key — see the comment in admin/index.vue's dashboard fetch for
+	// why: this same URL is also fetched (with its own distinct key) from
+	// the dashboard.
+	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-menus-list' })
 
 	const showCreate = ref(false)
 	const newName = ref('')

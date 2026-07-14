@@ -21,7 +21,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 
 	const { data: source, error: sourceError } = await supabase
 		.from('pages')
-		.select('blocks, seo')
+		.select('blocks, seo, parent_id')
 		.eq('slug', sourceSlug)
 		.maybeSingle()
 
@@ -44,6 +44,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 			title: body.title,
 			blocks: source.blocks,
 			seo: source.seo,
+			parent_id: source.parent_id,
 			updated_by: user.sub,
 		})
 		.select('*')

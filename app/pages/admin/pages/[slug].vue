@@ -29,6 +29,24 @@
 						id="page-slug"
 					/>
 				</div>
+				<div class="input-field">
+					<label for="page-parent">Parent page</label>
+					<select
+						id="page-parent"
+						v-model="parentId"
+						class="parent-input"
+						aria-label="Parent page"
+					>
+						<option value="">— Top level —</option>
+						<option
+							v-for="opt in parentOptions"
+							:key="opt.page.id"
+							:value="opt.page.id"
+						>
+							{{ '— '.repeat(opt.depth) }}{{ opt.page.title }}
+						</option>
+					</select>
+				</div>
 			</div>
 			<button
 				type="button"
@@ -70,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-	import type { PageRecord } from '#shared/types/cms'
+	import type { PageRecord, PageSummary } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
@@ -85,12 +103,27 @@
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
 	}
 
+	// Only needed to populate the "Parent page" dropdown — excludes this page
+	// (and, as a side effect of flattenPageTree never recursing into it, its
+	// whole subtree too) so it can't be set as its own ancestor. Explicit key
+	// — see the comment in admin/index.vue's dashboard fetch for why: this
+	// same URL is also fetched (with its own distinct key) from the
+	// dashboard and the pages list.
+	const { data: allPages } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-pages-editor-parent-options' })
+	const parentOptions = computed(() => {
+		const pages = allPages.value ?? []
+		const childrenByParent = groupPagesByParent(pages)
+		const topLevel = sortPageSiblings(childrenByParent.get(null) ?? [])
+		return flattenPageTree(topLevel, childrenByParent, { excludeId: page.value!.id })
+	})
+
 	const { blocks, selectedBlockId, selectedBlock, removeBlock, updateBlockProp, updateBlockDarkTheme, selectBlock } =
 		usePageBlocks(page.value.blocks)
 	const title = ref(page.value.title)
 	const originalSlug = page.value.slug
 	const slug = ref(page.value.slug)
 	const slugChanged = computed(() => slug.value !== originalSlug)
+	const parentId = ref(page.value.parent_id ?? '')
 
 	const saving = ref(false)
 	const toast = useToast()
@@ -99,6 +132,7 @@
 	watch(blocks, () => (dirty.value = true), { deep: true })
 	watch(title, () => (dirty.value = true))
 	watch(slug, () => (dirty.value = true))
+	watch(parentId, () => (dirty.value = true))
 	useUnsavedChanges(dirty)
 
 	async function save() {
@@ -106,7 +140,7 @@
 		try {
 			const updated = await $fetch<PageRecord>(`/api/pages/${encodedSlug}`, {
 				method: 'PUT',
-				body: { title: title.value, slug: slug.value, blocks: blocks.value },
+				body: { title: title.value, slug: slug.value, blocks: blocks.value, parent_id: parentId.value || null },
 			})
 			toast.show('Saved.')
 			dirty.value = false
@@ -162,7 +196,8 @@
 			}
 
 			.title-input,
-			.slug-input {
+			.slug-input,
+			.parent-input {
 				background: var(--surface);
 				border: 2px solid transparent;
 				border-radius: $radius-sm;
@@ -186,9 +221,14 @@
 				font-weight: $weight-bold;
 			}
 
-			.slug-input {
+			.slug-input,
+			.parent-input {
 				color: var(--text-muted);
 				font-size: $text-sm;
+			}
+
+			.parent-input {
+				max-width: 12rem;
 			}
 		}
 

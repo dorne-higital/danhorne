@@ -12,7 +12,7 @@
 		</header>
 
 		<table
-			v-if="sortedPages.length"
+			v-if="topLevelSorted.length"
 			class="page-list"
 		>
 			<thead>
@@ -27,18 +27,40 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="page in paginatedPages"
-					:key="page.id"
+					v-for="row in visibleRows"
+					:key="row.page.id"
 				>
 					<td>
-						<NuxtLink :to="`/admin/pages/${encodeURIComponent(page.slug)}`">
-							{{ page.title }}
-						</NuxtLink>
+						<div
+							class="title-cell"
+							:style="{ paddingLeft: `${row.depth * 1.5}rem` }"
+						>
+							<button
+								v-if="row.hasChildren"
+								type="button"
+								class="collapse-btn"
+								:aria-label="collapsedIds.has(row.page.id) ? 'Expand sub-pages' : 'Collapse sub-pages'"
+								@click="toggleCollapse(row.page.id)"
+							>
+								<Icon
+									:name="
+										collapsedIds.has(row.page.id) ? 'lucide:chevron-right' : 'lucide:chevron-down'
+									"
+								/>
+							</button>
+							<span
+								v-else
+								class="collapse-spacer"
+							/>
+							<NuxtLink :to="`/admin/pages/${encodeURIComponent(row.page.slug)}`">
+								{{ row.page.title }}
+							</NuxtLink>
+						</div>
 					</td>
-					<td>{{ page.slug }}</td>
+					<td>{{ row.page.slug }}</td>
 					<td class="seo-status">
 						<Icon
-							v-if="page.seo?.title"
+							v-if="row.page.seo?.title"
 							name="lucide:check"
 							class="ok"
 							aria-label="SEO title set"
@@ -52,7 +74,7 @@
 					</td>
 					<td class="seo-status">
 						<Icon
-							v-if="page.seo?.description"
+							v-if="row.page.seo?.description"
 							name="lucide:check"
 							class="ok"
 							aria-label="SEO description set"
@@ -65,21 +87,21 @@
 						/>
 					</td>
 					<td>
-						{{ page.updated_at ? new Date(page.updated_at).toLocaleString() : '—' }}
-						<template v-if="page.updater?.nickname">by {{ page.updater.nickname }}</template>
+						{{ row.page.updated_at ? new Date(row.page.updated_at).toLocaleString() : '—' }}
+						<template v-if="row.page.updater?.nickname">by {{ row.page.updater.nickname }}</template>
 					</td>
 					<td class="actions">
 						<button
 							type="button"
 							class="link-btn"
-							@click="openSeoModal(page)"
+							@click="openSeoModal(row.page)"
 						>
 							SEO
 						</button>
 						<button
 							type="button"
 							class="link-btn"
-							@click="openDuplicateModal(page)"
+							@click="openDuplicateModal(row.page)"
 						>
 							<Icon
 								name="lucide:copy"
@@ -90,7 +112,7 @@
 						<button
 							type="button"
 							class="link-btn danger"
-							@click="deletePage(page)"
+							@click="deletePage(row.page)"
 						>
 							<Icon
 								name="lucide:trash-2"
@@ -110,7 +132,7 @@
 		</p>
 
 		<div
-			v-if="sortedPages.length"
+			v-if="topLevelSorted.length"
 			class="pagination"
 		>
 			<label class="page-size">
@@ -215,6 +237,21 @@
 					required
 				/>
 
+				<label for="parent">Parent page</label>
+				<select
+					id="parent"
+					v-model="newParentId"
+				>
+					<option value="">— Top level —</option>
+					<option
+						v-for="opt in parentOptions"
+						:key="opt.page.id"
+						:value="opt.page.id"
+					>
+						{{ '— '.repeat(opt.depth) }}{{ opt.page.title }}
+					</option>
+				</select>
+
 				<label for="slug">Slug</label>
 				<input
 					id="slug"
@@ -222,6 +259,7 @@
 					type="text"
 					placeholder="/about"
 					required
+					@input="slugTouched = true"
 				/>
 
 				<p
@@ -249,28 +287,45 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	const { data: pages, refresh } = await useFetch<PageSummary[]>('/api/pages')
+	// Explicit key — see the comment in admin/index.vue's dashboard fetch for
+	// why: useFetch's auto-generated key is just the URL, and this same URL
+	// is also fetched from the dashboard and the page editor.
+	const { data: pages, refresh } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-pages-list' })
 
-	// Homepage pinned first, everything else alphabetical — independent of
-	// the API's own default order (updated_at desc, which the dashboard's
-	// "recently updated" list still needs, so this sort stays local to here).
-	const sortedPages = computed(() => {
-		return [...(pages.value ?? [])].sort((a, b) => {
-			if (a.slug === '/') return -1
-			if (b.slug === '/') return 1
-			return a.title.localeCompare(b.title)
-		})
-	})
+	// Pagination stays scoped to top-level pages only — a section with lots
+	// of children (e.g. Work with a dozen client pages) shouldn't shrink how
+	// many top-level sections fit on a page. Homepage pinned first, everything
+	// else alphabetical, same rule applied at every depth (sortPageSiblings).
+	const childrenByParent = computed(() => groupPagesByParent(pages.value ?? []))
+	const topLevelSorted = computed(() => sortPageSiblings(childrenByParent.value.get(null) ?? []))
 
 	const pageSize = ref(10)
 	const currentPage = ref(1)
 
-	const totalPages = computed(() => Math.max(1, Math.ceil(sortedPages.value.length / pageSize.value)))
+	const totalPages = computed(() => Math.max(1, Math.ceil(topLevelSorted.value.length / pageSize.value)))
 
-	const paginatedPages = computed(() => {
+	const paginatedTopLevel = computed(() => {
 		const start = (currentPage.value - 1) * pageSize.value
-		return sortedPages.value.slice(start, start + pageSize.value)
+		return topLevelSorted.value.slice(start, start + pageSize.value)
 	})
+
+	// Every visible top-level page's full descendant subtree, flattened
+	// depth-first for rendering — collapsed parents just stop their branch
+	// from expanding further, the row list otherwise stays flat.
+	const collapsedIds = ref(new Set<string>())
+	function toggleCollapse(id: string) {
+		const next = new Set(collapsedIds.value)
+		if (next.has(id)) next.delete(id)
+		else next.add(id)
+		collapsedIds.value = next
+	}
+	const visibleRows = computed(() =>
+		flattenPageTree(paginatedTopLevel.value, childrenByParent.value, { collapsedIds: collapsedIds.value }),
+	)
+
+	// Fully expanded, unfiltered — used for the "Parent page" picker in the
+	// New page modal (a brand-new page can't be anyone's ancestor yet).
+	const parentOptions = computed(() => flattenPageTree(topLevelSorted.value, childrenByParent.value))
 
 	watch(pageSize, () => {
 		currentPage.value = 1
@@ -282,9 +337,20 @@
 
 	const showCreate = ref(false)
 	const newTitle = ref('')
+	const newParentId = ref('')
 	const newSlug = ref('')
+	const slugTouched = ref(false)
 	const creating = ref(false)
 	const createError = ref('')
+
+	// Auto-nest the slug under the chosen parent, same "auto-derived but
+	// overridable" pattern as the nickname auto-fill in /admin/profile —
+	// stops the moment the user types their own slug.
+	watch(newParentId, (parentId) => {
+		if (slugTouched.value) return
+		const parent = pages.value?.find((p) => p.id === parentId)
+		newSlug.value = parent ? `${parent.slug}/` : ''
+	})
 
 	const showSeo = ref(false)
 	const seoPage = ref<PageSummary | null>(null)
@@ -338,11 +404,13 @@
 			const slug = newSlug.value.startsWith('/') ? newSlug.value : `/${newSlug.value}`
 			const page = await $fetch<PageRecord>('/api/pages', {
 				method: 'POST',
-				body: { id: slugToId(slug), slug, title: newTitle.value },
+				body: { id: slugToId(slug), slug, title: newTitle.value, parent_id: newParentId.value || null },
 			})
 			showCreate.value = false
 			newTitle.value = ''
+			newParentId.value = ''
 			newSlug.value = ''
+			slugTouched.value = false
 			await refresh()
 			await navigateTo(`/admin/pages/${encodeURIComponent(page.slug)}`)
 		} catch (err: any) {
@@ -353,7 +421,11 @@
 	}
 
 	async function deletePage(page: PageSummary) {
-		if (!confirm(`Delete "${page.title}"? This can't be undone.`)) return
+		const childCount = childrenByParent.value.get(page.id)?.length ?? 0
+		const warning = childCount
+			? ` ${childCount} sub-page${childCount > 1 ? 's' : ''} will become top-level pages.`
+			: ''
+		if (!confirm(`Delete "${page.title}"? This can't be undone.${warning}`)) return
 		await $fetch(`/api/pages/${encodeURIComponent(page.slug)}`, { method: 'DELETE' })
 		await refresh()
 	}
@@ -399,6 +471,31 @@
 			a {
 				color: var(--link);
 				font-weight: $weight-semibold;
+			}
+
+			.title-cell {
+				align-items: center;
+				display: flex;
+				gap: $space-xs;
+			}
+
+			.collapse-btn,
+			.collapse-spacer {
+				flex-shrink: 0;
+				width: 1.25rem;
+			}
+
+			.collapse-btn {
+				background: none;
+				border: none;
+				color: var(--text-muted);
+				cursor: pointer;
+				display: flex;
+				padding: 0;
+
+				&:hover {
+					color: var(--text);
+				}
 			}
 
 			.seo-status {
@@ -493,7 +590,8 @@
 			font-weight: $weight-semibold;
 		}
 
-		input {
+		input,
+		select {
 			background: var(--bg);
 			border: 2px solid var(--text);
 			border-radius: $radius-sm;

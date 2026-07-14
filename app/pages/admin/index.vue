@@ -56,9 +56,16 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	const { data: pages } = await useFetch<PageSummary[]>('/api/pages')
-	const { data: uploads } = await useFetch<UploadRecord[]>('/api/uploads')
-	const { data: menus } = await useFetch<MenuSummary[]>('/api/menus')
+	// Explicit keys, distinct from other pages/components fetching the same
+	// URLs — useFetch auto-generates its cache key purely from the URL when
+	// none is given, so identical URLs across different page components
+	// collide on the same key. That collision could leave a later page's
+	// blocking top-level `await useFetch(...)` stuck on a promise tied to a
+	// previous, already-unmounted component, hanging the navigation until a
+	// hard refresh.
+	const { data: pages } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-dashboard-pages' })
+	const { data: uploads } = await useFetch<UploadRecord[]>('/api/uploads', { key: 'admin-dashboard-uploads' })
+	const { data: menus } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-dashboard-menus' })
 
 	const recentPages = computed(() => (pages.value ?? []).slice(0, 5))
 </script>
