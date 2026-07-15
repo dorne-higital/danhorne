@@ -204,7 +204,7 @@
 
 			.panel {
 				background: var(--surface);
-				border: 2px solid var(--border);
+				border: 1px solid var(--border);
 				border-radius: $radius-md;
 				max-width: 28rem;
 				min-width: calc(50% - 1rem);
@@ -230,7 +230,7 @@
 
 				input {
 					background: var(--bg);
-					border: 2px solid var(--text);
+					border: 1px solid var(--text);
 					border-radius: $radius-sm;
 					font-size: $text-base;
 					padding: $space-sm;

@@ -167,7 +167,7 @@
 		}
 
 		.block-wrapper {
-			border: 2px solid var(--border);
+			border: 1px solid var(--border);
 			border-radius: $radius-md;
 			cursor: pointer;
 			position: relative;
@@ -207,7 +207,7 @@
 		.insert-btn {
 			align-items: center;
 			background: var(--secondary);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-full;
 			color: var(--surface);
 			cursor: pointer;

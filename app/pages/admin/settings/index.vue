@@ -256,7 +256,7 @@
 
 		.panel {
 			background: var(--surface);
-			border: 2px solid var(--border);
+			border: 1px solid var(--border);
 			border-radius: $radius-md;
 			max-width: 28rem;
 			padding: $space-lg;
@@ -286,7 +286,7 @@
 			input[type='text'],
 			input[type='email'] {
 				background: var(--bg);
-				border: 2px solid var(--text);
+				border: 1px solid var(--text);
 				border-radius: $radius-sm;
 				font-size: $text-base;
 				padding: $space-sm;
@@ -328,7 +328,7 @@
 
 				input[type='color'] {
 					background: none;
-					border: 2px solid var(--text);
+					border: 1px solid var(--text);
 					border-radius: $radius-sm;
 					cursor: pointer;
 					height: 2.25rem;

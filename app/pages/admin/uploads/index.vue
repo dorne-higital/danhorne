@@ -143,7 +143,7 @@
 
 		.upload-card {
 			background: var(--surface);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-md;
 			overflow: hidden;
 
@@ -175,7 +175,7 @@
 			}
 
 			.card-actions {
-				border-top: 2px solid var(--border);
+				border-top: 1px solid var(--border);
 				display: flex;
 
 				.link-btn {
@@ -193,7 +193,7 @@
 					}
 
 					&.danger {
-						border-left: 2px solid var(--border);
+						border-left: 1px solid var(--border);
 						color: var(--error);
 					}
 				}

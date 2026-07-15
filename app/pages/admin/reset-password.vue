@@ -85,7 +85,7 @@
 
 		.panel {
 			background: var(--surface);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-md;
 			display: flex;
 			flex-direction: column;
@@ -113,7 +113,7 @@
 
 		input {
 			background: var(--bg);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-size: $text-base;
 			padding: $space-sm;

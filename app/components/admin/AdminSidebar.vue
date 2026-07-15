@@ -88,7 +88,7 @@
 <style lang="scss" scoped>
 	.admin-sidebar {
 		background: var(--surface);
-		border-right: 2px solid var(--border);
+		border-right: 1px solid var(--border);
 		display: flex;
 		flex-direction: column;
 		gap: $space-lg;
@@ -113,6 +113,7 @@
 
 		.nav-item {
 			align-items: center;
+			border-left: 2px solid transparent;
 			border-radius: $radius-sm;
 			color: var(--text-secondary);
 			display: flex;
@@ -127,12 +128,13 @@
 
 			&.active {
 				background: var(--surface-muted);
+				border-left-color: var(--primary);
 				color: var(--text);
 			}
 		}
 
 		.account {
-			border-top: 2px solid var(--border);
+			border-top: 1px solid var(--border);
 			display: flex;
 			flex-direction: column;
 			gap: $space-xs;

@@ -22,11 +22,21 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 ## Maybe later
 
 - [ ] Auto-listing "Child Pages" content block — drag onto a parent page (e.g. Work), automatically lists/links every child page instead of maintaining links by hand.
+- [ ] Extend the activity log to menus/users/uploads/settings — same mechanism as pages (`server/utils/activityLog.ts`), just needs a `logActivity()` call added to each of their ~9 remaining mutating endpoints.
 
 ---
 
 ## Done
 
+- [x] Two more dashboard nudges: empty pages (zero content blocks) and broken menu links (pointing at a since-deleted/renamed page slug)
+- [x] Dashboard quick actions row — "New page" / "New menu" (pill links that deep-link straight into the existing New modal, already open, via `?new=1`) / "Upload" (lands on the page, file picker can't be auto-triggered without a direct user gesture)
+- [x] Users stat card on the dashboard (admin-only, counts active/non-banned users)
+- [x] Dashboard "Needs attention" nudges — no homepage (`/`) page, no menu with key `main`, plus a rollup count of pages missing SEO title/description
+- [x] Real activity log for pages (create/edit/delete/duplicate) — dashboard's "Recently updated" replaced with "Recent activity", shows what actually happened (`activity_log` table + `server/utils/activityLog.ts`), not just a bare timestamp
+- [x] Admin CMS visual overhaul — "Minimal Neutral" theme distinct from the public site (near-white bg, indigo accent, soft shadows, thin 1px borders, plain sans-serif headings). Scoped entirely to `.admin-layout` via CSS custom property overrides in `app/assets/scss/base/_admin-theme.scss` — didn't touch the public site's look at all
+- [x] Fixed the editor→pages-list navigation freeze for real — `AdminSidebar.vue` had a blocking `await` and lives in the *layout* (not a page), so it wasn't covered by Nuxt's page-transition Suspense boundary; made it non-blocking
+- [x] `<NuxtLoadingIndicator>` added — visual feedback on every admin navigation, since some of it involves real blocking work (auth check + data fetch)
+- [x] Fixed the admin sidebar actually overlapping content — `.admin-sidebar` is `position: fixed` (deliberate), which needs a matching `margin-left` on `.admin-main` that wasn't there
 - [x] `useFetch` key collisions fixed on `/api/admin/me`, `/api/uploads`, and `/api/settings` — turned out `/api/admin/me` was the actual cause of a recurring "pages editor → back to pages list stays frozen until refresh" bug (the admin sidebar mounts for the first time on that exact transition, which is what triggered it)
 - [x] RLS enabled on `pages`/`uploads`/`menus`/`site_settings` (`supabase/migrations/0010_enable_rls.sql`)
 - [x] Removed old static `/work` pages + data, migrating that content into the CMS instead

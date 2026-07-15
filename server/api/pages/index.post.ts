@@ -1,7 +1,7 @@
 import type { PageRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<PageRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const body = await readBody<{ id?: string; slug?: string; title?: string; parent_id?: string | null }>(event)
 	if (!body?.id || !body?.slug || !body?.title) {
@@ -18,6 +18,14 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	await logActivity({
+		entityType: 'page',
+		entityId: data.id,
+		action: 'created',
+		summary: `Created page "${data.title}"`,
+		actorId: user.sub,
+	})
 
 	return data as PageRecord
 })

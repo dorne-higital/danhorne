@@ -129,7 +129,7 @@
 
 		.toolbar {
 			background: var(--surface-muted);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-bottom: none;
 			border-radius: $radius-sm $radius-sm 0 0;
 			display: flex;
@@ -166,7 +166,7 @@
 			// stylelint-disable-next-line selector-class-pattern -- fixed class name from Tiptap/ProseMirror, not ours to rename
 			:deep(.ProseMirror) {
 				background: var(--surface);
-				border: 2px solid var(--text);
+				border: 1px solid var(--text);
 				border-radius: 0 0 $radius-sm $radius-sm;
 				font-family: $font-sans;
 				font-size: $text-base;
@@ -204,7 +204,7 @@
 
 	.fallback {
 		background: var(--surface);
-		border: 2px solid var(--text);
+		border: 1px solid var(--text);
 		border-radius: $radius-sm;
 		font-family: $font-sans;
 		font-size: $text-base;

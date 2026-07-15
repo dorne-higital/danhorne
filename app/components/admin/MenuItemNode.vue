@@ -47,7 +47,12 @@
 						class="link-btn danger"
 						@click="removeItem(element)"
 					>
-						Remove
+						<Icon
+							name="lucide:trash-2"
+							class="ok"
+							aria-label="Delete menu item"
+							@click="removeItem(element)"
+						/>
 					</button>
 				</div>
 
@@ -94,7 +99,7 @@
 
 		&.depth-1,
 		&.depth-2 {
-			border-left: 2px solid var(--border);
+			border-left: 1px solid var(--border);
 			margin-top: $space-xs;
 			padding-left: $space-lg;
 		}
@@ -138,7 +143,7 @@
 
 		input[type='text'] {
 			background: var(--surface);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-size: $text-sm;
 			padding: $space-xs $space-sm;

@@ -61,7 +61,7 @@
 
 		.page-option {
 			background: var(--surface);
-			border: 2px solid var(--border);
+			border: 1px solid var(--border);
 			border-radius: $radius-sm;
 			cursor: pointer;
 			display: flex;

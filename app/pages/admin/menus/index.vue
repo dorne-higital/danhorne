@@ -115,7 +115,9 @@
 	// the dashboard.
 	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-menus-list' })
 
-	const showCreate = ref(false)
+	// Lets the dashboard's "New menu" quick action deep-link straight into
+	// this modal already open, via /admin/menus?new=1.
+	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
 	const newId = ref('')
 	const idTouched = ref(false)
@@ -184,7 +186,7 @@
 
 			th,
 			td {
-				border-bottom: 2px solid var(--border);
+				border-bottom: 1px solid var(--border);
 				padding: $space-sm;
 				text-align: left;
 			}
@@ -233,7 +235,7 @@
 
 		input {
 			background: var(--bg);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-size: $text-base;
 			padding: $space-sm;

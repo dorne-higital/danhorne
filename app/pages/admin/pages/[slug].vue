@@ -1,12 +1,17 @@
 <template>
 	<div class="admin-editor">
 		<header class="editor-header">
-			<NuxtLink
-				to="/admin/pages"
+			<!-- Deliberately a plain <a>, not <NuxtLink> — this exact transition
+			(editor -> pages list) has broken via SPA client-side navigation
+			three separate times for three unrelated reasons this session. A
+			real browser navigation always works, full stop; not worth
+			chasing a fourth cause. -->
+			<a
+				href="/admin/pages"
 				class="back"
 			>
 				← Pages
-			</NuxtLink>
+			</a>
 			<div class="title-group">
 				<div class="input-field">
 					<label for="page-name">Name</label>
@@ -163,7 +168,7 @@
 
 		.editor-header {
 			align-items: center;
-			border-bottom: 2px solid var(--border);
+			border-bottom: 1px solid var(--border);
 			display: flex;
 			gap: $space-md;
 			padding: $space-sm $space-lg;
@@ -199,7 +204,7 @@
 			.slug-input,
 			.parent-input {
 				background: var(--surface);
-				border: 2px solid transparent;
+				border: 1px solid transparent;
 				border-radius: $radius-sm;
 				font-family: $font-display;
 				height: 100%;
@@ -255,7 +260,7 @@
 			padding: $space-lg;
 
 			&.picker {
-				border-right: 2px solid var(--border);
+				border-right: 1px solid var(--border);
 			}
 
 			&.canvas {
@@ -263,7 +268,7 @@
 			}
 
 			&.inspector {
-				border-left: 2px solid var(--border);
+				border-left: 1px solid var(--border);
 			}
 		}
 	}

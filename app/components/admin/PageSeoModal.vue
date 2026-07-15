@@ -160,7 +160,7 @@
 		input,
 		textarea {
 			background: var(--bg);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-family: $font-sans;
 			font-size: $text-base;
@@ -176,7 +176,7 @@
 			align-items: center;
 			aspect-ratio: 1200 / 630;
 			background: var(--bg-alt);
-			border: 2px solid var(--border);
+			border: 1px solid var(--border);
 			border-radius: $radius-sm;
 			display: flex;
 			justify-content: center;

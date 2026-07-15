@@ -239,7 +239,7 @@
 		input,
 		select {
 			background: var(--surface);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			color: var(--text);
 			font-family: $font-sans;
@@ -273,7 +273,7 @@
 				align-items: center;
 				aspect-ratio: 16 / 9;
 				background: var(--bg-alt);
-				border: 2px solid var(--border);
+				border: 1px solid var(--border);
 				border-radius: $radius-sm;
 				display: flex;
 				justify-content: center;
@@ -318,7 +318,7 @@
 			}
 
 			.repeater-item {
-				border: 2px solid var(--border);
+				border: 1px solid var(--border);
 				border-radius: $radius-sm;
 				display: flex;
 				flex-direction: column;

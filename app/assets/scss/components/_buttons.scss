@@ -36,6 +36,7 @@
 	&.primary {
 		background: var(--primary);
 		color: var(--surface);
+		width: fit-content;
 	}
 
 	&.outline {

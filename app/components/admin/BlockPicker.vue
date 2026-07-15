@@ -120,7 +120,7 @@
 
 		.block-type {
 			background: var(--surface);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			cursor: grab;
 			font-size: $text-sm;

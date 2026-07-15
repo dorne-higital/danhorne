@@ -357,7 +357,9 @@
 		if (currentPage.value > total) currentPage.value = total
 	})
 
-	const showCreate = ref(false)
+	// Lets the dashboard's "New page" quick action deep-link straight into
+	// this modal already open, via /admin/pages?new=1.
+	const showCreate = ref(useRoute().query.new !== undefined)
 	const newTitle = ref('')
 	const newParentId = ref('')
 	const newSlug = ref('')
@@ -476,7 +478,7 @@
 			width: 100%;
 
 			tr {
-				border-bottom: 2px solid var(--border);
+				border-bottom: 1px solid var(--border);
 			}
 
 			th,
@@ -585,7 +587,7 @@
 
 			select {
 				background: var(--surface);
-				border: 2px solid var(--text);
+				border: 1px solid var(--text);
 				border-radius: $radius-sm;
 				font-size: $text-sm;
 				padding: $space-xs $space-sm;
@@ -631,7 +633,7 @@
 		input,
 		select {
 			background: var(--bg);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-size: $text-base;
 			padding: $space-sm;

@@ -57,5 +57,13 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
 
+	await logActivity({
+		entityType: 'page',
+		entityId: data.id,
+		action: 'created',
+		summary: `Duplicated "${sourceSlug}" as "${data.title}"`,
+		actorId: user.sub,
+	})
+
 	return data as PageRecord
 })

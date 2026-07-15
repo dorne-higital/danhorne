@@ -216,7 +216,7 @@
 			width: 100%;
 
 			tr {
-				border-bottom: 2px solid var(--border);
+				border-bottom: 1px solid var(--border);
 			}
 
 			th,
@@ -233,7 +233,7 @@
 
 			select {
 				background: var(--surface);
-				border: 2px solid var(--text);
+				border: 1px solid var(--text);
 				border-radius: $radius-sm;
 				font-size: $text-sm;
 				padding: $space-xs $space-sm;
@@ -285,7 +285,7 @@
 
 		input {
 			background: var(--bg);
-			border: 2px solid var(--text);
+			border: 1px solid var(--text);
 			border-radius: $radius-sm;
 			font-size: $text-base;
 			padding: $space-sm;

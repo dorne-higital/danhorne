@@ -53,7 +53,10 @@ export interface PageRecord {
 	updater?: { nickname: string | null } | null
 }
 
-export type PageSummary = Omit<PageRecord, 'blocks'>
+// blocks_count instead of the full blocks array — keeps the list endpoint's
+// payload light (used by the pages list, dashboard, and every page picker)
+// while still letting the dashboard flag pages with zero content blocks.
+export type PageSummary = Omit<PageRecord, 'blocks'> & { blocks_count: number }
 
 export type UserRole = 'admin' | 'user'
 
@@ -102,6 +105,20 @@ export interface MenuRecord {
 }
 
 export type MenuSummary = Omit<MenuRecord, 'items'>
+
+export type ActivityAction = 'created' | 'updated' | 'deleted'
+
+export interface ActivityLogEntry {
+	id: string
+	entity_type: string
+	entity_id: string
+	action: ActivityAction
+	summary: string
+	actor_id: string | null
+	created_at: string
+	// Embedded via the activity_log.actor_id -> profiles(id) foreign key.
+	actor?: { nickname: string | null } | null
+}
 
 export interface CompanyInfo {
 	name?: string

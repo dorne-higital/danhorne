@@ -112,7 +112,7 @@
 					}
 
 					.author-role {
-						font-size: 0.84375rem;
+						font-size: 0.85rem;
 						margin-top: 2px;
 						opacity: 0.8;
 					}
