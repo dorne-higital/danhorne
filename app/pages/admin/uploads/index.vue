@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-uploads sw">
+	<div class="admin-uploads">
 		<header class="page-header">
 			<h1>Uploads</h1>
 			<div class="actions">

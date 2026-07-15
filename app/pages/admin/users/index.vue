@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-users sw">
+	<div class="admin-users">
 		<header class="page-header">
 			<h1>Users</h1>
 			<button

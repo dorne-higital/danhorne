@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-menus sw">
+	<div class="admin-menus">
 		<header class="page-header">
 			<h1>Menus</h1>
 			<button

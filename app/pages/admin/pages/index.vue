@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-pages sw">
+	<div class="admin-pages">
 		<header class="page-header">
 			<h1>Pages</h1>
 			<button

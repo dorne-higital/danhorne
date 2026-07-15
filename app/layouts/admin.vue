@@ -29,6 +29,11 @@
 		.admin-main {
 			flex: 1;
 			min-width: 0;
+			padding-inline: $space-xl;
+		}
+
+		.admin-sidebar + .admin-main {
+			margin-left: 220px;
 		}
 	}
 </style>

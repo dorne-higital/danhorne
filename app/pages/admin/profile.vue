@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-profile sw">
+	<div class="admin-profile">
 		<h1>Profile</h1>
 
 		<div class="section-container">

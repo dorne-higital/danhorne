@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-settings sw">
+	<div class="admin-settings">
 		<h1>Settings</h1>
 
 		<section class="panel wide">

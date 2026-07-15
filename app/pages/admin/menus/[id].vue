@@ -1,5 +1,5 @@
 <template>
-	<div class="admin-menu-editor sw">
+	<div class="admin-menu-editor">
 		<header class="editor-header">
 			<NuxtLink
 				to="/admin/menus"
