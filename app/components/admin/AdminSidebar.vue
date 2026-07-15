@@ -53,7 +53,16 @@
 </template>
 
 <script setup lang="ts">
-	const { data: me } = await useAdminProfile()
+	// Deliberately not awaited — this component lives in the admin *layout*,
+	// not a page, so it isn't covered by Nuxt's automatic page-transition
+	// Suspense boundary. It's also v-if'd on/off based on route (hidden on
+	// the block editor), so it has to mount fresh on some navigations. An
+	// awaited fetch here has no Suspense to manage it gracefully and can
+	// stall the whole layout re-render until it resolves — i.e. the "editor
+	// → back to pages list freezes until refresh" bug. `me` starts
+	// undefined and updates reactively once the fetch resolves; every usage
+	// below already handles that via optional chaining.
+	const { data: me } = useAdminProfile()
 
 	const navItems = computed(() => {
 		const items = [
