@@ -78,16 +78,16 @@
 
 <style lang="scss" scoped>
 	.work-card {
-		background: var(--surface);
+		background: var(--bg-secondary);
 		border: 2px solid var(--border);
-		border-radius: $radius-md;
-		color: var(--text);
+		border-radius: var(--border-radius-md);
+		color: var(--text-primary);
 		display: block;
 		overflow: hidden;
 		text-decoration: none;
 		transition:
-			filter $transition-base,
-			transform $transition-spring;
+			filter var(--transition-base),
+			transform var(--transition-spring);
 
 		&:hover {
 			.arrow {
@@ -97,7 +97,7 @@
 
 		&:active {
 			filter: none;
-			transform: translate($shadow-offset, $shadow-offset);
+			transform: translate(var(--shadow-offset), var(--shadow-offset));
 		}
 
 		.media {
@@ -114,42 +114,42 @@
 			}
 
 			.mono {
-				font-family: $font-display;
-				font-size: $text-3xl;
-				font-weight: $weight-bold;
+				font-family: var(--heading-font-family);
+				font-size: var(--h1-size);
+				font-weight: var(--heading-font-weight);
 			}
 
 			.tag {
-				background: var(--surface);
+				background: var(--bg-secondary);
 				border: 2px solid var(--border);
-				border-radius: $radius-full;
-				color: var(--text);
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
-				left: $space-sm;
+				border-radius: var(--border-radius-pill);
+				color: var(--text-primary);
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+				left: var(--padding-sm);
 				padding: 0.25rem 0.5rem;
 				position: absolute;
-				top: $space-sm;
+				top: var(--padding-sm);
 			}
 
 			&.accent-1 {
-				background: var(--primary);
-				color: var(--text);
+				background: var(--brand-primary);
+				color: var(--text-primary);
 			}
 
 			&.accent-2 {
-				background: var(--secondary);
-				color: var(--text);
+				background: var(--brand-secondary);
+				color: var(--text-primary);
 			}
 
 			&.accent-3 {
-				background: color-mix(in srgb, var(--primary) 25%, var(--surface) 75%);
-				color: var(--text);
+				background: color-mix(in srgb, var(--brand-primary) 25%, var(--bg-secondary) 75%);
+				color: var(--text-primary);
 			}
 
 			&.accent-4 {
-				background: color-mix(in srgb, var(--secondary) 25%, var(--surface) 75%);
-				color: var(--text);
+				background: color-mix(in srgb, var(--brand-secondary) 25%, var(--bg-secondary) 75%);
+				color: var(--text-primary);
 			}
 		}
 
@@ -157,26 +157,26 @@
 			align-items: flex-end;
 			border-top: 2px solid var(--border);
 			display: flex;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 			justify-content: space-between;
-			padding: $space-md;
+			padding: var(--padding-md);
 
 			.title {
-				font-family: $font-display;
-				font-size: $text-lg;
-				font-weight: $weight-bold;
+				font-family: var(--heading-font-family);
+				font-size: 1.25rem;
+				font-weight: var(--heading-font-weight);
 			}
 
 			.subtitle {
-				font-size: $text-sm;
-				margin-top: $space-xs;
+				font-size: var(--eyebrow-size);
+				margin-top: var(--padding-xs);
 			}
 
 			.arrow {
 				color: var(--text-secondary);
 				flex-shrink: 0;
 				height: 20px;
-				transition: transform $transition-base;
+				transition: transform var(--transition-base);
 				width: 20px;
 			}
 		}

@@ -1,27 +1,3 @@
-export interface ContactPayload {
-	firstName: string
-	lastName: string
-	email: string
-	phone: string
-	subject: string
-	budget: string
-	message: string
-}
-
-// Mirrors the option lists in app/components/ContactForm.vue
-const SUBJECT_LABELS: Record<string, string> = {
-	general: 'General enquiry',
-	project: 'New project',
-	other: 'Something else',
-	'quote-request': 'Quote request',
-}
-
-const BUDGET_LABELS: Record<string, string> = {
-	'under-2k': 'Under £2k',
-	'2k-5k': '£2k – £5k',
-	'5k-plus': '£5k+',
-}
-
 export function escapeHtml(value: string): string {
 	return value
 		.replace(/&/g, '&amp;')
@@ -39,22 +15,17 @@ function row(label: string, value: string): string {
 			<td class="label" style="padding: 6px 0; color: #457b9d; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; width: 120px; vertical-align: top;">
 				${escapeHtml(label)}
 			</td>
-			<td class="text-ink" style="padding: 6px 0; color: #1d3557; font-size: 15px; vertical-align: top;">
+			<td class="text-ink" style="padding: 6px 0; color: #1d3557; font-size: 15px; vertical-align: top; white-space: pre-wrap;">
 				${escapeHtml(value)}
 			</td>
 		</tr>
 	`
 }
 
-export function getSubjectLabel(subjectValue: string): string {
-	return SUBJECT_LABELS[subjectValue] ?? subjectValue
-}
-
-export function buildContactEmailHtml(payload: ContactPayload): string {
-	const name = `${payload.firstName} ${payload.lastName}`.trim()
-	const subjectLabel = getSubjectLabel(payload.subject)
-	const budgetLabel = payload.budget ? (BUDGET_LABELS[payload.budget] ?? payload.budget) : ''
-
+// Generic form-submission email — same branded template every form's
+// notification uses, parameterized over the form's own name and whatever
+// label/value rows its fields produced (see server/api/forms/[id]/submit.post.ts).
+export function buildFormEmailHtml(formName: string, rows: { label: string; value: string }[]): string {
 	return `
 		<!DOCTYPE html>
 		<html>
@@ -102,28 +73,19 @@ export function buildContactEmailHtml(payload: ContactPayload): string {
 				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
 					<tr>
 						<td class="header" style="background: #e63946; border: 2px solid #1d3557; border-radius: 12px 12px 0 0; padding: 20px 24px;">
-							<span class="header-text" style="color: #ffffff; font-size: 18px; font-weight: 700;">New enquiry!</span>
+							<span class="header-text" style="color: #ffffff; font-size: 18px; font-weight: 700;">New submission — ${escapeHtml(formName)}</span>
 						</td>
 					</tr>
 					<tr>
 						<td class="card" style="background: #ffffff; border: 2px solid #1d3557; border-top: none; padding: 24px;">
 							<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-								${row('Name', name)}
-								${row('Email', payload.email)}
-								${row('Phone', payload.phone)}
-								${row('Subject', subjectLabel)}
-								${row('Budget', budgetLabel)}
+								${rows.map((r) => row(r.label, r.value)).join('')}
 							</table>
-
-							<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(29, 53, 87, 0.14);">
-								<p class="label" style="margin: 0 0 8px; color: #457b9d; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Message</p>
-								<p class="text-ink" style="margin: 0; color: #1d3557; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${escapeHtml(payload.message)}</p>
-							</div>
 						</td>
 					</tr>
 					<tr>
 						<td class="email-bg" style="padding: 16px 24px; text-align: center;">
-							<span class="footer-text" style="color: rgba(29, 53, 87, 0.6); font-size: 12px;">Sent from the contact form at danhorne.co.uk</span>
+							<span class="footer-text" style="color: rgba(29, 53, 87, 0.6); font-size: 12px;">Sent from your website's "${escapeHtml(formName)}" form</span>
 						</td>
 					</tr>
 				</table>

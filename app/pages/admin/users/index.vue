@@ -129,8 +129,6 @@
 	const toast = useToast()
 	const { data: me } = await useAdminProfile()
 
-	// Belt-and-braces alongside the hidden sidebar nav item and the server's
-	// own 403 — a non-admin landing here directly gets bounced to the dashboard.
 	if (me.value?.profile.role !== 'admin') {
 		await navigateTo('/admin')
 	}
@@ -196,19 +194,19 @@
 
 <style lang="scss" scoped>
 	.admin-users {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.page-header {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			margin-bottom: $space-lg;
+			margin-bottom: var(--padding-lg);
 		}
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.user-list {
@@ -221,37 +219,37 @@
 
 			th,
 			td {
-				padding: $space-sm;
+				padding: var(--padding-sm);
 				text-align: left;
 			}
 
 			th {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 				text-transform: uppercase;
 			}
 
 			select {
-				background: var(--surface);
-				border: 1px solid var(--text);
-				border-radius: $radius-sm;
-				font-size: $text-sm;
-				padding: $space-xs $space-sm;
+				background: var(--bg-secondary);
+				border: 1px solid var(--text-primary);
+				border-radius: var(--border-radius-sm);
+				font-size: var(--eyebrow-size);
+				padding: var(--padding-xs) var(--padding-sm);
 			}
 
 			.badge {
 				background: var(--error-bg);
-				border-radius: $radius-full;
+				border-radius: var(--border-radius-pill);
 				color: var(--error);
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
-				margin-left: $space-xs;
-				padding: 2px $space-xs;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+				margin-left: var(--padding-xs);
+				padding: 2px var(--padding-xs);
 			}
 
 			.actions {
 				display: flex;
-				gap: $space-md;
+				gap: var(--padding-md);
 			}
 
 			.link-btn {
@@ -259,8 +257,8 @@
 				border: none;
 				color: var(--link);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 
 				&.danger {
 					color: var(--error);
@@ -269,32 +267,32 @@
 		}
 
 		.empty {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 		}
 	}
 
 	.invite-form {
 		display: flex;
 		flex-direction: column;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 
 		label {
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		input {
-			background: var(--bg);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-size: $text-base;
-			padding: $space-sm;
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 	}
 </style>

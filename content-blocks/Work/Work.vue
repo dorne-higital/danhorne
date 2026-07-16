@@ -127,32 +127,32 @@
 
 <style lang="scss" scoped>
 	.cb-work {
-		background: var(--bg);
-		padding-block: $space-3xl;
+		background: var(--bg-primary);
+		padding-block: calc(var(--padding-xl) * 2);
 
 		.head {
 			align-items: flex-end;
 			display: flex;
 			flex-wrap: wrap;
-			gap: $space-lg;
+			gap: var(--padding-lg);
 			justify-content: space-between;
-			margin-bottom: $space-xl;
+			margin-bottom: var(--padding-xl);
 
 			.eyebrow {
-				margin-bottom: $space-sm;
+				margin-bottom: var(--padding-sm);
 			}
 
 			.heading {
-				color: var(--text);
-				font-family: $font-display;
-				font-size: clamp($text-2xl, 4vw, $text-3xl);
-				font-weight: $weight-bold;
+				color: var(--text-primary);
+				font-family: var(--heading-font-family);
+				font-size: var(--h2-size);
+				font-weight: var(--heading-font-weight);
 			}
 
 			.head-actions {
 				display: flex;
 				flex-direction: column;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 				text-align: right;
 			}
 		}
@@ -162,7 +162,7 @@
 
 			.track {
 				display: flex;
-				gap: $space-lg;
+				gap: var(--padding-lg);
 				overflow-x: auto;
 				scroll-snap-type: x mandatory;
 				scrollbar-width: none;
@@ -175,33 +175,33 @@
 					flex: 0 0 100%;
 					scroll-snap-align: start;
 
-					@media (width >= $container-md) {
-						flex-basis: calc((100% - $space-lg) / 2);
+					@media (width >= 768px) {
+						flex-basis: calc((100% - var(--padding-lg)) / 2);
 					}
 
-					@media (width >= $container-lg) {
-						flex-basis: calc((100% - ($space-lg * 2)) / 3);
+					@media (width >= 1024px) {
+						flex-basis: calc((100% - (var(--padding-lg) * 2)) / 3);
 					}
 				}
 			}
 
 			.nav {
 				display: flex;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 				justify-content: flex-end;
-				margin-top: $space-lg;
+				margin-top: var(--padding-lg);
 
 				button {
 					align-items: center;
-					background: var(--surface);
+					background: var(--bg-secondary);
 					border: 2px solid var(--border);
-					border-radius: $radius-sm;
-					color: var(--text);
+					border-radius: var(--border-radius-sm);
+					color: var(--text-primary);
 					cursor: pointer;
 					display: flex;
 					height: 40px;
 					justify-content: center;
-					transition: transform $transition-spring;
+					transition: transform var(--transition-spring);
 					width: 40px;
 
 					&:hover:not(:disabled) {

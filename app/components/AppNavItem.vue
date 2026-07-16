@@ -37,11 +37,11 @@
 		position: relative;
 
 		> a {
-			color: var(--text);
+			color: var(--text-primary);
 			display: block;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
-			padding: $space-sm 0;
+			font-size: var(--navigation-size);
+			font-weight: var(--navigation-font-weight);
+			padding: var(--padding-sm) 0;
 		}
 
 		&.has-children > a::after {
@@ -49,31 +49,31 @@
 		}
 
 		.submenu {
-			background: var(--surface);
-			border: 2px solid var(--text);
-			border-radius: $radius-sm;
+			background: var(--bg-secondary);
+			border: 2px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
 			box-shadow: var(--shadow-lg);
 			left: 0;
 			opacity: 0;
-			padding: $space-xs;
+			padding: var(--padding-xs);
 			pointer-events: none;
 			position: absolute;
 			top: 100%;
 			transform: translateY(4px);
 			transition:
-				opacity $transition-base,
-				transform $transition-base;
+				opacity var(--transition-base),
+				transform var(--transition-base);
 			width: max-content;
 			z-index: 20;
 
 			.nav-item {
 				> a {
-					border-radius: $radius-sm;
-					padding: $space-xs $space-sm;
+					border-radius: var(--border-radius-sm);
+					padding: var(--padding-xs) var(--padding-sm);
 					white-space: nowrap;
 
 					&:hover {
-						background: var(--surface-hover);
+						background: var(--bg-secondary);
 					}
 				}
 

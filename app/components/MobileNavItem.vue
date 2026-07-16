@@ -60,21 +60,21 @@
 		}
 
 		a {
-			color: var(--text);
+			color: var(--text-primary);
 			flex: 1;
-			font-size: $text-base;
-			font-weight: $weight-semibold;
-			padding: $space-sm 0;
+			font-size: var(--navigation-size);
+			font-weight: var(--navigation-font-weight);
+			padding: var(--padding-sm) 0;
 		}
 
 		.toggle {
 			background: none;
 			border: none;
-			color: var(--text-muted);
+			color: var(--text-secondary);
 			cursor: pointer;
 			display: flex;
-			padding: $space-sm;
-			transition: transform $transition-base;
+			padding: var(--padding-sm);
+			transition: transform var(--transition-base);
 
 			&[aria-expanded='true'] {
 				transform: rotate(180deg);
@@ -82,13 +82,13 @@
 		}
 
 		.submenu {
-			padding-left: $space-md;
+			padding-left: var(--padding-md);
 
 			.mobile-nav-item {
 				border-bottom: none;
 
 				&:last-child {
-					padding-bottom: $space-xs;
+					padding-bottom: var(--padding-xs);
 				}
 			}
 		}

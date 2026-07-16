@@ -49,20 +49,20 @@
 	.block-inspector {
 		display: flex;
 		flex-direction: column;
-		gap: $space-md;
+		gap: var(--padding-md);
 
 		h2 {
-			font-family: $font-sans;
-			font-size: $text-base;
-			font-weight: $weight-bold;
+			font-family: var(--body-font-family);
+			font-size: var(--body-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.dark-theme-toggle {
 			align-items: center;
 			display: flex;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
-			gap: $space-xs;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			gap: var(--padding-xs);
 
 			input {
 				width: auto;
@@ -70,8 +70,8 @@
 		}
 
 		.empty {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: 0.9375rem;
 		}
 	}
 </style>

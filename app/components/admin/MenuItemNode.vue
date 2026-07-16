@@ -95,13 +95,13 @@
 	.item-list {
 		display: flex;
 		flex-direction: column;
-		gap: $space-xs;
+		gap: var(--padding-xs);
 
 		&.depth-1,
 		&.depth-2 {
 			border-left: 1px solid var(--border);
-			margin-top: $space-xs;
-			padding-left: $space-lg;
+			margin-top: var(--padding-xs);
+			padding-left: var(--padding-lg);
 		}
 	}
 
@@ -113,7 +113,7 @@
 	.item-row {
 		align-items: center;
 		display: flex;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 
 		.drag-handle {
 			cursor: grab;
@@ -133,20 +133,20 @@
 
 		.new-tab {
 			align-items: center;
-			color: var(--text-muted);
+			color: var(--text-secondary);
 			display: flex;
 			flex-shrink: 0;
-			font-size: $text-sm;
+			font-size: 0.9375rem;
 			gap: 4px;
 			white-space: nowrap;
 		}
 
 		input[type='text'] {
-			background: var(--surface);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-size: $text-sm;
-			padding: $space-xs $space-sm;
+			background: var(--bg-secondary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: 0.9375rem;
+			padding: var(--padding-xs) var(--padding-sm);
 		}
 
 		.link-btn {
@@ -155,8 +155,8 @@
 			color: var(--link);
 			cursor: pointer;
 			flex-shrink: 0;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--button-size);
+			font-weight: var(--button-font-weight);
 			white-space: nowrap;
 
 			&.danger {

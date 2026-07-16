@@ -98,8 +98,6 @@
 	definePageMeta({ layout: 'admin' })
 
 	const route = useRoute()
-	// Vue Router already decodes the route param (e.g. "%2Ftest" -> "/test"),
-	// so it has to be re-encoded before it's used as the API's :slug segment.
 	const encodedSlug = encodeURIComponent(route.params.slug as string)
 
 	const { data: page } = await useFetch<PageRecord>(`/api/pages/${encodedSlug}`)
@@ -108,12 +106,6 @@
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
 	}
 
-	// Only needed to populate the "Parent page" dropdown — excludes this page
-	// (and, as a side effect of flattenPageTree never recursing into it, its
-	// whole subtree too) so it can't be set as its own ancestor. Explicit key
-	// — see the comment in admin/index.vue's dashboard fetch for why: this
-	// same URL is also fetched (with its own distinct key) from the
-	// dashboard and the pages list.
 	const { data: allPages } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-pages-editor-parent-options' })
 	const parentOptions = computed(() => {
 		const pages = allPages.value ?? []
@@ -170,20 +162,20 @@
 			align-items: center;
 			border-bottom: 1px solid var(--border);
 			display: flex;
-			gap: $space-md;
-			padding: $space-sm $space-lg;
+			gap: var(--padding-md);
+			padding: var(--padding-sm) var(--padding-lg);
 
 			.back {
-				color: var(--text-muted);
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 			}
 
 			.title-group {
 				display: flex;
 				flex: 1;
 				flex-direction: row;
-				gap: $space-md;
+				gap: var(--padding-md);
 				margin-left: 3rem;
 				width: 100%;
 
@@ -193,9 +185,9 @@
 					gap: 0;
 
 					label {
-						color: var(--text);
-						font-size: $text-sm;
-						font-weight: $weight-semibold;
+						color: var(--text-primary);
+						font-size: var(--eyebrow-size);
+						font-weight: 600;
 					}
 				}
 			}
@@ -203,12 +195,12 @@
 			.title-input,
 			.slug-input,
 			.parent-input {
-				background: var(--surface);
+				background: var(--bg-secondary);
 				border: 1px solid transparent;
-				border-radius: $radius-sm;
-				font-family: $font-display;
+				border-radius: var(--border-radius-sm);
+				font-family: var(--heading-font-family);
 				height: 100%;
-				padding: $space-xs $space-sm;
+				padding: var(--padding-xs) var(--padding-sm);
 
 				&:hover,
 				&:focus {
@@ -216,20 +208,20 @@
 				}
 
 				&:focus {
-					border-color: var(--secondary);
+					border-color: var(--brand-secondary);
 					outline: none;
 				}
 			}
 
 			.title-input {
-				font-size: $text-lg;
-				font-weight: $weight-bold;
+				font-size: 1.25rem;
+				font-weight: var(--heading-font-weight);
 			}
 
 			.slug-input,
 			.parent-input {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 			}
 
 			.parent-input {
@@ -240,8 +232,8 @@
 		.slug-warning {
 			background: var(--warning-bg);
 			color: var(--warning);
-			font-size: $text-sm;
-			padding: $space-xs $space-lg;
+			font-size: var(--eyebrow-size);
+			padding: var(--padding-xs) var(--padding-lg);
 		}
 
 		.editor-body {
@@ -252,19 +244,16 @@
 		}
 
 		.col {
-			// Grid items default to min-height: auto (won't shrink below content),
-			// which silently defeats overflow-y: auto — this is what actually lets
-			// a tall block scroll instead of just growing past the viewport.
 			min-height: 0;
 			overflow-y: auto;
-			padding: $space-lg;
+			padding: var(--padding-lg);
 
 			&.picker {
 				border-right: 1px solid var(--border);
 			}
 
 			&.canvas {
-				background: var(--bg-alt);
+				background: var(--bg-secondary);
 			}
 
 			&.inspector {

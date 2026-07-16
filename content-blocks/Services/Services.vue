@@ -44,37 +44,37 @@
 
 <style lang="scss" scoped>
 	.cb-services {
-		background: var(--bg);
-		padding-block: $space-3xl;
+		background: var(--bg-primary);
+		padding-block: calc(var(--padding-xl) * 2);
 
 		.head {
 			display: flex;
 			flex-direction: column;
-			gap: $space-lg;
-			margin-bottom: $space-xl;
+			gap: var(--padding-lg);
+			margin-bottom: var(--padding-xl);
 
-			@media (width >= $container-md) {
+			@media (width >= 768px) {
 				align-items: flex-start;
 				flex-direction: row;
 				justify-content: space-between;
 			}
 
 			.heading {
-				color: var(--text);
-				font-family: $font-display;
-				font-size: clamp($text-2xl, 5vw, $text-4xl);
-				font-weight: $weight-bold;
-				line-height: $leading-tight;
+				color: var(--text-primary);
+				font-family: var(--heading-font-family);
+				font-size: clamp(var(--h2-size), 5vw, var(--hero-size));
+				font-weight: var(--heading-font-weight);
+				line-height: var(--leading-tight);
 				white-space: pre-line;
 			}
 		}
 
 		.grid {
 			display: grid;
-			gap: $space-lg;
+			gap: var(--padding-lg);
 			grid-template-columns: 1fr;
 
-			@media (width >= $container-md) {
+			@media (width >= 768px) {
 				grid-template-columns: repeat(3, 1fr);
 			}
 		}

@@ -81,59 +81,59 @@
 		display: flex;
 		justify-content: center;
 		min-height: 100dvh;
-		padding: $space-lg;
+		padding: var(--padding-lg);
 
 		.panel {
-			background: var(--surface);
-			border: 1px solid var(--text);
-			border-radius: $radius-md;
+			background: var(--bg-secondary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-md);
 			display: flex;
 			flex-direction: column;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 			max-width: 24rem;
-			padding: $space-xl;
+			padding: var(--padding-xl);
 			width: 100%;
 		}
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: 1.75rem;
+			font-weight: var(--heading-font-weight);
 		}
 
 		.hint {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
 		}
 
 		label {
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		input {
-			background: var(--bg);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-size: $text-base;
-			padding: $space-sm;
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		.sent {
 			color: var(--success);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		.back-link {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
 			text-align: center;
 		}
 	}

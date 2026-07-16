@@ -3,12 +3,12 @@
 		<h1>Dashboard</h1>
 
 		<section
-			v-if="nudges.length"
+			v-if="visibleNudges.length"
 			class="nudges"
 		>
 			<ul>
 				<li
-					v-for="nudge in nudges"
+					v-for="nudge in visibleNudges"
 					:key="nudge.key"
 				>
 					<Icon
@@ -22,6 +22,14 @@
 					>
 						{{ nudge.actionLabel }}
 					</NuxtLink>
+					<button
+						type="button"
+						class="dismiss"
+						aria-label="Dismiss"
+						@click="dismissNudge(nudge.key)"
+					>
+						<Icon name="lucide:x" />
+					</button>
 				</li>
 			</ul>
 		</section>
@@ -49,6 +57,14 @@
 			>
 				<span class="value">{{ menus?.length ?? '—' }}</span>
 				<span class="label">{{ (menus?.length ?? 0) > 1 ? 'Menus' : 'Menu' }}</span>
+			</NuxtLink>
+
+			<NuxtLink
+				to="/admin/forms"
+				class="stat-card"
+			>
+				<span class="value">{{ forms?.length ?? '—' }}</span>
+				<span class="label">{{ (forms?.length ?? 0) > 1 ? 'Forms' : 'Form' }}</span>
 			</NuxtLink>
 
 			<NuxtLink
@@ -83,6 +99,13 @@
 				<Icon name="lucide:list-plus" />
 				New menu
 			</NuxtLink>
+			<NuxtLink
+				to="/admin/forms?new=1"
+				class="pill"
+			>
+				<Icon name="lucide:form" />
+				New form
+			</NuxtLink>
 		</div>
 
 		<section
@@ -116,6 +139,7 @@
 	import type {
 		ActivityAction,
 		AdminUser,
+		FormSummary,
 		MenuItem,
 		MenuRecord,
 		MenuSummary,
@@ -125,30 +149,16 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	// Explicit keys, distinct from other pages/components fetching the same
-	// URLs — useFetch auto-generates its cache key purely from the URL when
-	// none is given, so identical URLs across different page components
-	// collide on the same key. That collision could leave a later page's
-	// blocking top-level `await useFetch(...)` stuck on a promise tied to a
-	// previous, already-unmounted component, hanging the navigation until a
-	// hard refresh.
 	const { data: pages } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-dashboard-pages' })
 	const { data: uploads } = await useFetch<UploadRecord[]>('/api/uploads', { key: 'admin-dashboard-uploads' })
 	const { data: menus } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-dashboard-menus' })
+	const { data: forms } = await useFetch<FormSummary[]>('/api/forms', { key: 'admin-dashboard-forms' })
 	const { data: activity } = await useFetch('/api/activity', { key: 'admin-dashboard-activity' })
 
-	// The menus list endpoint deliberately omits `items` (same "keep the
-	// summary light" reasoning as pages/blocks_count) — fetching each menu's
-	// full record is the only way to check its links, but menus are few
-	// (a handful at most for a site like this), so a request per menu here
-	// is cheap and doesn't warrant widening the list endpoint's contract.
 	const menuDetails = await Promise.all(
 		(menus.value ?? []).map((menu) => $fetch<MenuRecord>(`/api/menus/${menu.id}`)),
 	)
 
-	// /api/admin/users is admin-only — non-admins would just get a 403, so
-	// this only fetches at all once we know the current user is actually an
-	// admin (immediate: false skips the request entirely otherwise).
 	const { data: me } = await useAdminProfile()
 	const isAdmin = computed(() => me.value?.profile.role === 'admin')
 	const { data: users } = await useFetch<AdminUser[]>('/api/admin/users', {
@@ -157,11 +167,6 @@
 	})
 	const activeUserCount = computed(() => users.value?.filter((user) => !user.banned).length)
 
-	// Catches setup gaps that otherwise fail silently — a missing homepage
-	// just 404s with no explanation, a missing "main" menu just renders an
-	// empty header nav — plus a rollup of the same per-page SEO gaps already
-	// shown individually on /admin/pages, surfaced here so they're not only
-	// visible one row at a time.
 	const nudges = computed(() => {
 		const items: { key: string; message: string; to: string; actionLabel: string }[] = []
 
@@ -216,10 +221,36 @@
 		return items
 	})
 
-	// A menu item's href only counts as an internal page reference — and
-	// therefore checkable — if it starts with "/" (mailto:/tel:/#/external
-	// URLs are left alone). Recurses into children since menu items nest up
-	// to 3 levels deep.
+	const DISMISSED_KEY = 'admin-dismissed-nudges'
+	const dismissed = ref<string[]>([])
+
+	onMounted(() => {
+		try {
+			dismissed.value = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]')
+		} catch {
+			dismissed.value = []
+		}
+	})
+
+	watch(nudges, (current) => {
+		if (!import.meta.client) return
+
+		const liveKeys = new Set(current.map((nudge) => nudge.key))
+		const stillRelevant = dismissed.value.filter((key) => liveKeys.has(key))
+		if (stillRelevant.length !== dismissed.value.length) {
+			dismissed.value = stillRelevant
+			localStorage.setItem(DISMISSED_KEY, JSON.stringify(stillRelevant))
+		}
+	})
+
+	const visibleNudges = computed(() => nudges.value.filter((nudge) => !dismissed.value.includes(nudge.key)))
+
+	function dismissNudge(key: string) {
+		if (dismissed.value.includes(key)) return
+		dismissed.value = [...dismissed.value, key]
+		localStorage.setItem(DISMISSED_KEY, JSON.stringify(dismissed.value))
+	}
+
 	function brokenMenuLinkCount(menus: MenuRecord[], pages: PageSummary[]): number {
 		const validSlugs = new Set(pages.map((page) => page.slug))
 
@@ -249,29 +280,29 @@
 	.admin-dashboard {
 		display: flex;
 		flex-direction: column;
-		gap: $space-xl;
-		padding-block: $space-xl;
+		gap: var(--padding-xl);
+		padding-block: var(--padding-xl);
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.nudges {
 			ul {
 				display: flex;
 				flex-direction: column;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 			}
 
 			li {
 				align-items: center;
 				background: var(--warning-bg);
-				border-radius: $radius-md;
+				border-radius: var(--border-radius-md);
 				display: flex;
-				gap: $space-sm;
-				padding: $space-sm $space-md;
+				gap: var(--padding-sm);
+				padding: var(--padding-sm) var(--padding-md);
 
 				.warn-icon {
 					color: var(--warning);
@@ -279,82 +310,102 @@
 				}
 
 				.message {
-					color: var(--text);
+					color: var(--text-primary);
 					flex: 1;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
 				}
 
 				.action {
 					color: var(--link);
 					flex-shrink: 0;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
+				}
+
+				.dismiss {
+					align-items: center;
+					background: none;
+					border: none;
+					color: var(--text-secondary);
+					cursor: pointer;
+					display: flex;
+					flex-shrink: 0;
+					padding: var(--padding-xs);
+					transition: color var(--transition-base);
+
+					&:hover {
+						color: var(--text-primary);
+					}
 				}
 			}
 		}
 
 		.stats {
 			display: grid;
-			gap: $space-md;
+			gap: var(--padding-md);
 			grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 		}
 
 		.stat-card {
-			background: var(--surface);
-			border: 1px solid var(--text);
-			border-radius: $radius-md;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-md);
 			display: flex;
 			flex-direction: column;
-			gap: $space-xs;
-			padding: $space-lg;
+			gap: var(--padding-xs);
+			padding: var(--padding-lg);
+
+			&:hover {
+				border: 1px solid var(--border-strong);
+			}
 
 			.value {
-				font-family: $font-display;
-				font-size: $text-3xl;
-				font-weight: $weight-bold;
+				font-family: var(--heading-font-family);
+				font-size: var(--h1-size);
+				font-weight: var(--heading-font-weight);
 			}
 
 			.label {
-				color: var(--text-muted);
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 			}
 		}
 
 		.quick-actions {
 			display: flex;
 			flex-wrap: wrap;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 
 			.pill {
 				align-items: center;
-				background: var(--surface);
+				background: var(--bg-secondary);
 				border: 1px solid var(--border);
-				border-radius: $radius-full;
-				color: var(--text);
+				border-radius: var(--border-radius-pill);
+				color: var(--text-primary);
 				display: inline-flex;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
-				gap: $space-xs;
-				padding: $space-xs $space-md;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+				gap: var(--padding-xs);
+				padding: var(--padding-xs) var(--padding-md);
 				transition:
-					background $transition-base,
-					border-color $transition-base;
+					background var(--transition-base),
+					border-color var(--transition-base);
 
 				&:hover {
-					background: var(--surface-hover);
-					border-color: var(--primary);
+					background: var(--bg-secondary);
+					border-color: var(--brand-primary);
 				}
 			}
 		}
 
 		.recent {
 			h2 {
-				font-family: $font-display;
-				font-size: $text-lg;
-				font-weight: $weight-bold;
-				margin-bottom: $space-sm;
+				font-family: var(--heading-font-family);
+				font-size: 1.25rem;
+				font-weight: var(--heading-font-weight);
+				margin-bottom: var(--padding-sm);
 			}
 
 			ul {
@@ -366,12 +417,12 @@
 				align-items: center;
 				border-bottom: 1px solid var(--border);
 				display: flex;
-				gap: $space-sm;
-				padding: $space-sm 0;
+				gap: var(--padding-sm);
+				padding: var(--padding-sm) 0;
 
 				.action-icon {
 					align-items: center;
-					border-radius: $radius-full;
+					border-radius: var(--border-radius-pill);
 					display: flex;
 					flex-shrink: 0;
 					height: 1.75rem;
@@ -396,13 +447,13 @@
 
 				.summary {
 					flex: 1;
-					font-weight: $weight-semibold;
+					font-weight: 600;
 				}
 
 				.timestamp {
-					color: var(--text-muted);
+					color: var(--text-secondary);
 					flex-shrink: 0;
-					font-size: $text-sm;
+					font-size: var(--eyebrow-size);
 				}
 			}
 		}

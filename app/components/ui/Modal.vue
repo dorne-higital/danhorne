@@ -105,21 +105,21 @@
 
 		@media (width >= 640px) {
 			align-items: center;
-			padding: $space-lg;
+			padding: var(--padding-lg);
 		}
 
 		&.top {
 			align-items: flex-start;
-			padding-top: $space-3xl;
+			padding-top: calc(var(--padding-xl) * 2);
 		}
 	}
 
 	.panel {
-		background: var(--surface);
-		border: 2px solid var(--text);
-		border-radius: $radius-md $radius-md 0 0;
+		background: var(--bg-secondary);
+		border: 2px solid var(--text-primary);
+		border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 		box-shadow: var(--shadow-lg);
-		max-height: calc(90dvh - #{$space-lg} * 2);
+		max-height: calc(90dvh - #{var(--padding-lg)} * 2);
 		overflow-y: auto;
 		position: relative;
 		width: 100%;
@@ -137,32 +137,32 @@
 		}
 
 		&.full {
-			height: calc(100dvh - #{$space-lg} * 2);
+			height: calc(100dvh - #{var(--padding-lg)} * 2);
 			max-width: none;
 		}
 
 		@media (width >= 640px) {
-			border-radius: $radius-md;
+			border-radius: var(--border-radius-md);
 			margin: auto;
-			max-height: calc(100dvh - #{$space-lg} * 2);
+			max-height: calc(100dvh - #{var(--padding-lg)} * 2);
 		}
 	}
 
 	.dismiss {
 		align-items: center;
-		background: var(--surface);
-		border: 2px solid var(--text);
-		border-radius: $radius-sm;
+		background: var(--bg-secondary);
+		border: 2px solid var(--text-primary);
+		border-radius: var(--border-radius-sm);
 		cursor: pointer;
 		display: flex;
-		font-size: $text-lg;
+		font-size: 1.25rem;
 		height: 32px;
 		justify-content: center;
 		line-height: 1;
 		position: absolute;
-		right: $space-md;
-		top: $space-md;
-		transition: transform $transition-spring;
+		right: var(--padding-md);
+		top: var(--padding-md);
+		transition: transform var(--transition-spring);
 		width: 32px;
 
 		&:hover {
@@ -175,34 +175,34 @@
 	}
 
 	.head {
-		border-bottom: 2px solid var(--text);
-		padding: $space-lg $space-2xl $space-lg $space-lg;
+		border-bottom: 2px solid var(--text-primary);
+		padding: var(--padding-lg) calc(var(--padding-xl) * 1.5) var(--padding-lg) var(--padding-lg);
 
 		h2 {
-			font-family: $font-display;
-			font-size: $text-xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h3-size);
+			font-weight: var(--heading-font-weight);
 		}
 	}
 
 	.body {
-		padding: $space-lg;
+		padding: var(--padding-lg);
 	}
 
 	.foot {
 		border-top: 1px solid var(--border);
 		display: flex;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 		justify-content: flex-end;
-		padding: $space-lg;
+		padding: var(--padding-lg);
 	}
 
 	.modal-enter-active,
 	.modal-leave-active {
-		transition: opacity $transition-base;
+		transition: opacity var(--transition-base);
 
 		.panel {
-			transition: transform $transition-spring;
+			transition: transform var(--transition-spring);
 		}
 	}
 

@@ -64,21 +64,21 @@
 
 <style lang="scss" scoped>
 	.cb-image-gallery {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.grid {
 			display: grid;
-			gap: $space-md;
+			gap: var(--padding-md);
 			grid-template-columns: repeat(var(--columns, 3), 1fr);
 
 			img {
-				border-radius: $radius-md;
+				border-radius: var(--border-radius-md);
 				height: 100%;
 				object-fit: cover;
 				width: 100%;
 			}
 
-			@media (width < $container-md) {
+			@media (width < 768px) {
 				grid-template-columns: repeat(2, 1fr);
 			}
 		}

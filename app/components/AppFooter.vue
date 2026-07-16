@@ -4,26 +4,43 @@
 			<div class="footer-top">
 				<div class="brand">
 					<AppLogo />
-
-					<p class="tagline text-secondary">
-						Crafting fast, modern web experiences<br />for ambitious businesses.
-					</p>
+					<ul
+						v-if="socialLinks.length"
+						class="socials"
+					>
+						<li
+							v-for="social in socialLinks"
+							:key="social.key"
+						>
+							<a
+								:href="normalizeHref(social.href)"
+								target="_blank"
+								rel="noopener noreferrer"
+								:aria-label="social.label"
+							>
+								<Icon :name="social.icon" />
+							</a>
+						</li>
+					</ul>
 				</div>
 
-				<div class="column">
+				<div
+					v-if="hasContactInfo"
+					class="column"
+				>
 					<p class="col-heading text-primary">Connect</p>
 					<ul class="text-secondary">
-						<li>
+						<li v-if="company?.email">
 							<button
 								type="button"
-								@click="open('contact')"
+								@click="open()"
 							>
 								<Icon
 									name="lucide:mail"
 									class="icon"
 									aria-hidden="true"
 								/>
-								{{ company?.email || 'hello@danhorne.co.uk' }}
+								{{ company.email }}
 							</button>
 						</li>
 						<li v-if="company?.phone">
@@ -46,26 +63,14 @@
 								{{ address }}
 							</span>
 						</li>
-						<li>
-							<a
-								href="https://linkedin.com/in/daniel-horne92"
-								target="_blank"
-								rel="noopener"
-							>
-								<Icon
-									name="simple-icons:linkedin"
-									class="icon"
-									aria-hidden="true"
-								/>
-								LinkedIn
-							</a>
-						</li>
 					</ul>
 				</div>
 			</div>
 
 			<div class="footer-bottom">
-				<p class="caption">© {{ year }} {{ company?.name || 'Dan Horne' }}. All rights reserved.</p>
+				<p class="caption">
+					© {{ year }} {{ company?.name || settings?.site_name || 'This site' }}. All rights reserved.
+				</p>
 			</div>
 		</div>
 	</footer>
@@ -81,23 +86,26 @@
 		return [addressLine1, addressLine2, town, county, postcode].filter(Boolean).join(', ')
 	})
 
+	const hasContactInfo = computed(() => !!(company.value?.email || company.value?.phone || address.value))
+	const socialLinks = computed(() => getActiveSocialLinks(settings.value?.socials))
+
 	const year = new Date().getFullYear()
 </script>
 
 <style lang="scss" scoped>
 	.footer {
-		background-color: var(--bg);
-		border-top: 2px solid var(--text);
+		background-color: var(--bg-primary);
+		border-top: 2px solid var(--text-primary);
 		margin-top: auto;
-		padding-bottom: $space-lg;
-		padding-top: $space-2xl;
+		padding-bottom: var(--padding-lg);
+		padding-top: calc(var(--padding-xl) * 1.5);
 
 		.footer-top {
 			display: flex;
 			flex-flow: column wrap;
-			gap: $space-xl;
+			gap: var(--padding-xl);
 			justify-content: space-between;
-			margin-bottom: $space-xl;
+			margin-bottom: var(--padding-xl);
 
 			@media (width >= 640px) {
 				flex-direction: row;
@@ -106,40 +114,56 @@
 			.brand {
 				display: flex;
 				flex-direction: column;
-				gap: $space-sm;
-			}
+				gap: var(--padding-sm);
 
-			.tagline {
-				font-size: $text-sm;
-				line-height: $leading-normal;
+				.socials {
+					display: flex;
+					gap: var(--padding-sm);
+
+					a {
+						align-items: center;
+						color: var(--text-secondary);
+						display: flex;
+						transition: color var(--transition-base);
+
+						svg {
+							height: 20px;
+							width: 20px;
+						}
+
+						&:hover {
+							color: var(--brand-primary);
+						}
+					}
+				}
 			}
 
 			.column {
 				display: flex;
 				flex-direction: column;
-				gap: $space-xs;
+				gap: var(--padding-xs);
 
 				.col-heading {
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--eyebrow-size);
+					font-weight: var(--navigation-font-weight);
 					letter-spacing: 0.08em;
-					margin-bottom: $space-xs;
+					margin-bottom: var(--padding-xs);
 					text-transform: uppercase;
 				}
 
 				ul {
 					display: flex;
 					flex-direction: column;
-					gap: $space-xs;
+					gap: var(--padding-xs);
 				}
 
 				a,
 				button,
 				span {
 					align-items: center;
-					color: var(--text-muted);
+					color: var(--text-secondary);
 					display: inline-flex;
-					gap: $space-xs;
+					gap: var(--padding-xs);
 					text-align: left;
 
 					.icon {
@@ -156,10 +180,10 @@
 					cursor: pointer;
 					font: inherit;
 					padding: 0;
-					transition: color $transition-base;
+					transition: color var(--transition-base);
 
 					&:hover {
-						color: var(--primary-text);
+						color: var(--brand-primary);
 					}
 				}
 			}
@@ -170,9 +194,9 @@
 			border-top: 1px solid var(--border);
 			display: flex;
 			flex-wrap: wrap;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 			justify-content: space-between;
-			padding-top: $space-md;
+			padding-top: var(--padding-md);
 		}
 	}
 </style>

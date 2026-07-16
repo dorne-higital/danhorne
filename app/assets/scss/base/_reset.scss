@@ -1,5 +1,3 @@
-@use '../tokens' as *;
-
 *,
 *::before,
 *::after {
@@ -17,7 +15,7 @@ html {
 }
 
 body {
-	line-height: $leading-normal;
+	line-height: var(--leading-normal);
 	min-height: 100dvh;
 }
 
@@ -51,6 +49,6 @@ h3,
 h4,
 h5,
 h6 {
-	font-weight: $weight-semibold;
-	line-height: $leading-tight;
+	font-weight: var(--heading-font-weight);
+	line-height: var(--leading-tight);
 }

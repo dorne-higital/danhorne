@@ -1,6 +1,6 @@
-# danhorne
+# Nuxt CMS template
 
-Freelance portfolio site with a self-hosted, drag-and-drop page-builder CMS built in. Nuxt 4 + Supabase (Postgres, Storage, Auth). No headless CMS SaaS involved — everything runs in this repo and your own Supabase project.
+A site with a self-hosted, drag-and-drop page-builder CMS built in. Nuxt 4 + Supabase (Postgres, Storage, Auth). No headless CMS SaaS involved — everything runs in this repo and your own Supabase project.
 
 ## Stack
 
@@ -44,17 +44,13 @@ cp .env.example .env
 
 ### Database
 
-Run every file in `supabase/migrations/` **in order** against your Supabase project — either paste each one into the Supabase dashboard's SQL Editor, or via `psql`:
+Run `supabase/migrations/0001_init.sql` against your Supabase project — either paste it into the Supabase dashboard's SQL Editor, or via `psql`:
 
 ```bash
-psql "$DATABASE_URL" -f supabase/migrations/0001_create_pages.sql
-psql "$DATABASE_URL" -f supabase/migrations/0002_create_uploads.sql
-psql "$DATABASE_URL" -f supabase/migrations/0003_create_menus.sql
-psql "$DATABASE_URL" -f supabase/migrations/0004_add_page_seo.sql
-psql "$DATABASE_URL" -f supabase/migrations/0005_add_users_and_updated_by.sql
+psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 ```
 
-This creates the `pages`, `uploads`, `menus`, and `profiles` tables, plus the `uploads` Storage bucket (migration `0002`).
+This creates every table (`pages`, `uploads`, `menus`, `profiles`, `site_settings`, `activity_log`), the `uploads` Storage bucket, and enables RLS across the board.
 
 ### Auth
 
@@ -89,7 +85,9 @@ yarn add-block  # scaffold a new content block — see below
 - Every page on the site is a **CMS page** — a row in the `pages` table, made of an ordered list of **blocks**. There is no separate "static" homepage; `/` is just a page whose slug is `/`.
 - Content is edited at `/admin/pages`: create a page, open it, drag blocks in from the picker, edit their fields, save.
 - **Menus** (`/admin/menus`) build the site's nav — multi-menu, up to 3 levels of nesting.
+- **Forms** (`/admin/forms`) — build arbitrary forms (field list, labels, types), submitted via Resend. Any form can power the "Say hello" modal (pick one in Settings) or be dropped onto a page via the Form content-block.
 - **Uploads** (`/admin/uploads`) is the media library — files go into the Supabase Storage `uploads` bucket.
+- **Settings** (`/admin/settings`) — business info/address, logo, which form the contact modal uses, and social links.
 - **Users** (`/admin/users`, admin-only) — invite people by email, set their role (`admin`/`user`), or remove them.
 - **Profile** (`/admin/profile`) — any logged-in user can update their own name, email, or password.
 

@@ -1,35 +1,34 @@
-@use '../tokens' as *;
-
 body {
-	background-color: var(--bg);
-	color: var(--text);
-	font-family: $font-sans;
-	font-size: $text-base;
+	background-color: var(--bg-primary);
+	color: var(--text-primary);
+	font-family: var(--body-font-family);
+	font-size: var(--body-size);
+	font-weight: var(--body-font-weight);
 }
 
 .display-xl {
-	font-family: $font-display;
-	font-size: clamp($text-3xl, 7vw, $text-4xl);
-	font-weight: $weight-bold;
-	line-height: $leading-tight;
+	font-family: var(--heading-font-family);
+	font-size: var(--hero-size);
+	font-weight: var(--heading-font-weight);
+	line-height: var(--leading-tight);
 }
 
 .body-lg {
-	font-size: $text-lg;
-	line-height: $leading-normal;
+	font-size: 1.25rem;
+	line-height: var(--leading-normal);
 }
 
 .caption {
-	color: var(--text-muted);
-	font-size: $text-sm;
+	color: var(--text-secondary);
+	font-size: var(--eyebrow-size);
 }
 
 .text-muted {
-	color: var(--text-muted);
+	color: var(--text-secondary);
 }
 
 .text-primary {
-	color: var(--text);
+	color: var(--text-primary);
 }
 
 .text-secondary {
@@ -37,50 +36,50 @@ body {
 }
 
 .text-brand {
-	color: var(--primary);
+	color: var(--brand-primary);
 }
 
 .hero {
-	font-size: $text-4xl;
+	font-size: var(--hero-size);
 }
 
 h1 {
-	font-size: $text-3xl;
+	font-size: var(--h1-size);
 }
 
 h2 {
-	font-size: $text-2xl;
+	font-size: var(--h2-size);
 }
 
 h3 {
-	font-size: $text-xl;
+	font-size: var(--h3-size);
 }
 
 h4 {
-	font-size: $text-lg;
+	font-size: var(--h4-size);
 }
 
 h5 {
-	font-size: $text-base;
+	font-size: var(--h5-size);
 }
 
 h6 {
-	font-size: $text-sm;
+	font-size: var(--h6-size);
 }
 
 .eyebrow {
 	align-items: center;
-	color: var(--text);
+	color: var(--text-primary);
 	display: flex;
 	flex-direction: row;
-	font-size: $text-sm;
+	font-size: var(--eyebrow-size);
 	gap: 0.5rem;
 	letter-spacing: 1px;
 	text-transform: uppercase;
 
 	&::before,
 	&::after {
-		background: var(--primary-text);
+		background: var(--brand-primary);
 		content: '';
 		display: block;
 		flex-shrink: 0;

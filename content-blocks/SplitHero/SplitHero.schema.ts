@@ -18,12 +18,18 @@ export default {
 		},
 		{
 			name: 'ctaHref',
-			label: 'Primary button link (leave empty to open the contact form)',
+			label: 'Primary button link (leave empty to open the form below in a modal)',
 			type: 'text',
 			default: '',
 		},
 		{ name: 'secondaryCtaLabel', label: 'Secondary button label', type: 'text', default: '' },
 		{ name: 'secondaryCtaHref', label: 'Secondary button link', type: 'text', default: '' },
+		{
+			name: 'formId',
+			label: 'Form (opened when a button above has a label but no link)',
+			type: 'form',
+			default: '',
+		},
 		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

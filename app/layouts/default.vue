@@ -7,26 +7,33 @@
 		<AppFooter data-theme="dark" />
 
 		<Modal
-			:open="variant !== null"
+			:open="isOpen"
 			:title="title"
 			size="lg"
 			@update:open="(value) => !value && close()"
 		>
-			<ContactForm v-if="variant === 'contact'" />
-			<QuoteForm v-else-if="variant === 'quote'" />
+			<DynamicForm
+				v-if="resolvedFormId"
+				:form-id="resolvedFormId"
+			/>
 		</Modal>
 	</div>
 </template>
 
 <script setup lang="ts">
-	const { variant, title, close } = useAppModal()
+	const { isOpen, formId, title, close } = useAppModal()
 
 	const { data: settings } = await useSiteSettings()
+
+	// No specific form was requested (open() called with no args, e.g. the
+	// header/footer's "Say hello") — fall back to whichever form is
+	// configured as the site's contact form in /admin/settings.
+	const resolvedFormId = computed(() => formId.value ?? settings.value?.contact_form_id ?? null)
 
 	useHead(() => ({
 		titleTemplate: (pageTitle) => {
 			const siteName = settings.value?.site_name
-			if (!siteName) return pageTitle || 'Dan Horne'
+			if (!siteName) return pageTitle || 'My Site'
 			return pageTitle ? `${pageTitle} — ${siteName}` : siteName
 		},
 	}))
@@ -34,7 +41,7 @@
 
 <style lang="scss">
 	.app-wrap {
-		background-color: var(--bg);
+		background-color: var(--bg-primary);
 		display: flex;
 		flex-direction: column;
 		min-height: 100dvh;

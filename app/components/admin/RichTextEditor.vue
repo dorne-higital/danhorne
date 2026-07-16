@@ -128,36 +128,36 @@
 		flex-direction: column;
 
 		.toolbar {
-			background: var(--surface-muted);
-			border: 1px solid var(--text);
+			background: var(--bg-secondary);
+			border: 1px solid var(--text-primary);
 			border-bottom: none;
-			border-radius: $radius-sm $radius-sm 0 0;
+			border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
 			display: flex;
 			gap: 2px;
-			padding: $space-xs;
+			padding: var(--padding-xs);
 
 			button {
 				align-items: center;
 				background: none;
 				border: none;
-				border-radius: $radius-sm;
-				color: var(--text);
+				border-radius: var(--border-radius-sm);
+				color: var(--text-primary);
 				cursor: pointer;
 				display: flex;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--button-size);
+				font-weight: var(--button-font-weight);
 				height: 28px;
 				justify-content: center;
 				min-width: 28px;
-				padding: 0 $space-xs;
+				padding: 0 var(--padding-xs);
 
 				&:hover {
-					background: var(--surface-hover);
+					background: var(--bg-secondary);
 				}
 
 				&.active {
-					background: var(--secondary);
-					color: var(--surface);
+					background: var(--brand-secondary);
+					color: var(--bg-secondary);
 				}
 			}
 		}
@@ -165,33 +165,33 @@
 		.content {
 			// stylelint-disable-next-line selector-class-pattern -- fixed class name from Tiptap/ProseMirror, not ours to rename
 			:deep(.ProseMirror) {
-				background: var(--surface);
-				border: 1px solid var(--text);
-				border-radius: 0 0 $radius-sm $radius-sm;
-				font-family: $font-sans;
-				font-size: $text-base;
+				background: var(--bg-secondary);
+				border: 1px solid var(--text-primary);
+				border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+				font-family: var(--body-font-family);
+				font-size: var(--body-size);
 				min-height: 8rem;
-				padding: $space-sm;
+				padding: var(--padding-sm);
 
 				&:focus {
 					outline: none;
 				}
 
 				p {
-					margin-bottom: $space-xs;
+					margin-bottom: var(--padding-xs);
 				}
 
 				h2,
 				h3 {
-					font-family: $font-display;
-					font-weight: $weight-bold;
-					margin-bottom: $space-xs;
+					font-family: var(--heading-font-family);
+					font-weight: var(--heading-font-weight);
+					margin-bottom: var(--padding-xs);
 				}
 
 				ul,
 				ol {
-					margin-bottom: $space-xs;
-					padding-left: $space-lg;
+					margin-bottom: var(--padding-xs);
+					padding-left: var(--padding-lg);
 				}
 
 				a {
@@ -203,12 +203,12 @@
 	}
 
 	.fallback {
-		background: var(--surface);
-		border: 1px solid var(--text);
-		border-radius: $radius-sm;
-		font-family: $font-sans;
-		font-size: $text-base;
-		padding: $space-sm;
+		background: var(--bg-secondary);
+		border: 1px solid var(--text-primary);
+		border-radius: var(--border-radius-sm);
+		font-family: var(--body-font-family);
+		font-size: var(--body-size);
+		padding: var(--padding-sm);
 		width: 100%;
 	}
 </style>

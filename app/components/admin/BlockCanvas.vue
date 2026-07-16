@@ -156,46 +156,46 @@
 	.block-canvas {
 		display: flex;
 		flex-direction: column;
-		gap: $space-md;
+		gap: var(--padding-md);
 		min-height: 100%;
 
 		.list {
 			display: flex;
 			flex-direction: column;
-			gap: $space-md;
+			gap: var(--padding-md);
 			min-height: 12rem;
 		}
 
 		.block-wrapper {
 			border: 1px solid var(--border);
-			border-radius: $radius-md;
+			border-radius: var(--border-radius-md);
 			cursor: pointer;
 			position: relative;
-			transition: border-color $transition-base;
+			transition: border-color var(--transition-base);
 
 			&.selected {
-				border-color: var(--secondary);
+				border-color: var(--brand-secondary);
 			}
 		}
 
 		.insert-zone {
 			align-items: center;
 			display: flex;
-			height: $space-md;
+			height: var(--padding-md);
 			justify-content: center;
 			left: 0;
 			opacity: 0;
 			position: absolute;
 			right: 0;
-			transition: opacity $transition-base;
+			transition: opacity var(--transition-base);
 			z-index: 5;
 
 			&.insert-top {
-				top: calc($space-md * -1);
+				top: calc(var(--padding-md) * -1);
 			}
 
 			&.insert-bottom {
-				bottom: calc($space-md * -1);
+				bottom: calc(var(--padding-md) * -1);
 			}
 
 			&:hover,
@@ -206,15 +206,15 @@
 
 		.insert-btn {
 			align-items: center;
-			background: var(--secondary);
-			border: 1px solid var(--text);
-			border-radius: $radius-full;
-			color: var(--surface);
+			background: var(--brand-secondary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-pill);
+			color: var(--bg-secondary);
 			cursor: pointer;
 			display: flex;
 			height: 22px;
 			justify-content: center;
-			transition: transform $transition-spring;
+			transition: transform var(--transition-spring);
 			width: 22px;
 
 			&:hover {
@@ -224,18 +224,18 @@
 
 		.block-toolbar {
 			align-items: center;
-			background: var(--surface-muted);
-			border-radius: $radius-md $radius-md 0 0;
+			background: var(--bg-secondary);
+			border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 			display: flex;
-			font-size: $text-sm;
-			gap: $space-sm;
-			padding: $space-xs $space-sm;
+			font-size: 0.9375rem;
+			gap: var(--padding-sm);
+			padding: var(--padding-xs) var(--padding-sm);
 
 			.collapse-toggle {
 				align-items: center;
 				background: none;
 				border: none;
-				color: var(--text);
+				color: var(--text-primary);
 				cursor: pointer;
 				display: flex;
 			}
@@ -250,7 +250,7 @@
 
 			.block-label {
 				flex: 1;
-				font-weight: $weight-semibold;
+				font-weight: 600;
 			}
 
 			.remove {
@@ -258,8 +258,8 @@
 				border: none;
 				color: var(--error);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: 0.9375rem;
+				font-weight: 600;
 			}
 		}
 
@@ -269,9 +269,9 @@
 
 		.empty {
 			border: 2px dashed var(--border-strong);
-			border-radius: $radius-md;
-			color: var(--text-muted);
-			padding: $space-xl;
+			border-radius: var(--border-radius-md);
+			color: var(--text-secondary);
+			padding: var(--padding-xl);
 			text-align: center;
 		}
 	}

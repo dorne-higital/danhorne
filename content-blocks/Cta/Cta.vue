@@ -53,7 +53,7 @@
 							v-else-if="ctaLabel"
 							type="button"
 							:class="['btn primary', ctaSize]"
-							@click="open('contact')"
+							@click="open()"
 						>
 							{{ ctaLabel }}
 							<Icon name="lucide:arrow-right" />
@@ -72,7 +72,7 @@
 							v-else-if="secondaryCtaLabel"
 							type="button"
 							:class="['btn outline', ctaSize]"
-							@click="open('contact')"
+							@click="open()"
 						>
 							{{ secondaryCtaLabel }}
 						</button>
@@ -113,31 +113,31 @@
 
 <style lang="scss" scoped>
 	.cb-cta {
-		padding-block: $space-3xl;
+		padding-block: calc(var(--padding-xl) * 2);
 
 		&.minimal {
-			padding-block: $space-lg;
+			padding-block: var(--padding-lg);
 
 			.panel {
-				border-radius: $radius-md;
-				padding: $space-xl $space-md;
+				border-radius: var(--border-radius-md);
+				padding: var(--padding-xl) var(--padding-md);
 			}
 
 			.heading {
-				font-size: clamp($text-base, 3vw, $text-xl);
+				font-size: clamp(var(--body-size), 3vw, var(--h3-size));
 			}
 
 			.sub {
-				font-size: $text-sm;
+				font-size: var(--eyebrow-size);
 			}
 		}
 
 		.panel {
-			background: var(--bg);
+			background: var(--bg-primary);
 			border: 2px solid var(--border-strong);
 			border-radius: 32px;
 			overflow: hidden;
-			padding: $space-3xl $space-lg;
+			padding: calc(var(--padding-xl) * 2) var(--padding-lg);
 			position: relative;
 
 			.glow {
@@ -148,7 +148,7 @@
 			}
 
 			.glow-1 {
-				background: radial-gradient(circle, var(--primary) 20%, transparent 70%);
+				background: radial-gradient(circle, var(--brand-primary) 20%, transparent 70%);
 				height: 260px;
 				left: -60px;
 				opacity: 0.4;
@@ -157,7 +157,7 @@
 			}
 
 			.glow-2 {
-				background: radial-gradient(circle, var(--primary) 10%, transparent 60%);
+				background: radial-gradient(circle, var(--brand-primary) 10%, transparent 60%);
 				bottom: -80px;
 				height: 260px;
 				opacity: 0.25;
@@ -168,7 +168,7 @@
 			.content {
 				display: flex;
 				flex-direction: column;
-				gap: $space-lg;
+				gap: var(--padding-lg);
 				margin-inline: auto;
 				max-width: 640px;
 				position: relative;
@@ -177,26 +177,26 @@
 			}
 
 			.heading {
-				color: var(--text);
-				font-family: $font-display;
-				font-size: clamp($text-2xl, 5vw, $text-4xl);
-				font-weight: $weight-bold;
-				line-height: $leading-tight;
+				color: var(--text-primary);
+				font-family: var(--heading-font-family);
+				font-size: clamp(var(--h2-size), 5vw, var(--hero-size));
+				font-weight: var(--heading-font-weight);
+				line-height: var(--leading-tight);
 			}
 
 			.sub {
-				font-size: $text-lg;
-				line-height: $leading-normal;
+				font-size: 1.25rem;
+				line-height: var(--leading-normal);
 			}
 
 			.ctas {
 				display: flex;
 				flex-wrap: wrap;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 				justify-content: center;
 
 				.primary {
-					color: var(--text);
+					color: var(--text-primary);
 				}
 			}
 		}

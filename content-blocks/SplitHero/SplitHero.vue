@@ -42,7 +42,7 @@
 						v-else-if="ctaLabel"
 						type="button"
 						class="btn primary lg"
-						@click="open('contact')"
+						@click="open(formId)"
 					>
 						{{ ctaLabel }}
 					</button>
@@ -60,7 +60,7 @@
 						v-else-if="secondaryCtaLabel"
 						type="button"
 						class="btn outline lg"
-						@click="open('contact')"
+						@click="open(formId)"
 					>
 						{{ secondaryCtaLabel }}
 					</button>
@@ -97,6 +97,7 @@
 			ctaHref?: string
 			secondaryCtaLabel?: string
 			secondaryCtaHref?: string
+			formId?: string
 			minimalPadding?: boolean
 		}>(),
 		{
@@ -108,6 +109,7 @@
 			ctaHref: '',
 			secondaryCtaLabel: '',
 			secondaryCtaHref: '',
+			formId: '',
 			minimalPadding: false,
 		},
 	)
@@ -117,19 +119,19 @@
 
 <style lang="scss" scoped>
 	.cb-split-hero {
-		padding-block: $space-3xl;
+		padding-block: calc(var(--padding-xl) * 2);
 
 		&.small-padding {
-			padding: $space-sm;
+			padding: var(--padding-sm);
 		}
 
 		.inner {
 			align-items: center;
 			display: grid;
-			gap: $space-2xl;
+			gap: calc(var(--padding-xl) * 1.5);
 			grid-template-columns: 1fr;
 
-			@media (width >= $container-lg) {
+			@media (width >= 1024px) {
 				grid-template-columns: 1.1fr 1fr;
 			}
 		}
@@ -137,28 +139,28 @@
 		.content {
 			display: flex;
 			flex-direction: column;
-			gap: $space-lg;
+			gap: var(--padding-lg);
 		}
 
 		.heading {
-			color: var(--text);
-			font-family: $font-display;
-			font-size: clamp($text-3xl, 6vw, $text-4xl);
-			font-weight: $weight-bold;
-			line-height: $leading-tight;
+			color: var(--text-primary);
+			font-family: var(--heading-font-family);
+			font-size: clamp(var(--h1-size), 6vw, var(--hero-size));
+			font-weight: var(--heading-font-weight);
+			line-height: var(--leading-tight);
 			white-space: pre-line;
 		}
 
 		.sub {
-			font-size: $text-lg;
-			line-height: $leading-normal;
+			font-size: 1.25rem;
+			line-height: var(--leading-normal);
 			max-width: 48ch;
 		}
 
 		.ctas {
 			display: flex;
 			flex-wrap: wrap;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 		}
 
 		.visual {
@@ -173,7 +175,7 @@
 			}
 
 			.glow {
-				background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+				background: radial-gradient(circle, var(--brand-primary) 0%, transparent 70%);
 				border-radius: 50%;
 				filter: blur(64px);
 				height: 260px;

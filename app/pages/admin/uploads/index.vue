@@ -109,19 +109,19 @@
 
 <style lang="scss" scoped>
 	.admin-uploads {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.page-header {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			margin-bottom: $space-lg;
+			margin-bottom: var(--padding-lg);
 		}
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.file-input {
@@ -130,26 +130,26 @@
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
-			margin-bottom: $space-md;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			margin-bottom: var(--padding-md);
 		}
 
 		.grid {
 			display: grid;
-			gap: $space-md;
+			gap: var(--padding-md);
 			grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
 		}
 
 		.upload-card {
-			background: var(--surface);
-			border: 1px solid var(--text);
-			border-radius: $radius-md;
+			background: var(--bg-secondary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-md);
 			overflow: hidden;
 
 			img {
 				aspect-ratio: 1;
-				background: var(--bg-alt);
+				background: var(--bg-secondary);
 				object-fit: cover;
 				width: 100%;
 			}
@@ -158,19 +158,19 @@
 				display: flex;
 				flex-direction: column;
 				gap: 2px;
-				padding: $space-sm;
+				padding: var(--padding-sm);
 
 				.filename {
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
 				}
 
 				.size {
-					color: var(--text-muted);
-					font-size: $text-sm;
+					color: var(--text-secondary);
+					font-size: var(--eyebrow-size);
 				}
 			}
 
@@ -184,12 +184,12 @@
 					color: var(--link);
 					cursor: pointer;
 					flex: 1;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
-					padding: $space-xs;
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
+					padding: var(--padding-xs);
 
 					&:hover {
-						background: var(--surface-hover);
+						background: var(--bg-secondary);
 					}
 
 					&.danger {
@@ -201,7 +201,7 @@
 		}
 
 		.empty {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 		}
 	}
 </style>

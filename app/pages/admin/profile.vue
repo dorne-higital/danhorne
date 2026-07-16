@@ -188,13 +188,13 @@
 	.admin-profile {
 		display: flex;
 		flex-direction: column;
-		gap: $space-lg;
-		padding-block: $space-xl;
+		gap: var(--padding-lg);
+		padding-block: var(--padding-xl);
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.section-container {
@@ -203,44 +203,44 @@
 			gap: 1rem;
 
 			.panel {
-				background: var(--surface);
+				background: var(--bg-secondary);
 				border: 1px solid var(--border);
-				border-radius: $radius-md;
+				border-radius: var(--border-radius-md);
 				max-width: 28rem;
 				min-width: calc(50% - 1rem);
-				padding: $space-lg;
+				padding: var(--padding-lg);
 
 				h2 {
-					font-family: $font-display;
-					font-size: $text-lg;
-					font-weight: $weight-bold;
+					font-family: var(--heading-font-family);
+					font-size: 1.25rem;
+					font-weight: var(--heading-font-weight);
 				}
 
 				.hint {
-					color: var(--text-muted);
-					font-size: $text-sm;
-					margin-bottom: $space-sm;
+					color: var(--text-secondary);
+					font-size: var(--eyebrow-size);
+					margin-bottom: var(--padding-sm);
 				}
 
 				form {
 					display: flex;
 					flex-direction: column;
-					gap: $space-sm;
+					gap: var(--padding-sm);
 				}
 
 				input {
-					background: var(--bg);
-					border: 1px solid var(--text);
-					border-radius: $radius-sm;
-					font-size: $text-base;
-					padding: $space-sm;
+					background: var(--bg-primary);
+					border: 1px solid var(--text-primary);
+					border-radius: var(--border-radius-sm);
+					font-size: var(--body-size);
+					padding: var(--padding-sm);
 				}
 
 				.message {
 					color: var(--success);
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
-					margin-top: $space-sm;
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
+					margin-top: var(--padding-sm);
 				}
 
 				.btn {

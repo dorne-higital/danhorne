@@ -1,5 +1,3 @@
-@use 'tokens' as *;
-
 // Base
 @use 'base/reset';
 @use 'base/themes';
@@ -9,10 +7,6 @@
 // Components
 @use 'components/buttons';
 
-// Admin (scoped to .admin-layout — see the file for why it needs !important)
-@use 'base/admin-theme';
-
-// ─── Floating accent shapes ──────────────────────────────────────────────────
 .float {
 	animation: float 7s ease-in-out infinite;
 
