@@ -3,7 +3,31 @@
 		class="field"
 		:class="[width, { invalid: !!error }]"
 	>
-		<label :for="name">
+		<label
+			v-if="type !== 'checkbox'"
+			:for="name"
+		>
+			{{ label }}
+			<span
+				v-if="required"
+				class="req"
+				>*</span
+			>
+		</label>
+
+		<label
+			v-if="type === 'checkbox'"
+			:for="name"
+			class="checkbox"
+		>
+			<input
+				:id="name"
+				type="checkbox"
+				:name="name"
+				:checked="modelValue === 'true'"
+				@change="onCheckboxChange"
+				@blur="onBlur"
+			/>
 			{{ label }}
 			<span
 				v-if="required"
@@ -48,7 +72,7 @@
 		/>
 
 		<input
-			v-else
+			v-else-if="type !== 'checkbox'"
 			:id="name"
 			v-model="value"
 			:type="type"
@@ -84,7 +108,7 @@
 
 	interface Props {
 		modelValue: string
-		type?: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select'
+		type?: 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox'
 		label: string
 		name: string
 		placeholder?: string
@@ -121,6 +145,15 @@
 	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 	function runRules(): boolean {
+		if (props.type === 'checkbox') {
+			if (props.required && props.modelValue !== 'true') {
+				error.value = `${props.label} is required`
+				return false
+			}
+			error.value = ''
+			return true
+		}
+
 		const trimmed = (props.modelValue ?? '').toString().trim()
 
 		if (props.required && !trimmed) {
@@ -154,6 +187,10 @@
 		runRules()
 	}
 
+	function onCheckboxChange(event: Event) {
+		emit('update:modelValue', (event.target as HTMLInputElement).checked ? 'true' : 'false')
+	}
+
 	function validate(): boolean {
 		return runRules()
 	}
@@ -169,10 +206,10 @@
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: $space-xs;
+		gap: var(--padding-xs);
 		grid-column: span 4;
 
-		@media (width >= $container-md) {
+		@media (width >= 768px) {
 			&.quarter {
 				grid-column: span 1;
 			}
@@ -184,32 +221,41 @@
 
 		label {
 			align-items: center;
-			color: var(--text);
+			color: var(--text-primary);
 			display: inline-flex;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
-			gap: $space-xs;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			gap: var(--padding-xs);
 		}
 
 		.req {
-			color: var(--primary-text);
+			color: var(--brand-primary);
+		}
+
+		.checkbox {
+			input {
+				background: none;
+				border: none;
+				padding: 0;
+				width: auto;
+			}
 		}
 
 		input,
 		select,
 		textarea {
-			background: var(--surface);
-			border: 2px solid var(--text);
-			border-radius: $radius-sm;
-			color: var(--text);
-			font-family: $font-sans;
-			font-size: $text-base;
-			padding: $space-sm;
-			transition: border-color $transition-base;
+			background: var(--bg-secondary);
+			border: 2px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			color: var(--text-primary);
+			font-family: var(--body-font-family);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
+			transition: border-color var(--transition-base);
 			width: 100%;
 
 			&:focus {
-				border-color: var(--secondary);
+				border-color: var(--brand-secondary);
 				outline: none;
 			}
 		}
@@ -227,14 +273,14 @@
 		}
 
 		.hint {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 	}
 </style>

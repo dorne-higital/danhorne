@@ -28,6 +28,33 @@
 			</option>
 		</select>
 
+		<div
+			v-else-if="field.type === 'form'"
+			class="form-field-picker"
+		>
+			<select
+				:id="field.name"
+				:value="stringValue"
+				@change="onSelectChange"
+			>
+				<option value="">— None —</option>
+				<option
+					v-for="option in forms"
+					:key="option.id"
+					:value="option.id"
+				>
+					{{ option.name }}
+				</option>
+			</select>
+			<p
+				v-if="!forms?.length"
+				class="hint"
+			>
+				No forms yet — create one in
+				<NuxtLink to="/admin/forms">Forms</NuxtLink>.
+			</p>
+		</div>
+
 		<label
 			v-else-if="field.type === 'boolean'"
 			:for="field.name"
@@ -164,7 +191,7 @@
 
 <script setup lang="ts">
 	import draggable from 'vuedraggable'
-	import type { FieldSchema } from '#shared/types/cms'
+	import type { FieldSchema, FormSummary } from '#shared/types/cms'
 	import { createRepeaterItem } from '~~/content-blocks/registry'
 
 	const props = defineProps<{
@@ -179,8 +206,13 @@
 	const stringValue = computed(() => (props.modelValue ?? '') as string | number)
 	const pickerOpen = ref(false)
 
-	// Repeater items are mutated in place — modelValue is a live reference into
-	// the page's reactive block-props tree, same pattern as the menu builder.
+	// Only actually fetched for 'form'-type fields — every other field type
+	// still calls this composable (Vue's rules of hooks require it be
+	// unconditional) but skips the network request via `immediate: false`.
+	const { data: forms } = useFetch<FormSummary[]>('/api/forms', {
+		key: 'schema-field-forms-list',
+		immediate: props.field.type === 'form',
+	})
 	const repeaterItems = computed(() => (props.modelValue as Record<string, unknown>[] | undefined) ?? [])
 
 	function addRepeaterItem() {
@@ -228,27 +260,27 @@
 	.schema-field {
 		display: flex;
 		flex-direction: column;
-		gap: $space-xs;
+		gap: var(--padding-xs);
 
 		label {
-			color: var(--text);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			color: var(--text-primary);
+			font-size: 0.9375rem;
+			font-weight: 600;
 		}
 
 		input,
 		select {
-			background: var(--surface);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			color: var(--text);
-			font-family: $font-sans;
-			font-size: $text-base;
-			padding: $space-xs $space-sm;
+			background: var(--bg-secondary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			color: var(--text-primary);
+			font-family: var(--body-font-family);
+			font-size: var(--body-size);
+			padding: var(--padding-xs) var(--padding-sm);
 			width: 100%;
 
 			&:focus {
-				border-color: var(--secondary);
+				border-color: var(--brand-secondary);
 				outline: none;
 			}
 		}
@@ -257,24 +289,40 @@
 			align-items: center;
 			display: flex;
 			flex-direction: row;
-			gap: $space-xs;
+			gap: var(--padding-xs);
 
 			input {
 				width: auto;
 			}
 		}
 
+		.form-field-picker {
+			display: flex;
+			flex-direction: column;
+			gap: var(--padding-xs);
+
+			.hint {
+				color: var(--text-secondary);
+				font-size: 0.9375rem;
+
+				a {
+					color: var(--link);
+					font-weight: 600;
+				}
+			}
+		}
+
 		.image-field {
 			display: flex;
 			flex-direction: column;
-			gap: $space-xs;
+			gap: var(--padding-xs);
 
 			.preview {
 				align-items: center;
 				aspect-ratio: 16 / 9;
-				background: var(--bg-alt);
+				background: var(--bg-secondary);
 				border: 1px solid var(--border);
-				border-radius: $radius-sm;
+				border-radius: var(--border-radius-sm);
 				display: flex;
 				justify-content: center;
 				overflow: hidden;
@@ -286,14 +334,14 @@
 				}
 
 				.placeholder {
-					color: var(--text-muted);
-					font-size: $text-sm;
+					color: var(--text-secondary);
+					font-size: 0.9375rem;
 				}
 			}
 
 			.image-actions {
 				display: flex;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 			}
 
 			.link-btn {
@@ -301,41 +349,41 @@
 				border: none;
 				color: var(--error);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--button-size);
+				font-weight: var(--button-font-weight);
 			}
 		}
 
 		.repeater-field {
 			display: flex;
 			flex-direction: column;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 
 			.repeater-list {
 				display: flex;
 				flex-direction: column;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 			}
 
 			.repeater-item {
 				border: 1px solid var(--border);
-				border-radius: $radius-sm;
+				border-radius: var(--border-radius-sm);
 				display: flex;
 				flex-direction: column;
-				gap: $space-xs;
-				padding: $space-sm;
+				gap: var(--padding-xs);
+				padding: var(--padding-sm);
 			}
 
 			.repeater-item-header {
 				align-items: center;
 				display: flex;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 
 				.collapse-toggle {
 					align-items: center;
 					background: none;
 					border: none;
-					color: var(--text);
+					color: var(--text-primary);
 					cursor: pointer;
 					display: flex;
 				}
@@ -349,10 +397,10 @@
 				}
 
 				.index {
-					color: var(--text-muted);
+					color: var(--text-secondary);
 					flex: 1;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: 0.9375rem;
+					font-weight: 600;
 				}
 
 				.link-btn {
@@ -360,15 +408,15 @@
 					border: none;
 					color: var(--error);
 					cursor: pointer;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--button-size);
+					font-weight: var(--button-font-weight);
 				}
 			}
 
 			.repeater-item-fields {
 				display: flex;
 				flex-direction: column;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 			}
 		}
 	}

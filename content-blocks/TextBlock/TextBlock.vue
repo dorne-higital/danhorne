@@ -23,10 +23,10 @@
 
 <style lang="scss" scoped>
 	.cb-text-block {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.content {
-			max-width: $container-md;
+			max-width: 768px;
 
 			&.center {
 				margin-inline: auto;

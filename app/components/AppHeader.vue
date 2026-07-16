@@ -16,8 +16,8 @@
 
 			<button
 				type="button"
-				class="btn outline sm say-hello"
-				@click="open('contact')"
+				class="btn primary sm say-hello"
+				@click="open()"
 			>
 				Say hello
 			</button>
@@ -88,10 +88,6 @@
 	import type { MenuRecord } from '#shared/types/cms'
 
 	const { open } = useAppModal()
-
-	// "main" is the conventional key for the header nav — created under
-	// /admin/menus. A missing menu is expected on a fresh install; useFetch
-	// leaves `menu` null on a 404 rather than throwing, so this stays quiet.
 	const { data: menu } = await useFetch<MenuRecord>('/api/menus/main')
 
 	const mobileNavOpen = ref(false)
@@ -103,10 +99,9 @@
 
 	function openContactFromMobileNav() {
 		mobileNavOpen.value = false
-		open('contact')
+		open()
 	}
 
-	// Same escape-to-close + scroll-lock pattern as ui/Modal.vue.
 	function onKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape' && mobileNavOpen.value) mobileNavOpen.value = false
 	}
@@ -125,8 +120,8 @@
 
 <style lang="scss" scoped>
 	.header {
-		background: var(--bg);
-		border-bottom: 2px solid var(--text);
+		background: var(--bg-primary);
+		border-bottom: 2px solid var(--text-primary);
 		left: 0;
 		position: fixed;
 		right: 0;
@@ -139,7 +134,7 @@
 
 		.main-nav {
 			display: none;
-			gap: $space-lg;
+			gap: var(--padding-lg);
 
 			@media (width >= 900px) {
 				display: flex;
@@ -157,10 +152,10 @@
 		.hamburger {
 			background: none;
 			border: none;
-			color: var(--text);
+			color: var(--text-primary);
 			cursor: pointer;
 			display: flex;
-			padding: $space-xs;
+			padding: var(--padding-xs);
 
 			@media (width >= 900px) {
 				display: none;
@@ -178,14 +173,14 @@
 	}
 
 	.mobile-nav-panel {
-		background: var(--bg);
+		background: var(--bg-primary);
 		display: flex;
 		flex-direction: column;
-		gap: $space-lg;
+		gap: var(--padding-lg);
 		height: 100%;
 		max-width: 20rem;
 		overflow-y: auto;
-		padding: $space-lg;
+		padding: var(--padding-lg);
 		width: 100%;
 
 		.panel-head {
@@ -196,10 +191,10 @@
 			.close {
 				background: none;
 				border: none;
-				color: var(--text);
+				color: var(--text-primary);
 				cursor: pointer;
 				display: flex;
-				padding: $space-xs;
+				padding: var(--padding-xs);
 			}
 		}
 
@@ -212,10 +207,10 @@
 
 	.mobile-nav-enter-active,
 	.mobile-nav-leave-active {
-		transition: opacity $transition-base;
+		transition: opacity var(--transition-base);
 
 		.mobile-nav-panel {
-			transition: transform $transition-base;
+			transition: transform var(--transition-base);
 		}
 	}
 

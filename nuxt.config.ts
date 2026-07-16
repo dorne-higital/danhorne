@@ -23,33 +23,25 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		resendApiKey: '',
-		contactEmailTo: 'hello@danhorne.co.uk',
-		contactEmailFrom: 'Dan Horne <onboarding@resend.dev>',
+		contactEmailTo: 'you@example.com',
+		contactEmailFrom: 'Your Name <onboarding@resend.dev>',
 		supabaseUrl: '',
 		supabaseServiceKey: '',
 	},
 
-	vite: {
-		css: {
-			preprocessorOptions: {
-				scss: {
-					additionalData: `@use "${process.cwd()}/app/assets/scss/tokens" as *;`,
-				},
-			},
-		},
-	},
-
 	app: {
 		head: {
-			title: 'Dan Horne — Web Developer',
+			// Fallback only — /admin/settings' site name + app/layouts/default.vue's
+			// titleTemplate take over once client-side data loads. This is what
+			// shows in the raw HTML before that, so keep it a neutral placeholder.
+			title: 'My Site',
 			meta: [
 				{
 					name: 'description',
-					content:
-						'Dan Horne is a freelance web developer. A new site is on the way — get in touch in the meantime.',
+					content: 'A new site is on the way — get in touch in the meantime.',
 				},
 				{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
-				{ name: 'theme-color', content: '#1d3557' },
+				{ name: 'theme-color', content: '#18181b' },
 			],
 			link: [
 				{

@@ -32,18 +32,18 @@
 <style lang="scss" scoped>
 	.admin-toast {
 		align-items: center;
-		background: var(--text);
-		border-radius: $radius-sm;
-		bottom: $space-lg;
+		background: var(--text-primary);
+		border-radius: var(--border-radius-sm);
+		bottom: var(--padding-lg);
 		box-shadow: var(--shadow-lg);
-		color: var(--surface);
+		color: var(--bg-secondary);
 		display: flex;
 		flex-direction: row;
-		font-size: $text-sm;
-		font-weight: $weight-semibold;
+		font-size: 0.9375rem;
+		font-weight: 600;
 		gap: 1rem;
 		left: 50%;
-		padding: $space-sm $space-lg;
+		padding: var(--padding-sm) var(--padding-lg);
 		position: fixed;
 		transform: translateX(-50%);
 		width: 50%;
@@ -67,8 +67,8 @@
 	.toast-enter-active,
 	.toast-leave-active {
 		transition:
-			opacity $transition-base,
-			transform $transition-base;
+			opacity var(--transition-base),
+			transform var(--transition-base);
 	}
 
 	.toast-enter-from,

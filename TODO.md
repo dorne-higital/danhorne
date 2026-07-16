@@ -4,7 +4,7 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 
 ## Should do soon-ish
 
-- [ ] **Contact form has no rate limiting.** Honeypot spam protection exists (`server/api/contact.post.ts`), but nothing stops someone hammering the endpoint and burning through the Resend send quota. Needs a lightweight IP-based throttle.
+- [ ] **Form submissions have no rate limiting.** Honeypot spam protection exists (`server/api/forms/[id]/submit.post.ts`), but nothing stops someone hammering the endpoint and burning through the Resend send quota. Needs a lightweight IP-based throttle.
 - [ ] **Public endpoints can leak raw Postgres error text.** `server/api/pages/[slug].get.ts` (and possibly others) returns `error.message` straight from Supabase to the client on failure. Fine for admin-only endpoints, not fine for public ones — genericize the message on anything unauthenticated.
 
 ## Consistency nits (worth doing before/while building out the component library)
@@ -34,7 +34,7 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 - [x] Dashboard "Needs attention" nudges — no homepage (`/`) page, no menu with key `main`, plus a rollup count of pages missing SEO title/description
 - [x] Real activity log for pages (create/edit/delete/duplicate) — dashboard's "Recently updated" replaced with "Recent activity", shows what actually happened (`activity_log` table + `server/utils/activityLog.ts`), not just a bare timestamp
 - [x] Admin CMS visual overhaul — "Minimal Neutral" theme distinct from the public site (near-white bg, indigo accent, soft shadows, thin 1px borders, plain sans-serif headings). Scoped entirely to `.admin-layout` via CSS custom property overrides in `app/assets/scss/base/_admin-theme.scss` — didn't touch the public site's look at all
-- [x] Fixed the editor→pages-list navigation freeze for real — `AdminSidebar.vue` had a blocking `await` and lives in the *layout* (not a page), so it wasn't covered by Nuxt's page-transition Suspense boundary; made it non-blocking
+- [x] Fixed the editor→pages-list navigation freeze for real — `AdminSidebar.vue` had a blocking `await` and lives in the _layout_ (not a page), so it wasn't covered by Nuxt's page-transition Suspense boundary; made it non-blocking
 - [x] `<NuxtLoadingIndicator>` added — visual feedback on every admin navigation, since some of it involves real blocking work (auth check + data fetch)
 - [x] Fixed the admin sidebar actually overlapping content — `.admin-sidebar` is `position: fixed` (deliberate), which needs a matching `margin-left` on `.admin-main` that wasn't there
 - [x] `useFetch` key collisions fixed on `/api/admin/me`, `/api/uploads`, and `/api/settings` — turned out `/api/admin/me` was the actual cause of a recurring "pages editor → back to pages list stays frozen until refresh" bug (the admin sidebar mounts for the first time on that exact transition, which is what triggered it)

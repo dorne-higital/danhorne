@@ -56,36 +56,36 @@
 		ul {
 			display: flex;
 			flex-direction: column;
-			gap: $space-xs;
+			gap: var(--padding-xs);
 		}
 
 		.page-option {
-			background: var(--surface);
+			background: var(--bg-secondary);
 			border: 1px solid var(--border);
-			border-radius: $radius-sm;
+			border-radius: var(--border-radius-sm);
 			cursor: pointer;
 			display: flex;
 			justify-content: space-between;
-			padding: $space-sm;
+			padding: var(--padding-sm);
 			width: 100%;
 
 			&:hover {
-				border-color: var(--secondary);
+				border-color: var(--brand-secondary);
 			}
 
 			.title {
-				font-weight: $weight-semibold;
+				font-weight: 600;
 			}
 
 			.slug {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: 0.9375rem;
 			}
 		}
 
 		.empty {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: 0.9375rem;
 		}
 	}
 </style>

@@ -53,15 +53,6 @@
 </template>
 
 <script setup lang="ts">
-	// Deliberately not awaited — this component lives in the admin *layout*,
-	// not a page, so it isn't covered by Nuxt's automatic page-transition
-	// Suspense boundary. It's also v-if'd on/off based on route (hidden on
-	// the block editor), so it has to mount fresh on some navigations. An
-	// awaited fetch here has no Suspense to manage it gracefully and can
-	// stall the whole layout re-render until it resolves — i.e. the "editor
-	// → back to pages list freezes until refresh" bug. `me` starts
-	// undefined and updates reactively once the fetch resolves; every usage
-	// below already handles that via optional chaining.
 	const { data: me } = useAdminProfile()
 
 	const navItems = computed(() => {
@@ -70,6 +61,7 @@
 			{ label: 'Pages', to: '/admin/pages' },
 			{ label: 'Uploads', to: '/admin/uploads' },
 			{ label: 'Menus', to: '/admin/menus' },
+			{ label: 'Forms', to: '/admin/forms' },
 		]
 		if (me.value?.profile.role === 'admin') {
 			items.push({ label: 'Users', to: '/admin/users' }, { label: 'Settings', to: '/admin/settings' })
@@ -87,49 +79,49 @@
 
 <style lang="scss" scoped>
 	.admin-sidebar {
-		background: var(--surface);
+		background: var(--bg-secondary);
 		border-right: 1px solid var(--border);
 		display: flex;
 		flex-direction: column;
-		gap: $space-lg;
+		gap: var(--padding-lg);
 		max-height: 100dvh;
 		min-height: 100dvh;
-		padding: $space-lg $space-md;
+		padding: var(--padding-lg) var(--padding-md);
 		position: fixed;
 		width: 220px;
 
 		.brand {
-			font-family: $font-display;
-			font-size: $text-lg;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: 1.25rem;
+			font-weight: var(--heading-font-weight);
 		}
 
 		.nav {
 			display: flex;
 			flex: 1;
 			flex-direction: column;
-			gap: $space-xs;
+			gap: var(--padding-xs);
 		}
 
 		.nav-item {
 			align-items: center;
 			border-left: 2px solid transparent;
-			border-radius: $radius-sm;
+			border-radius: var(--border-radius-sm);
 			color: var(--text-secondary);
 			display: flex;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--navigation-size);
+			font-weight: var(--navigation-font-weight);
 			justify-content: space-between;
-			padding: $space-sm;
+			padding: var(--padding-sm);
 
 			&:hover {
-				background: var(--surface-hover);
+				background: var(--bg-secondary);
 			}
 
 			&.active {
-				background: var(--surface-muted);
-				border-left-color: var(--primary);
-				color: var(--text);
+				background: var(--bg-secondary);
+				border-left-color: var(--brand-primary);
+				color: var(--text-primary);
 			}
 		}
 
@@ -137,16 +129,16 @@
 			border-top: 1px solid var(--border);
 			display: flex;
 			flex-direction: column;
-			gap: $space-xs;
-			padding-top: $space-md;
+			gap: var(--padding-xs);
+			padding-top: var(--padding-md);
 
 			.name {
 				align-items: center;
-				color: var(--text);
+				color: var(--text-primary);
 				display: flex;
 				flex-direction: row;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--navigation-size);
+				font-weight: var(--navigation-font-weight);
 				gap: 0.5rem;
 				line-height: 1.5rem;
 				overflow: hidden;
@@ -163,7 +155,7 @@
 
 			.account-links {
 				display: flex;
-				gap: $space-sm;
+				gap: var(--padding-sm);
 				margin-top: auto;
 
 				a,
@@ -172,8 +164,8 @@
 					border: none;
 					color: var(--link);
 					cursor: pointer;
-					font-size: $text-sm;
-					font-weight: $weight-semibold;
+					font-size: var(--navigation-size);
+					font-weight: var(--navigation-font-weight);
 					padding: 0;
 				}
 

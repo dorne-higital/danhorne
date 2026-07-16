@@ -35,18 +35,18 @@
 
 <style lang="scss" scoped>
 	.service-card {
-		background: var(--surface);
+		background: var(--bg-secondary);
 		border: 2px solid var(--border);
-		border-radius: $radius-md;
+		border-radius: var(--border-radius-md);
 		display: flex;
 		flex-direction: column;
 		grid-column: span 1;
 		justify-content: flex-start;
 		overflow: hidden;
-		padding: $space-lg;
+		padding: var(--padding-lg);
 		position: relative;
 
-		@media (width >= $container-md) {
+		@media (width >= 768px) {
 			&.span-2 {
 				grid-column: span 2;
 			}
@@ -55,7 +55,7 @@
 		.top {
 			display: flex;
 			flex-direction: column;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 			position: relative;
 			z-index: 1;
 		}
@@ -63,30 +63,30 @@
 		.number {
 			border-bottom: 1px solid var(--text-secondary);
 			color: var(--text-secondary);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 			padding-bottom: 0.25rem;
 			width: fit-content;
 		}
 
 		.title {
-			color: var(--text);
-			font-family: $font-display;
-			font-size: $text-xl;
-			font-weight: $weight-bold;
+			color: var(--text-primary);
+			font-family: var(--heading-font-family);
+			font-size: var(--h3-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.description {
 			color: var(--text-secondary);
-			font-size: $text-base;
-			line-height: $leading-normal;
+			font-size: var(--body-size);
+			line-height: var(--leading-normal);
 		}
 
 		&.primary {
-			background: var(--primary);
+			background: var(--brand-primary);
 
 			.glow {
-				background: radial-gradient(circle, var(--text) 0%, transparent 70%);
+				background: radial-gradient(circle, var(--text-primary) 0%, transparent 70%);
 				border-radius: 50%;
 				filter: blur(48px);
 				height: 220px;
@@ -99,10 +99,10 @@
 		}
 
 		&.tint {
-			background: color-mix(in srgb, var(--primary) 18%, var(--surface) 82%);
+			background: color-mix(in srgb, var(--brand-primary) 18%, var(--bg-secondary) 82%);
 
 			.glow {
-				background: radial-gradient(circle, var(--text) 0%, transparent 70%);
+				background: radial-gradient(circle, var(--text-primary) 0%, transparent 70%);
 				border-radius: 50%;
 				bottom: -60px;
 				filter: blur(48px);

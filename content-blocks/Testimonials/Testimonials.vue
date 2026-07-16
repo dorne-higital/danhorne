@@ -46,20 +46,20 @@
 
 <style lang="scss" scoped>
 	.testimonials {
-		background: var(--bg-alt);
-		padding-block: $space-xl;
+		background: var(--bg-secondary);
+		padding-block: var(--padding-xl);
 
 		.panel {
-			background: linear-gradient(135deg, var(--bg), var(--bg-muted));
-			border-radius: $radius-md;
-			box-shadow: var(--shadow);
+			background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+			border-radius: var(--border-radius-md);
+			box-shadow: var(--shadow-md);
 			color: #fff;
 			overflow: hidden;
-			padding: $space-lg;
+			padding: var(--padding-lg);
 			position: relative;
 
 			.glow {
-				background: color-mix(in srgb, var(--bg-alt) 60%, var(--bg) 18%);
+				background: color-mix(in srgb, var(--bg-secondary) 60%, var(--bg-primary) 18%);
 				border-radius: 50%;
 				bottom: -60px;
 				height: 220px;
@@ -74,15 +74,15 @@
 				.mark {
 					color: var(--text-secondary);
 					font-size: 3.75rem;
-					font-weight: var(--weight-semibold);
+					font-weight: 600;
 					line-height: 0.6;
 					opacity: 0.6;
 				}
 
 				.quote {
-					color: var(--text);
+					color: var(--text-primary);
 					font-size: clamp(1.5rem, 3.4vw, 2.625rem);
-					font-weight: var(--weight-bold);
+					font-weight: var(--heading-font-weight);
 					letter-spacing: -0.025em;
 					line-height: 1.12;
 				}
@@ -91,24 +91,24 @@
 					align-items: center;
 					color: var(--text-secondary);
 					display: flex;
-					gap: $space-sm;
-					margin-top: $space-md;
+					gap: var(--padding-sm);
+					margin-top: var(--padding-md);
 
 					.avatar {
 						background: rgb(255 255 255 / 20%);
 						border: 1px solid var(--border-strong);
 						border-radius: 50%;
 						display: grid;
-						font-size: var(--text-sm);
-						font-weight: $weight-bold;
+						font-size: var(--eyebrow-size);
+						font-weight: var(--heading-font-weight);
 						height: 46px;
 						place-items: center;
 						width: 46px;
 					}
 
 					.author-name {
-						font-size: var(--text-small);
-						font-weight: var(--weight-semibold);
+						font-size: var(--eyebrow-size);
+						font-weight: 600;
 					}
 
 					.author-role {

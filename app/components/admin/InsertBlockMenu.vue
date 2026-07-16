@@ -37,7 +37,6 @@
 	}
 
 	onMounted(() => {
-		// Deferred a tick so the click that opened this menu doesn't also close it.
 		setTimeout(() => document.addEventListener('click', onDocumentClick), 0)
 	})
 
@@ -48,15 +47,15 @@
 
 <style lang="scss" scoped>
 	.insert-block-menu {
-		background: var(--surface);
-		border: 1px solid var(--text);
-		border-radius: $radius-sm;
+		background: var(--bg-secondary);
+		border: 1px solid var(--text-primary);
+		border-radius: var(--border-radius-sm);
 		box-shadow: var(--shadow-lg);
 		cursor: default;
 		left: 50%;
 		max-height: 20rem;
 		overflow-y: auto;
-		padding: $space-xs;
+		padding: var(--padding-xs);
 		position: absolute;
 		top: 100%;
 		transform: translateX(-50%);
@@ -64,33 +63,33 @@
 		z-index: 30;
 
 		.group + .group {
-			margin-top: $space-xs;
+			margin-top: var(--padding-xs);
 		}
 
 		.group-heading {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 			display: block;
 			font-size: 0.6875rem;
-			font-weight: $weight-bold;
+			font-weight: var(--heading-font-weight);
 			letter-spacing: 0.04em;
-			padding: $space-xs $space-sm;
+			padding: var(--padding-xs) var(--padding-sm);
 			text-transform: uppercase;
 		}
 
 		.option {
 			background: none;
 			border: none;
-			border-radius: $radius-sm;
+			border-radius: var(--border-radius-sm);
 			cursor: pointer;
 			display: block;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
-			padding: $space-xs $space-sm;
+			font-size: 0.9375rem;
+			font-weight: 600;
+			padding: var(--padding-xs) var(--padding-sm);
 			text-align: left;
 			width: 100%;
 
 			&:hover {
-				background: var(--surface-hover);
+				background: var(--bg-secondary);
 			}
 		}
 	}

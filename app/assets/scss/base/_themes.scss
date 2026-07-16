@@ -1,83 +1,94 @@
 /* LIGHT THEME (default) */
 :root {
 	// backgrounds
-	--bg: #f1ede3;
-	--bg-alt: color-mix(in srgb, var(--bg) 90%, var(--text) 5%);
-	--bg-muted: color-mix(in srgb, var(--bg) 80%, var(--text) 12%);
-
-	// surfaces
-	--surface: #fff;
-	--surface-muted: color-mix(in srgb, var(--surface) 96%, var(--bg) 4%);
-	--surface-hover: color-mix(in srgb, var(--surface) 92%, var(--text) 8%);
+	--bg-primary: #f1ede3;
+	--bg-secondary: #fff;
 
 	// text
-	--text: #0b1626;
-	--text-secondary: #162439;
-	--text-muted: rgb(29 53 87 / 70%);
+	--text-primary: #0b1626;
+	--text-secondary: rgb(29 53 87 / 70%);
 	--text-inverse: #fff;
 
 	// brand — the core palette, never swapped between themes
-	--primary: #e63946; // Punch Red
-	--primary-light: color-mix(in srgb, var(--primary) 75%, white 25%);
-	--primary-dark: color-mix(in srgb, var(--primary) 80%, black 20%);
-	--primary-text: var(--primary-dark); // plain --primary on this bg is only ~4:1 — use this for small/normal red text
-	--secondary: #457b9d; // Cerulean
-	--accent: #a8dadc; // Frosted Blue
+	--brand-primary: #e63946; // Punch Red
+	--brand-secondary: #457b9d; // Cerulean
+	--brand-accent: #a8dadc; // Frosted Blue
 
 	// semantic
 	--success: #3a9d5d;
-	--success-bg: color-mix(in srgb, var(--success) 15%, var(--surface) 85%);
+	--success-bg: color-mix(in srgb, var(--success) 15%, var(--bg-secondary) 85%);
 	--error: #c1121f;
-	--error-bg: color-mix(in srgb, var(--error) 15%, var(--surface) 85%);
+	--error-bg: color-mix(in srgb, var(--error) 15%, var(--bg-secondary) 85%);
 	--warning: #e9a23b;
-	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--surface) 82%);
-	--info: var(--secondary);
-	--info-bg: color-mix(in srgb, var(--info) 15%, var(--surface) 85%);
+	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--bg-secondary) 82%);
+	--info: var(--brand-secondary);
+	--info-bg: color-mix(in srgb, var(--info) 15%, var(--bg-secondary) 85%);
 
 	// links
-	--link: var(--secondary);
-	--link-hover: var(--primary);
+	--link: #4492c3;
+	--link-hover: #156291;
 
 	// borders
 	--border: rgb(29 53 87 / 14%);
 	--border-strong: rgb(29 53 87 / 28%);
 
-	// shadows — soft elevation tiers (the hard "poster shadow" is a pseudo-element, not box-shadow — see .btn/.work-card)
+	// radius
+	--border-radius-sm: 6px;
+	--border-radius-md: 12px;
+	--border-radius-lg: 20px;
+	--border-radius-pill: 9999px;
+
+	// shadows — soft elevation tiers (the hard "poster shadow" is a filter
+	// on .btn itself, not a shadow token — see components/_buttons.scss)
 	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%);
-	--shadow: 0 4px 10px rgb(29 53 87 / 12%);
+	--shadow-md: 0 4px 10px rgb(29 53 87 / 12%);
 	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%);
+
+	// typography — font stacks
+	--heading-font-family: 'Baloo 2', system-ui, sans-serif;
+	--body-font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+
+	// typography — sizes
+	--hero-size: clamp(3.5rem, 7vw, 4.5rem);
+	--h1-size: 3.5rem;
+	--h2-size: 2.5rem;
+	--h3-size: 1.75rem;
+	--h4-size: 1.25rem;
+	--h5-size: 1.0625rem;
+	--h6-size: 0.9375rem;
+	--eyebrow-size: 0.9375rem;
+	--button-size: 0.9375rem;
+	--navigation-size: 0.9375rem;
+	--body-size: 1.0625rem;
+
+	// typography — weights
+	--heading-font-weight: 800;
+	--button-font-weight: 700;
+	--navigation-font-weight: 600;
+	--body-font-weight: 400;
+
+	// spacing
+	--padding-xs: 0.5rem;
+	--padding-sm: 1rem;
+	--padding-md: 1.5rem;
+	--padding-lg: 2rem;
+	--padding-xl: 3rem;
 }
 
 /* DARK THEME — opt in per section with data-theme="dark" */
 [data-theme='dark'] {
 	// backgrounds — built from Oxford Navy, not a generic slate
-	--bg: #1d3557;
-	--bg-alt: #24406b;
-	--bg-muted: #2c4d80;
-
-	// surfaces
-	--surface: #24406b;
-	--surface-muted: #2c4d80;
-	--surface-hover: #35598f;
+	--bg-primary: #1d3557;
+	--bg-secondary: #24406b;
 
 	// text
-	--text: #f1faee;
-	--text-secondary: color-mix(in srgb, var(--text) 80%, var(--bg) 20%);
-	--text-muted: rgb(241 250 238 / 60%);
+	--text-primary: #f1faee;
+	--text-secondary: rgb(241 250 238 / 60%);
 	--text-inverse: #1d3557;
 
-	// brand — primary stays identical to light mode, still sacred
-	--primary: #e63946;
-	--primary-light: color-mix(
-		in srgb,
-		var(--primary) 60%,
-		white 40%
-	); // 70/30 measured ~4.4:1 on navy, fails AA — 60/40 clears 4.5:1
-
-	--primary-dark: color-mix(in srgb, var(--primary) 80%, black 20%);
-	--primary-text: var(--primary-light); // plain --primary on navy is only ~3:1 — use this for small/normal red text
-	--secondary: #6ba3c7;
-	--accent: #a8dadc;
+	// brand — primary/accent stay identical to light mode, still sacred;
+	// secondary shifts lighter for contrast against navy
+	--brand-secondary: #6ba3c7;
 
 	// semantic — brightened for contrast against navy
 	--success: #4cb376;
@@ -86,12 +97,12 @@
 	--error-bg: rgb(224 82 74 / 15%);
 	--warning: #f0b25c;
 	--warning-bg: rgb(240 178 92 / 15%);
-	--info: var(--secondary);
+	--info: var(--brand-secondary);
 	--info-bg: rgb(107 163 199 / 15%);
 
 	// links
-	--link: var(--accent);
-	--link-hover: var(--primary);
+	--link: var(--brand-accent);
+	--link-hover: var(--brand-primary);
 
 	// borders
 	--border: rgb(255 255 255 / 14%);
@@ -99,6 +110,96 @@
 
 	// shadows
 	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
-	--shadow: 0 4px 10px rgb(0 0 0 / 40%);
+	--shadow-md: 0 4px 10px rgb(0 0 0 / 40%);
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%);
+}
+
+body.is-admin {
+	--bg-primary: #fafafa !important;
+	--bg-secondary: #fff !important;
+	--text-primary: #18181b !important;
+	--text-secondary: rgb(24 24 27 / 60%) !important;
+	--text-inverse: #fff !important;
+	--brand-primary: #4f46e5 !important;
+	--brand-secondary: #6366f1 !important;
+	--brand-accent: #a5b4fc !important;
+	--success: #16a34a !important;
+	--success-bg: color-mix(in srgb, #16a34a 12%, white 88%) !important;
+	--error: #dc2626 !important;
+	--error-bg: color-mix(in srgb, #dc2626 12%, white 88%) !important;
+	--warning: #d97706 !important;
+	--warning-bg: color-mix(in srgb, #d97706 14%, white 86%) !important;
+	--info: var(--brand-secondary) !important;
+	--info-bg: color-mix(in srgb, #6366f1 12%, white 88%) !important;
+	--link: #307fb0 !important;
+	--link-hover: #0b476c !important;
+	--border: #e4e4e7 !important;
+	--border-strong: #d4d4d8 !important;
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 4%) !important;
+	--shadow-md: 0 2px 8px rgb(0 0 0 / 6%) !important;
+	--shadow-lg: 0 8px 24px rgb(0 0 0 / 8%) !important;
+	--heading-font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+	--heading-font-weight: 600;
+}
+
+body.is-admin .btn {
+	box-shadow: var(--shadow-sm);
+	filter: none;
+
+	&:hover {
+		box-shadow: var(--shadow-md);
+		transform: none;
+	}
+
+	&:active {
+		box-shadow: var(--shadow-sm);
+		transform: none;
+	}
+}
+
+body.is-admin .block-preview {
+	--bg-secondary: #fff !important;
+	--text-primary: #0b1626 !important;
+	--text-secondary: rgb(29 53 87 / 70%) !important;
+	--text-inverse: #fff !important;
+	--success: #3a9d5d !important;
+	--success-bg: color-mix(in srgb, var(--success) 15%, var(--bg-secondary) 85%) !important;
+	--error: #c1121f !important;
+	--error-bg: color-mix(in srgb, var(--error) 15%, var(--bg-secondary) 85%) !important;
+	--warning: #e9a23b !important;
+	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--bg-secondary) 82%) !important;
+	--info: var(--brand-secondary) !important;
+	--info-bg: color-mix(in srgb, var(--info) 15%, var(--bg-secondary) 85%) !important;
+	--link: var(--brand-secondary) !important;
+	--link-hover: var(--brand-primary) !important;
+	--border: rgb(29 53 87 / 14%) !important;
+	--border-strong: rgb(29 53 87 / 28%) !important;
+	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%) !important;
+	--shadow-md: 0 4px 10px rgb(29 53 87 / 12%) !important;
+	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%) !important;
+	--heading-font-family: 'Baloo 2', system-ui, sans-serif !important;
+	--heading-font-weight: 800 !important;
+}
+
+body.is-admin .block-preview [data-theme='dark'] {
+	--bg-secondary: #24406b !important;
+	--text-primary: #f1faee !important;
+	--text-secondary: rgb(241 250 238 / 60%) !important;
+	--text-inverse: #1d3557 !important;
+	--brand-secondary: #6ba3c7 !important;
+	--success: #4cb376 !important;
+	--success-bg: rgb(76 179 118 / 15%) !important;
+	--error: #e0524a !important;
+	--error-bg: rgb(224 82 74 / 15%) !important;
+	--warning: #f0b25c !important;
+	--warning-bg: rgb(240 178 92 / 15%) !important;
+	--info: var(--brand-secondary) !important;
+	--info-bg: rgb(107 163 199 / 15%) !important;
+	--link: var(--brand-accent) !important;
+	--link-hover: var(--brand-primary) !important;
+	--border: rgb(255 255 255 / 14%) !important;
+	--border-strong: rgb(241 250 238 / 26%) !important;
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%) !important;
+	--shadow-md: 0 4px 10px rgb(0 0 0 / 40%) !important;
+	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%) !important;
 }

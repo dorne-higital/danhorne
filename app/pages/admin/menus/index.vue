@@ -110,13 +110,8 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	// Explicit key — see the comment in admin/index.vue's dashboard fetch for
-	// why: this same URL is also fetched (with its own distinct key) from
-	// the dashboard.
 	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-menus-list' })
 
-	// Lets the dashboard's "New menu" quick action deep-link straight into
-	// this modal already open, via /admin/menus?new=1.
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
 	const newId = ref('')
@@ -165,19 +160,19 @@
 
 <style lang="scss" scoped>
 	.admin-menus {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.page-header {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			margin-bottom: $space-lg;
+			margin-bottom: var(--padding-lg);
 		}
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.menu-list {
@@ -187,19 +182,19 @@
 			th,
 			td {
 				border-bottom: 1px solid var(--border);
-				padding: $space-sm;
+				padding: var(--padding-sm);
 				text-align: left;
 			}
 
 			th {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 				text-transform: uppercase;
 			}
 
 			a {
 				color: var(--link);
-				font-weight: $weight-semibold;
+				font-weight: 600;
 			}
 
 			.link-btn {
@@ -207,18 +202,18 @@
 				border: none;
 				color: var(--error);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 			}
 		}
 
 		.empty {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 
 			code {
-				background: var(--surface-muted);
-				border-radius: $radius-sm;
-				padding: 2px $space-xs;
+				background: var(--bg-secondary);
+				border-radius: var(--border-radius-sm);
+				padding: 2px var(--padding-xs);
 			}
 		}
 	}
@@ -226,25 +221,25 @@
 	.create-form {
 		display: flex;
 		flex-direction: column;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 
 		label {
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		input {
-			background: var(--bg);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-size: $text-base;
-			padding: $space-sm;
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 	}
 </style>

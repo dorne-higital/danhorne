@@ -150,21 +150,21 @@
 	.seo-form {
 		display: flex;
 		flex-direction: column;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 
 		label {
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: 0.9375rem;
+			font-weight: 600;
 		}
 
 		input,
 		textarea {
-			background: var(--bg);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-family: $font-sans;
-			font-size: $text-base;
-			padding: $space-sm;
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-family: var(--body-font-family);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
 			width: 100%;
 		}
 
@@ -175,9 +175,9 @@
 		.og-image {
 			align-items: center;
 			aspect-ratio: 1200 / 630;
-			background: var(--bg-alt);
+			background: var(--bg-secondary);
 			border: 1px solid var(--border);
-			border-radius: $radius-sm;
+			border-radius: var(--border-radius-sm);
 			display: flex;
 			justify-content: center;
 			overflow: hidden;
@@ -189,14 +189,14 @@
 			}
 
 			.placeholder {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: 0.9375rem;
 			}
 		}
 
 		.og-image-actions {
 			display: flex;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 		}
 
 		.link-btn {
@@ -204,14 +204,14 @@
 			border: none;
 			color: var(--error);
 			cursor: pointer;
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--button-size);
+			font-weight: var(--button-font-weight);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: 0.9375rem;
+			font-weight: 600;
 		}
 	}
 </style>

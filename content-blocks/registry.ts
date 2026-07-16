@@ -15,9 +15,6 @@ export interface BlockSchemaGroup {
 	schemas: BlockSchema[]
 }
 
-// Preferred display order for the block picker — groups not listed here
-// (e.g. a new block dropped in without a `group`) fall back to "Other" and
-// sort alphabetically after the known ones.
 const GROUP_ORDER = ['Hero', 'Content', 'Sections', 'CTAs']
 
 export function getGroupedBlockSchemas(): BlockSchemaGroup[] {

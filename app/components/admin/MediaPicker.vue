@@ -98,7 +98,7 @@
 	.media-picker {
 		display: flex;
 		flex-direction: column;
-		gap: $space-md;
+		gap: var(--padding-md);
 
 		.toolbar {
 			display: flex;
@@ -110,27 +110,27 @@
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: 0.9375rem;
+			font-weight: 600;
 		}
 
 		.grid {
 			display: grid;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 			grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
 		}
 
 		.thumb {
 			aspect-ratio: 1;
-			background: var(--bg-alt);
+			background: var(--bg-secondary);
 			border: 1px solid var(--border);
-			border-radius: $radius-sm;
+			border-radius: var(--border-radius-sm);
 			cursor: pointer;
 			overflow: hidden;
 			padding: 0;
 
 			&:hover {
-				border-color: var(--secondary);
+				border-color: var(--brand-secondary);
 			}
 
 			img {
@@ -141,8 +141,8 @@
 		}
 
 		.empty {
-			color: var(--text-muted);
-			font-size: $text-sm;
+			color: var(--text-secondary);
+			font-size: 0.9375rem;
 		}
 	}
 </style>

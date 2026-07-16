@@ -300,15 +300,8 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	// Explicit key — see the comment in admin/index.vue's dashboard fetch for
-	// why: useFetch's auto-generated key is just the URL, and this same URL
-	// is also fetched from the dashboard and the page editor.
 	const { data: pages, refresh } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-pages-list' })
 
-	// Pagination stays scoped to top-level pages only — a section with lots
-	// of children (e.g. Work with a dozen client pages) shouldn't shrink how
-	// many top-level sections fit on a page. Homepage pinned first, everything
-	// else alphabetical, same rule applied at every depth (sortPageSiblings).
 	const childrenByParent = computed(() => groupPagesByParent(pages.value ?? []))
 	const topLevelSorted = computed(() => sortPageSiblings(childrenByParent.value.get(null) ?? []))
 
@@ -322,9 +315,6 @@
 		return topLevelSorted.value.slice(start, start + pageSize.value)
 	})
 
-	// Every visible top-level page's full descendant subtree, flattened
-	// depth-first for rendering — collapsed parents just stop their branch
-	// from expanding further, the row list otherwise stays flat.
 	const collapsedIds = ref(new Set<string>())
 	function toggleCollapse(id: string) {
 		const next = new Set(collapsedIds.value)
@@ -336,14 +326,8 @@
 		flattenPageTree(paginatedTopLevel.value, childrenByParent.value, { collapsedIds: collapsedIds.value }),
 	)
 
-	// Fully expanded, unfiltered — used for the "Parent page" picker in the
-	// New page modal (a brand-new page can't be anyone's ancestor yet).
 	const parentOptions = computed(() => flattenPageTree(topLevelSorted.value, childrenByParent.value))
 
-	// Child slugs can get long (parent path + their own segment) — showing
-	// just the page's own segment with a "../" prefix keeps the column a
-	// stable width and still makes it obvious this is a nested page. The
-	// full slug is still available via the cell's title tooltip.
 	function childSlugLabel(slug: string): string {
 		const segments = slug.split('/').filter(Boolean)
 		return `../${segments[segments.length - 1]}`
@@ -357,8 +341,6 @@
 		if (currentPage.value > total) currentPage.value = total
 	})
 
-	// Lets the dashboard's "New page" quick action deep-link straight into
-	// this modal already open, via /admin/pages?new=1.
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newTitle = ref('')
 	const newParentId = ref('')
@@ -367,9 +349,6 @@
 	const creating = ref(false)
 	const createError = ref('')
 
-	// Auto-nest the slug under the chosen parent, same "auto-derived but
-	// overridable" pattern as the nickname auto-fill in /admin/profile —
-	// stops the moment the user types their own slug.
 	watch(newParentId, (parentId) => {
 		if (slugTouched.value) return
 		const parent = pages.value?.find((p) => p.id === parentId)
@@ -457,19 +436,19 @@
 
 <style lang="scss" scoped>
 	.admin-pages {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.page-header {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			margin-bottom: $space-lg;
+			margin-bottom: var(--padding-lg);
 		}
 
 		h1 {
-			font-family: $font-display;
-			font-size: $text-2xl;
-			font-weight: $weight-bold;
+			font-family: var(--heading-font-family);
+			font-size: var(--h2-size);
+			font-weight: var(--heading-font-weight);
 		}
 
 		.page-list {
@@ -484,32 +463,32 @@
 			th,
 			td {
 				overflow: hidden;
-				padding: $space-sm;
+				padding: var(--padding-sm);
 				text-align: left;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
 
 			th {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 				text-transform: uppercase;
 			}
 
 			a {
 				color: var(--link);
-				font-weight: $weight-semibold;
+				font-weight: 600;
 			}
 
 			.slug-cell {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 			}
 
 			.title-cell {
 				align-items: center;
 				display: flex;
-				gap: $space-xs;
+				gap: var(--padding-xs);
 				min-width: 0;
 
 				a {
@@ -528,13 +507,13 @@
 			.collapse-btn {
 				background: none;
 				border: none;
-				color: var(--text-muted);
+				color: var(--text-secondary);
 				cursor: pointer;
 				display: flex;
 				padding: 0;
 
 				&:hover {
-					color: var(--text);
+					color: var(--text-primary);
 				}
 			}
 
@@ -550,7 +529,7 @@
 
 			.actions {
 				display: flex;
-				gap: $space-md;
+				gap: var(--padding-md);
 			}
 
 			.link-btn {
@@ -558,8 +537,8 @@
 				border: none;
 				color: var(--link);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 
 				&.danger {
 					color: var(--error);
@@ -568,40 +547,40 @@
 		}
 
 		.empty {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 		}
 
 		.pagination {
 			align-items: center;
 			display: flex;
 			justify-content: space-between;
-			margin-top: $space-md;
+			margin-top: var(--padding-md);
 		}
 
 		.page-size {
 			align-items: center;
-			color: var(--text-muted);
+			color: var(--text-secondary);
 			display: flex;
-			font-size: $text-sm;
-			gap: $space-xs;
+			font-size: var(--eyebrow-size);
+			gap: var(--padding-xs);
 
 			select {
-				background: var(--surface);
-				border: 1px solid var(--text);
-				border-radius: $radius-sm;
-				font-size: $text-sm;
-				padding: $space-xs $space-sm;
+				background: var(--bg-secondary);
+				border: 1px solid var(--text-primary);
+				border-radius: var(--border-radius-sm);
+				font-size: var(--eyebrow-size);
+				padding: var(--padding-xs) var(--padding-sm);
 			}
 		}
 
 		.page-nav {
 			align-items: center;
 			display: flex;
-			gap: $space-sm;
+			gap: var(--padding-sm);
 
 			span {
-				color: var(--text-muted);
-				font-size: $text-sm;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
 			}
 
 			.link-btn {
@@ -609,11 +588,11 @@
 				border: none;
 				color: var(--link);
 				cursor: pointer;
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 
 				&:disabled {
-					color: var(--text-muted);
+					color: var(--text-secondary);
 					cursor: default;
 				}
 			}
@@ -623,26 +602,26 @@
 	.create-form {
 		display: flex;
 		flex-direction: column;
-		gap: $space-sm;
+		gap: var(--padding-sm);
 
 		label {
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 
 		input,
 		select {
-			background: var(--bg);
-			border: 1px solid var(--text);
-			border-radius: $radius-sm;
-			font-size: $text-base;
-			padding: $space-sm;
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			padding: var(--padding-sm);
 		}
 
 		.error {
 			color: var(--error);
-			font-size: $text-sm;
-			font-weight: $weight-semibold;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
 		}
 	}
 </style>

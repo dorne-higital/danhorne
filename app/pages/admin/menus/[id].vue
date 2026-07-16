@@ -117,36 +117,36 @@
 
 <style lang="scss" scoped>
 	.admin-menu-editor {
-		padding-block: $space-xl;
+		padding-block: var(--padding-xl);
 
 		.editor-header {
 			align-items: center;
 			display: flex;
-			gap: $space-md;
-			margin-bottom: $space-md;
+			gap: var(--padding-md);
+			margin-bottom: var(--padding-md);
 
 			.back {
-				color: var(--text-muted);
-				font-size: $text-sm;
-				font-weight: $weight-semibold;
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
 			}
 
 			h1 {
 				flex: 1;
-				font-family: $font-display;
-				font-size: $text-2xl;
-				font-weight: $weight-bold;
+				font-family: var(--heading-font-family);
+				font-size: var(--h2-size);
+				font-weight: var(--heading-font-weight);
 			}
 		}
 
 		.toolbar {
 			display: flex;
-			gap: $space-sm;
-			margin-bottom: $space-lg;
+			gap: var(--padding-sm);
+			margin-bottom: var(--padding-lg);
 		}
 
 		.empty {
-			color: var(--text-muted);
+			color: var(--text-secondary);
 		}
 	}
 </style>

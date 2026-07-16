@@ -1,41 +1,38 @@
-@use '../tokens' as *;
-
 .btn {
 	align-items: center;
-	background: var(--surface);
-	border: 2px solid var(--text);
-	border-radius: $radius-sm;
-	color: var(--text);
+	background: var(--bg-secondary);
+	border: 2px solid var(--text-primary);
+	border-radius: var(--border-radius-sm);
+	color: var(--text-primary);
 	cursor: pointer;
 	display: inline-flex;
-	filter: drop-shadow($shadow-offset $shadow-offset 0 var(--text));
-	font-family: $font-sans;
-	font-size: $text-sm;
-	font-weight: $weight-semibold;
-	gap: $space-xs;
-	padding: $space-sm $space-lg;
+	font-family: var(--body-font-family);
+	font-size: var(--button-size);
+	font-weight: var(--button-font-weight);
+	gap: var(--padding-xs);
+	padding: var(--padding-sm) var(--padding-lg);
 	text-decoration: none;
 	transition:
-		filter $transition-base,
-		transform $transition-spring;
+		filter var(--transition-base),
+		transform var(--transition-spring);
 
 	&:hover {
-		transform: translate(-2px, -2px);
+		transform: translate(1px, 1px);
 	}
 
 	&:active {
 		filter: none;
-		transform: translate($shadow-offset, $shadow-offset);
+		transform: translate(var(--shadow-offset), var(--shadow-offset));
 	}
 
 	&:focus-visible {
-		outline: 2px solid var(--secondary);
+		outline: 2px solid var(--brand-secondary);
 		outline-offset: 3px;
 	}
 
 	&.primary {
-		background: var(--primary);
-		color: var(--surface);
+		background: var(--brand-primary);
+		color: var(--bg-secondary);
 		width: fit-content;
 	}
 
@@ -49,12 +46,12 @@
 	}
 
 	&.lg {
-		font-size: $text-base;
-		padding: $space-md $space-xl;
+		font-size: var(--body-size);
+		padding: var(--padding-md) var(--padding-xl);
 	}
 
 	&.sm {
-		font-size: $text-sm;
-		padding: $space-xs $space-md;
+		font-size: var(--button-size);
+		padding: var(--padding-xs) var(--padding-md);
 	}
 }

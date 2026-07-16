@@ -1,4 +1,4 @@
-export type FieldType = 'text' | 'richtext' | 'image' | 'number' | 'select' | 'boolean' | 'repeater'
+export type FieldType = 'text' | 'richtext' | 'image' | 'number' | 'select' | 'boolean' | 'repeater' | 'form'
 
 export interface SelectOption {
 	label: string
@@ -131,6 +131,14 @@ export interface CompanyInfo {
 	postcode?: string
 }
 
+export interface SocialLinks {
+	facebook?: string
+	instagram?: string
+	linkedin?: string
+	tiktok?: string
+	youtube?: string
+}
+
 export interface SiteSettings {
 	id: string
 	primary_color: string
@@ -138,5 +146,34 @@ export interface SiteSettings {
 	accent_color: string
 	background_color: string
 	site_name: string
+	logo_url: string | null
+	contact_form_id: string | null
 	company: CompanyInfo | null
+	socials: SocialLinks | null
 }
+
+export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox'
+
+export interface FormFieldDef {
+	id: string
+	name: string
+	label: string
+	type: FormFieldType
+	required: boolean
+	width: 'quarter' | 'half' | 'full'
+	placeholder?: string
+	hint?: string
+	// Only used when type === 'select'
+	options?: SelectOption[]
+}
+
+export interface FormRecord {
+	id: string
+	name: string
+	fields: FormFieldDef[]
+	submit_label: string
+	success_message: string
+	updated_at?: string
+}
+
+export type FormSummary = Omit<FormRecord, 'fields'>

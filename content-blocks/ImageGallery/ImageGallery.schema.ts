@@ -1,8 +1,5 @@
 import type { BlockSchema } from '#shared/types/cms'
 
-// Fixed set of optional image slots rather than a 'repeater' field (added
-// later) — could be migrated to a repeater of { image } items if this needs
-// to grow past 6. Empty slots are skipped at render time.
 export default {
 	type: 'ImageGallery',
 	label: 'Image gallery',

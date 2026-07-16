@@ -50,7 +50,7 @@
 <style lang="scss" scoped>
 	.cb-hero {
 		overflow: hidden;
-		padding-block: $space-3xl;
+		padding-block: calc(var(--padding-xl) * 2);
 		position: relative;
 
 		.bg {
@@ -65,7 +65,7 @@
 		.inner {
 			display: flex;
 			flex-direction: column;
-			gap: $space-md;
+			gap: var(--padding-md);
 			position: relative;
 			z-index: 1;
 
