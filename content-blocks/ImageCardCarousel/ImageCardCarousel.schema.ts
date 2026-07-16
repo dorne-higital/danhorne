@@ -1,8 +1,8 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'Work',
-	label: 'Project Carousel',
+	type: 'ImageCardCarousel',
+	label: 'Image Card Carousel',
 	group: 'Sections',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },

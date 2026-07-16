@@ -6,12 +6,12 @@ body {
 	font-weight: var(--body-font-weight);
 }
 
-.display-xl {
-	font-family: var(--heading-font-family);
-	font-size: var(--hero-size);
-	font-weight: var(--heading-font-weight);
-	line-height: var(--leading-tight);
-}
+// .display-xl {
+// 	font-family: var(--heading-font-family);
+// 	font-size: var(--hero-size);
+// 	font-weight: var(--heading-font-weight);
+// 	line-height: var(--leading-tight);
+// }
 
 .body-lg {
 	font-size: 1.25rem;
@@ -37,6 +37,21 @@ body {
 
 .text-brand {
 	color: var(--brand-primary);
+}
+
+.hero,
+.h1,
+h1,
+.h2,
+h2,
+.h3,
+h3,
+.h4,
+h4,
+.h5,
+h5 {
+	font-family: var(--heading-font-family);
+	font-weight: var(--heading-font-weight);
 }
 
 .hero {
@@ -85,5 +100,126 @@ h6 {
 		flex-shrink: 0;
 		height: 1px;
 		width: 0.5rem;
+	}
+}
+
+// Styles the raw HTML a Tiptap richtext field produces (RichTextEditor.vue,
+// also applied inside the editor itself via editorProps so editing matches
+// the live output) — every element it can create, explicitly themed so
+// dark-mode blocks pick up the right colors instead of relying on
+// inheritance. Deliberately no font-size here — that's a per-usage choice
+// (e.g. .body-lg on TextBlock), .prose only owns structure/color.
+.prose {
+	color: var(--text-primary);
+	font-family: var(--body-font-family);
+	line-height: var(--leading-normal);
+
+	> * + * {
+		margin-top: var(--padding-sm);
+	}
+
+	> :is(h1, h2, h3, h4, h5, h6) {
+		margin-top: var(--padding-lg);
+	}
+
+	> :first-child {
+		margin-top: 0;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: var(--text-primary);
+		font-family: var(--heading-font-family);
+		font-weight: var(--heading-font-weight);
+		line-height: var(--leading-tight);
+	}
+
+	h1 {
+		font-size: var(--h1-size);
+	}
+
+	h2 {
+		font-size: var(--h2-size);
+	}
+
+	h3 {
+		font-size: var(--h3-size);
+	}
+
+	h4 {
+		font-size: var(--h4-size);
+	}
+
+	h5 {
+		font-size: var(--h5-size);
+	}
+
+	h6 {
+		font-size: var(--h6-size);
+	}
+
+	strong {
+		font-weight: 700;
+	}
+
+	a {
+		color: var(--link);
+		transition: color var(--transition-base);
+
+		&:hover {
+			color: var(--link-hover);
+		}
+	}
+
+	ul,
+	ol {
+		padding-left: var(--padding-lg);
+	}
+
+	ul {
+		list-style: disc;
+	}
+
+	ol {
+		list-style: decimal;
+	}
+
+	li + li {
+		margin-top: var(--padding-xs);
+	}
+
+	blockquote {
+		border-left: 3px solid var(--border-strong);
+		color: var(--text-secondary);
+		font-style: italic;
+		padding-left: var(--padding-md);
+	}
+
+	code {
+		background: var(--bg-secondary);
+		border-radius: var(--border-radius-sm);
+		font-size: 0.9em;
+		padding: 0.15em 0.4em;
+	}
+
+	pre {
+		background: var(--bg-secondary);
+		border-radius: var(--border-radius-sm);
+		overflow-x: auto;
+		padding: var(--padding-sm);
+
+		code {
+			background: none;
+			padding: 0;
+		}
+	}
+
+	hr {
+		border: none;
+		border-top: 1px solid var(--border);
 	}
 }

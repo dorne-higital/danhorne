@@ -95,6 +95,9 @@
 	const editor = useEditor({
 		content: props.modelValue,
 		extensions: [StarterKit, Link.configure({ openOnClick: false })],
+		// Same class the live output uses (base/_typography.scss) — what you
+		// see while editing matches what actually renders on the page.
+		editorProps: { attributes: { class: 'prose' } },
 		onUpdate: ({ editor }) => {
 			emit('update:modelValue', editor.getHTML())
 		},
@@ -168,35 +171,15 @@
 				background: var(--bg-secondary);
 				border: 1px solid var(--text-primary);
 				border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
-				font-family: var(--body-font-family);
 				font-size: var(--body-size);
 				min-height: 8rem;
 				padding: var(--padding-sm);
 
+				// Element-level styling (headings/lists/links/etc) comes from
+				// the .prose class added via editorProps above, same as the
+				// live output — nothing element-specific needed here.
 				&:focus {
 					outline: none;
-				}
-
-				p {
-					margin-bottom: var(--padding-xs);
-				}
-
-				h2,
-				h3 {
-					font-family: var(--heading-font-family);
-					font-weight: var(--heading-font-weight);
-					margin-bottom: var(--padding-xs);
-				}
-
-				ul,
-				ol {
-					margin-bottom: var(--padding-xs);
-					padding-left: var(--padding-lg);
-				}
-
-				a {
-					color: var(--link);
-					text-decoration: underline;
 				}
 			}
 		}

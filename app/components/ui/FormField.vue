@@ -13,6 +13,13 @@
 				class="req"
 				>*</span
 			>
+
+			<sub
+				v-if="hint && !error"
+				class="hint"
+			>
+				({{ hint }})
+			</sub>
 		</label>
 
 		<label
@@ -81,13 +88,6 @@
 			:required="required"
 			@blur="onBlur"
 		/>
-
-		<p
-			v-if="hint && !error"
-			class="hint"
-		>
-			{{ hint }}
-		</p>
 		<p
 			v-if="error"
 			class="error"
@@ -274,7 +274,8 @@
 
 		.hint {
 			color: var(--text-secondary);
-			font-size: var(--eyebrow-size);
+			font-size: 0.75rem;
+			text-transform: italic;
 		}
 
 		.error {

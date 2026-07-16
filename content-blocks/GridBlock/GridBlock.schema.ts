@@ -1,8 +1,8 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'Services',
-	label: 'Sevice Blocks',
+	type: 'GridBlock',
+	label: 'Grid Block',
 	group: 'Sections',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },

@@ -18,12 +18,12 @@
 					v-html="heading"
 				/>
 
-				<p
+				<h4
 					v-if="sub"
 					class="sub text-secondary"
 				>
 					{{ sub }}
-				</p>
+				</h4>
 
 				<div
 					v-if="ctaLabel || secondaryCtaLabel"
@@ -119,6 +119,7 @@
 
 <style lang="scss" scoped>
 	.cb-split-hero {
+		background: var(--bg-primary);
 		padding-block: calc(var(--padding-xl) * 2);
 
 		&.small-padding {

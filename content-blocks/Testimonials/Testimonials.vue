@@ -46,11 +46,11 @@
 
 <style lang="scss" scoped>
 	.testimonials {
-		background: var(--bg-secondary);
+		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
 		.panel {
-			background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+			background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
 			border-radius: var(--border-radius-md);
 			box-shadow: var(--shadow-md);
 			color: #fff;

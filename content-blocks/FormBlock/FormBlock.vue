@@ -1,39 +1,41 @@
 <template>
 	<section class="cb-form-block">
 		<div class="sw">
-			<div class="head">
-				<span
-					v-if="eyebrow"
-					class="eyebrow"
+			<div class="content">
+				<div class="head">
+					<span
+						v-if="eyebrow"
+						class="eyebrow"
+					>
+						{{ eyebrow }}
+					</span>
+					<h2
+						v-if="heading"
+						class="heading"
+					>
+						{{ heading }}
+					</h2>
+					<p
+						v-if="caption"
+						class="caption text-secondary"
+					>
+						{{ caption }}
+					</p>
+				</div>
+
+				<div
+					v-if="formId"
+					class="form-wrap"
 				>
-					{{ eyebrow }}
-				</span>
-				<h2
-					v-if="heading"
-					class="heading"
-				>
-					{{ heading }}
-				</h2>
+					<DynamicForm :form-id="formId" />
+				</div>
 				<p
-					v-if="caption"
-					class="caption text-secondary"
+					v-else
+					class="no-form"
 				>
-					{{ caption }}
+					No form selected — choose one in the block editor.
 				</p>
 			</div>
-
-			<div
-				v-if="formId"
-				class="form-wrap"
-			>
-				<DynamicForm :form-id="formId" />
-			</div>
-			<p
-				v-else
-				class="no-form"
-			>
-				No form selected — choose one in the block editor.
-			</p>
 		</div>
 	</section>
 </template>
@@ -59,6 +61,15 @@
 	.cb-form-block {
 		background: var(--bg-primary);
 		padding-block: calc(var(--padding-xl) * 2);
+
+		.content {
+			background-color: var(--bg-secondary);
+			border: 2px solid black;
+			border-radius: 20px;
+			margin: 0 auto;
+			max-width: 640px;
+			padding: var(--padding-md);
+		}
 
 		.head {
 			margin-inline: auto;

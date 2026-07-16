@@ -1,8 +1,8 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'Cta',
-	label: 'Block CTA',
+	type: 'CtaBlock',
+	label: 'CTA Block',
 	group: 'CTAs',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },

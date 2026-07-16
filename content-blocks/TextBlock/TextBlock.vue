@@ -2,7 +2,7 @@
 	<section class="cb-text-block sw">
 		<!-- eslint-disable-next-line vue/no-v-html -->
 		<div
-			class="content body-lg"
+			class="content body-lg prose"
 			:class="align"
 			v-html="content"
 		/>
@@ -23,6 +23,7 @@
 
 <style lang="scss" scoped>
 	.cb-text-block {
+		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
 		.content {

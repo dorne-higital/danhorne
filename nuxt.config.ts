@@ -21,6 +21,19 @@ export default defineNuxtConfig({
 
 	css: ['~/assets/scss/main.scss'],
 
+	// content-blocks/ sits outside app/ (Nuxt's srcDir), so it isn't covered
+	// by the generated tsconfig's `include` by default even though it's
+	// registered as a component dir above — without this, editors resolve
+	// files in there via TS's flakier "orphan file" fallback instead of the
+	// real project, which is why aliases like #shared/* sometimes fail to
+	// resolve there (inconsistently, since it's cache-dependent) despite
+	// `nuxt typecheck` always passing.
+	typescript: {
+		tsConfig: {
+			include: ['../content-blocks/**/*'],
+		},
+	},
+
 	runtimeConfig: {
 		resendApiKey: '',
 		contactEmailTo: 'you@example.com',

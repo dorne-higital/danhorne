@@ -33,6 +33,19 @@ select {
 	font: inherit;
 }
 
+select {
+	appearance: none !important;
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%230b1626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>') !important;
+	background-position: right 0.75rem center !important;
+	background-repeat: no-repeat !important;
+	background-size: 1rem !important;
+	padding-right: 2.25rem !important;
+}
+
+[data-theme='dark'] select {
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23f1faee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9" /></svg>') !important;
+}
+
 a {
 	color: inherit;
 	text-decoration: none;
