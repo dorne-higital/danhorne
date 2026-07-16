@@ -4,7 +4,7 @@
 
 		<section class="panel">
 			<h2>Business</h2>
-			<p class="hint">Shown in the site footer.</p>
+			<p class="hint">Company information to be showed on site, primarily in the footer or contact pages.</p>
 			<form
 				class="business-form"
 				@submit.prevent="saveBusiness"
@@ -91,7 +91,7 @@
 		<div class="panel-grid">
 			<section class="panel">
 				<h2>Site</h2>
-				<p class="hint">Name, logo, and which form the "Say hello" button (header/footer) opens.</p>
+				<p class="hint">Name, logo, and default contact form.</p>
 
 				<div class="logo-field">
 					<div class="preview">
