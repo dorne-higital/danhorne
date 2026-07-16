@@ -83,7 +83,11 @@
 								class="link-btn"
 								@click="removeField(index)"
 							>
-								Remove
+								<Icon
+									name="lucide:trash-2"
+									class="ok"
+									aria-label="Delete form field"
+								/>
 							</button>
 						</div>
 
@@ -247,7 +251,10 @@
 	watch([name, submitLabel, successMessage, fields], () => (dirty.value = true), { deep: true })
 	useUnsavedChanges(dirty)
 
-	const collapsedFields = ref(new Set<string>())
+	// Collapsed by default on load so a form with several fields doesn't open
+	// as a wall of inputs — fields added afterwards (addField below) stay
+	// expanded since you're actively editing them.
+	const collapsedFields = ref(new Set<string>(fields.value.map((field) => field.id)))
 
 	function isCollapsed(fieldId: string): boolean {
 		return collapsedFields.value.has(fieldId)

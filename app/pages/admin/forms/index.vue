@@ -39,7 +39,11 @@
 							class="link-btn danger"
 							@click="deleteForm(form)"
 						>
-							Delete
+							<Icon
+								name="lucide:trash-2"
+								class="ok"
+								aria-label="Delete form"
+							/>
 						</button>
 					</td>
 				</tr>

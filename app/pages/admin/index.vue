@@ -40,7 +40,7 @@
 				class="stat-card"
 			>
 				<span class="value">{{ pages?.length ?? '—' }}</span>
-				<span class="label">{{ (pages?.length ?? 0) > 1 ? 'Pages' : 'Page' }}</span>
+				<span class="label">{{ (pages?.length ?? 0) === 1 ? 'Page' : 'Pages' }}</span>
 			</NuxtLink>
 
 			<NuxtLink
@@ -48,7 +48,7 @@
 				class="stat-card"
 			>
 				<span class="value">{{ uploads?.length ?? '—' }}</span>
-				<span class="label">{{ (uploads?.length ?? 0) > 1 ? 'Uploads' : 'Upload' }}</span>
+				<span class="label">{{ (uploads?.length ?? 0) === 1 ? 'Upload' : 'Uploads' }}</span>
 			</NuxtLink>
 
 			<NuxtLink
@@ -56,7 +56,7 @@
 				class="stat-card"
 			>
 				<span class="value">{{ menus?.length ?? '—' }}</span>
-				<span class="label">{{ (menus?.length ?? 0) > 1 ? 'Menus' : 'Menu' }}</span>
+				<span class="label">{{ (menus?.length ?? 0) === 1 ? 'Menu' : 'Menus' }}</span>
 			</NuxtLink>
 
 			<NuxtLink
@@ -64,7 +64,7 @@
 				class="stat-card"
 			>
 				<span class="value">{{ forms?.length ?? '—' }}</span>
-				<span class="label">{{ (forms?.length ?? 0) > 1 ? 'Forms' : 'Form' }}</span>
+				<span class="label">{{ (forms?.length ?? 0) === 1 ? 'Form' : 'Forms' }}</span>
 			</NuxtLink>
 
 			<NuxtLink
@@ -73,7 +73,7 @@
 				class="stat-card"
 			>
 				<span class="value">{{ activeUserCount ?? '—' }}</span>
-				<span class="label">{{ (activeUserCount ?? 0) > 1 ? 'Users' : 'User' }}</span>
+				<span class="label">{{ (activeUserCount ?? 0) === 1 ? 'User' : 'Users' }}</span>
 			</NuxtLink>
 		</div>
 
