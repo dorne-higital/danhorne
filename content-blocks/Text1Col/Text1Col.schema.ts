@@ -1,7 +1,7 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'TextBlock',
+	type: 'Text1Col',
 	label: 'Text 1 Col',
 	group: 'Content',
 	fields: [

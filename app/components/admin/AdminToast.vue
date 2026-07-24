@@ -3,7 +3,7 @@
 		<Transition name="toast">
 			<div
 				v-if="visible"
-				class="admin-toast"
+				class="alert"
 				:class="type"
 				role="status"
 			>
@@ -30,40 +30,6 @@
 </script>
 
 <style lang="scss" scoped>
-	.admin-toast {
-		align-items: center;
-		background: var(--text-primary);
-		border-radius: var(--border-radius-sm);
-		bottom: var(--padding-lg);
-		box-shadow: var(--shadow-lg);
-		color: var(--bg-secondary);
-		display: flex;
-		flex-direction: row;
-		font-size: 0.9375rem;
-		font-weight: 600;
-		gap: 1rem;
-		left: 50%;
-		padding: var(--padding-sm) var(--padding-lg);
-		position: fixed;
-		transform: translateX(-50%);
-		width: 50%;
-		z-index: 300;
-
-		&.success {
-			background: var(--success-bg);
-			border: 3px solid var(--success);
-			color: var(--success);
-			font-weight: 800;
-		}
-
-		&.error {
-			background: var(--error-bg);
-			border: 3px solid var(--error);
-			color: var(--error);
-			font-weight: 800;
-		}
-	}
-
 	.toast-enter-active,
 	.toast-leave-active {
 		transition:

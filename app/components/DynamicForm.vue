@@ -61,7 +61,7 @@
 			class="success"
 		>
 			<p class="success-title">Thanks!</p>
-			<p class="text-muted">{{ form.success_message }}</p>
+			<p class="text-secondary">{{ form.success_message }}</p>
 		</div>
 
 		<p

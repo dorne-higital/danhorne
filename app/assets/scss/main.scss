@@ -6,6 +6,8 @@
 
 // Components
 @use 'components/buttons';
+@use 'components/card';
+@use 'components/alerts';
 
 .float {
 	animation: float 7s ease-in-out infinite;

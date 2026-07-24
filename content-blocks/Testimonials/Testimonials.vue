@@ -59,9 +59,10 @@
 			position: relative;
 
 			.glow {
-				background: color-mix(in srgb, var(--bg-secondary) 60%, var(--bg-primary) 18%);
+				background: color-mix(in srgb, var(--brand-primary) 20%, var(--bg-secondary) 38%);
 				border-radius: 50%;
 				bottom: -60px;
+				filter: blur(2rem);
 				height: 220px;
 				position: absolute;
 				right: -40px;

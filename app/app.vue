@@ -5,16 +5,12 @@
 	</NuxtLayout>
 </template>
 
-<script setup lang="ts">
-	const { data: settings } = await useSiteSettings()
-
-	useHead(() => ({
-		style: settings.value
-			? [
-					{
-						innerHTML: `:root,body.is-admin .block-preview{--brand-primary:${settings.value.primary_color} !important;--brand-secondary:${settings.value.secondary_color} !important;--brand-accent:${settings.value.accent_color} !important;--bg-primary:${settings.value.background_color} !important;}[data-theme='dark'],body.is-admin .block-preview [data-theme='dark']{--brand-primary:${settings.value.primary_color} !important;--brand-accent:${settings.value.accent_color} !important;}`,
-					},
-				]
-			: [],
-	}))
-</script>
+<!--
+	Brand colors are no longer admin-editable, so they're no longer injected
+	here at runtime either — base/_themes.scss is the single source of truth.
+	(There used to be a useHead() call here pulling primary/secondary/accent/
+	background from site_settings and forcing them onto :root with
+	!important — if colors ever become admin-editable again, that's the
+	pattern to bring back, driven by fresh settings rather than whatever's
+	still sitting in the DB from before.)
+-->

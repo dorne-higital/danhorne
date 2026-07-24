@@ -1,0 +1,56 @@
+.card {
+	background: var(--bg-secondary);
+	border: 1px solid var(--border);
+	border-radius: var(--border-radius-lg);
+	box-shadow: var(--shadow-sm);
+	padding: var(--padding-md);
+	transition:
+		box-shadow 0.2s ease,
+		transform 0.2s ease,
+		border-color 0.2s ease;
+
+	&:hover {
+		border-color: var(--border-strong);
+		box-shadow: var(--shadow-lg);
+		transform: translateY(-3px);
+	}
+}
+
+.badge {
+	align-items: center;
+	background: var(--brand-accent);
+	border-radius: var(--border-radius-pill);
+	color: var(--brand-primary);
+	display: inline-flex;
+	font-weight: 600;
+	gap: 0.375rem;
+
+	// font-size: 0.8125rem;
+	line-height: 1rem;
+	padding: 0.25rem 0.75rem;
+
+	&.success {
+		background: var(--success-bg);
+		color: var(--success);
+	}
+
+	&.error {
+		background: var(--error-bg);
+		color: var(--error);
+	}
+
+	&.warning {
+		background: var(--warning-bg);
+		color: var(--warning);
+	}
+
+	&.info {
+		background: var(--info-bg);
+		color: var(--text-secondary);
+	}
+}
+
+// [data-theme='dark'] .badge {
+// 	background: color-mix(in srgb, var(--brand-accent) 20%, transparent);
+// 	color: var(--brand-accent);
+// }

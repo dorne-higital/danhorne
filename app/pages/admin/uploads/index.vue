@@ -6,7 +6,7 @@
 				<input
 					ref="fileInput"
 					type="file"
-					accept="image/*"
+					accept="image/*,video/*"
 					class="file-input"
 					@change="onFileChange"
 				/>
@@ -16,7 +16,7 @@
 					:disabled="uploading"
 					@click="fileInput?.click()"
 				>
-					{{ uploading ? 'Uploading…' : 'Upload image' }}
+					{{ uploading ? 'Uploading…' : 'Upload file' }}
 				</button>
 			</div>
 		</header>
@@ -29,48 +29,48 @@
 			{{ uploadError }}
 		</p>
 
-		<div
-			v-if="uploads?.length"
-			class="grid"
-		>
-			<div
-				v-for="upload in uploads"
-				:key="upload.id"
-				class="upload-card"
-			>
-				<NuxtImg
-					:src="upload.url"
-					:alt="upload.filename"
-					loading="lazy"
-				/>
-				<div class="meta">
-					<span class="filename">{{ upload.filename }}</span>
-					<span class="size">{{ formatBytes(upload.size) }}</span>
-				</div>
-				<div class="card-actions">
-					<button
-						type="button"
-						class="link-btn"
-						@click="copyUrl(upload.url)"
-					>
-						{{ copiedId === upload.id ? 'Copied!' : 'Copy URL' }}
-					</button>
-					<button
-						type="button"
-						class="link-btn danger"
-						@click="removeUpload(upload)"
-					>
-						Delete
-					</button>
-				</div>
-			</div>
-		</div>
 		<p
-			v-else
+			v-if="!uploads?.length"
 			class="empty"
 		>
-			No uploads yet — upload an image to get started.
+			No uploads yet — upload a file to get started.
 		</p>
+
+		<template v-else>
+			<section
+				v-if="imageUploads.length"
+				class="section"
+			>
+				<h2>Images</h2>
+				<div class="grid">
+					<UploadCard
+						v-for="item in imageUploads"
+						:key="item.id"
+						:upload="item"
+						:copied="copiedId === item.id"
+						@copy="copyUrl(item)"
+						@delete="removeUpload(item)"
+					/>
+				</div>
+			</section>
+
+			<section
+				v-if="videoUploads.length"
+				class="section"
+			>
+				<h2>Videos</h2>
+				<div class="grid">
+					<UploadCard
+						v-for="item in videoUploads"
+						:key="item.id"
+						:upload="item"
+						:copied="copiedId === item.id"
+						@copy="copyUrl(item)"
+						@delete="removeUpload(item)"
+					/>
+				</div>
+			</section>
+		</template>
 	</div>
 </template>
 
@@ -80,6 +80,9 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { uploads, uploading, error: uploadError, upload, remove } = useUploads()
+
+	const imageUploads = computed(() => (uploads.value ?? []).filter((item) => !item.mime_type?.startsWith('video/')))
+	const videoUploads = computed(() => (uploads.value ?? []).filter((item) => item.mime_type?.startsWith('video/')))
 
 	const fileInput = ref<HTMLInputElement>()
 	const copiedId = ref<string | null>(null)
@@ -102,8 +105,12 @@
 		await remove(uploadItem.id)
 	}
 
-	async function copyUrl(url: string) {
-		await navigator.clipboard.writeText(url)
+	async function copyUrl(uploadItem: UploadRecord) {
+		await navigator.clipboard.writeText(uploadItem.url)
+		copiedId.value = uploadItem.id
+		setTimeout(() => {
+			if (copiedId.value === uploadItem.id) copiedId.value = null
+		}, 2000)
 	}
 </script>
 
@@ -135,69 +142,21 @@
 			margin-bottom: var(--padding-md);
 		}
 
+		.section {
+			margin-bottom: var(--padding-xl);
+
+			h2 {
+				font-family: var(--heading-font-family);
+				font-size: 1.25rem;
+				font-weight: var(--heading-font-weight);
+				margin-bottom: var(--padding-md);
+			}
+		}
+
 		.grid {
 			display: grid;
 			gap: var(--padding-md);
 			grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-		}
-
-		.upload-card {
-			background: var(--bg-secondary);
-			border: 1px solid var(--text-primary);
-			border-radius: var(--border-radius-md);
-			overflow: hidden;
-
-			img {
-				aspect-ratio: 1;
-				background: var(--bg-secondary);
-				object-fit: cover;
-				width: 100%;
-			}
-
-			.meta {
-				display: flex;
-				flex-direction: column;
-				gap: 2px;
-				padding: var(--padding-sm);
-
-				.filename {
-					font-size: var(--eyebrow-size);
-					font-weight: 600;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-				}
-
-				.size {
-					color: var(--text-secondary);
-					font-size: var(--eyebrow-size);
-				}
-			}
-
-			.card-actions {
-				border-top: 1px solid var(--border);
-				display: flex;
-
-				.link-btn {
-					background: none;
-					border: none;
-					color: var(--link);
-					cursor: pointer;
-					flex: 1;
-					font-size: var(--eyebrow-size);
-					font-weight: 600;
-					padding: var(--padding-xs);
-
-					&:hover {
-						background: var(--bg-secondary);
-					}
-
-					&.danger {
-						border-left: 1px solid var(--border);
-						color: var(--error);
-					}
-				}
-			}
 		}
 
 		.empty {

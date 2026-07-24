@@ -26,14 +26,14 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 - [ ] **Tabs** — tabbed panel switcher for grouping related content without a long scroll
 - [ ] **Timeline** — step-by-step vertical/horizontal list — process, history, "how it works"
 - [ ] **Divider** — visual spacing/rule between blocks, adjustable size and style
-- [ ] **VideoEmbed** — embedded YouTube/Vimeo video with an optional caption
+- [x] **VideoEmbed** — embedded YouTube/Vimeo video with an optional caption
 - [ ] **GalleryCarousel** — swipeable image carousel, the sliding alternative to `ImageGallery`'s static grid
 
 ## Social proof
 
 - [ ] **TestimonialGrid** — grid/list of client testimonials (quote, name, company, optional photo)
 - [ ] **LogoStrip** — row of client/partner/tech logos
-- [ ] **StatsRow** — big standalone number callouts, not tied to a hero (e.g. a mid-page "by the numbers" strip)
+- [x] **StatsRow** — big standalone number callouts, not tied to a hero (e.g. a mid-page "by the numbers" strip) - done, called FeatureStats
 
 ## Features & sections
 

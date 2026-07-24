@@ -1,28 +1,38 @@
 .btn {
 	align-items: center;
-	background: var(--bg-secondary);
-	border: 2px solid var(--text-primary);
-	border-radius: var(--border-radius-sm);
-	color: var(--text-primary);
+	border: 1px solid transparent;
+	border-radius: var(--border-radius-pill);
+	box-shadow: var(--shadow-sm);
 	cursor: pointer;
 	display: inline-flex;
 	font-family: var(--body-font-family);
 	font-size: var(--button-size);
 	font-weight: var(--button-font-weight);
-	gap: var(--padding-xs);
-	padding: var(--padding-sm) var(--padding-lg);
-	text-decoration: none;
+	gap: 0.5rem;
+	justify-content: center;
+	padding: 0.75rem 1.5rem;
 	transition:
-		filter var(--transition-base),
-		transform var(--transition-spring);
+		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.15s ease,
+		background 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease;
 
 	&:hover {
-		transform: translate(1px, 1px);
+		box-shadow: var(--shadow-md);
+		transform: translateY(-2px);
 	}
 
 	&:active {
-		filter: none;
-		transform: translate(var(--shadow-offset), var(--shadow-offset));
+		box-shadow: var(--shadow-sm);
+		transform: scale(0.96);
+	}
+
+	&:disabled {
+		box-shadow: none;
+		cursor: not-allowed;
+		opacity: 0.5;
+		transform: none;
 	}
 
 	&:focus-visible {
@@ -31,27 +41,47 @@
 	}
 
 	&.primary {
-		background: var(--brand-primary);
-		color: #fff;
-		width: fit-content;
+		background: var(--brand-gradient);
+		color: var(--text-inverse);
+	}
+
+	&.secondary {
+		background: var(--bg-secondary);
+		border-color: var(--border);
+		color: var(--brand-primary);
+
+		&:hover {
+			border-color: var(--brand-primary);
+		}
+	}
+
+	&.ghost {
+		background: transparent;
+		box-shadow: none;
+		color: var(--text-primary);
+
+		&:hover {
+			background: var(--bg-secondary);
+			box-shadow: none;
+		}
 	}
 
 	&.outline {
 		background: transparent;
-		filter: none; // no opaque fill behind it to sell the shadow — stays flat instead
+		box-shadow: none;
 
-		&:active {
-			transform: translate(0, 0);
+		&:hover {
+			box-shadow: none;
 		}
 	}
 
 	&.lg {
-		font-size: var(--body-size);
-		padding: var(--padding-md) var(--padding-xl);
+		font-size: 1.0625rem;
+		padding: 1rem 2rem;
 	}
 
 	&.sm {
-		font-size: var(--button-size);
-		padding: var(--padding-xs) var(--padding-md);
+		font-size: 0.8125rem;
+		padding: 0.5rem 1rem;
 	}
 }

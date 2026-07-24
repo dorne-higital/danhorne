@@ -95,7 +95,7 @@
 <style lang="scss" scoped>
 	.footer {
 		background-color: var(--bg-primary);
-		border-top: 2px solid var(--text-primary);
+		border-top: 1px solid var(--border);
 		margin-top: auto;
 		padding-bottom: var(--padding-lg);
 		padding-top: calc(var(--padding-xl) * 1.5);

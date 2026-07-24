@@ -31,5 +31,6 @@ export default {
 				{ label: 'Right', value: 'right' },
 			],
 		},
+		{ name: 'noPadding', label: 'Remove vertical padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

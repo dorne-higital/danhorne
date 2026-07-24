@@ -2,7 +2,7 @@
 	<section class="cb-text-block sw">
 		<!-- eslint-disable-next-line vue/no-v-html -->
 		<div
-			class="content body-lg prose"
+			class="content prose"
 			:class="align"
 			v-html="content"
 		/>

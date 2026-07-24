@@ -36,14 +36,14 @@
 				<a
 					v-if="ctaLabel && ctaHref"
 					:href="ctaHref"
-					class="btn primary sm"
+					class="btn primary lg"
 				>
 					{{ ctaLabel }}
 				</a>
 				<a
 					v-if="secondaryCtaLabel && secondaryCtaHref"
 					:href="secondaryCtaHref"
-					class="btn outline sm"
+					class="btn secondary lg"
 				>
 					{{ secondaryCtaLabel }}
 				</a>
@@ -87,6 +87,7 @@
 
 <style lang="scss" scoped>
 	.cb-hero {
+		aspect-ratio: 3/1;
 		background-color: var(--bg-primary);
 		box-shadow: var(--shadow-sm);
 		overflow: hidden;

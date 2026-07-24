@@ -1,7 +1,7 @@
 <template>
 	<section
 		class="cb-section-heading"
-		:class="[`size-${size}`, `align-${align}`]"
+		:class="[`size-${size}`, `align-${align}`, { 'remove-padding': noPadding }]"
 	>
 		<div class="sw">
 			<component
@@ -38,12 +38,14 @@
 			description?: string
 			size?: Size
 			align?: Align
+			noPadding?: boolean
 		}>(),
 		{
 			subheading: '',
 			description: '',
 			size: 'medium',
 			align: 'left',
+			noPadding: false,
 		},
 	)
 
@@ -61,6 +63,10 @@
 	.cb-section-heading {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.remove-padding {
+			padding: 0;
+		}
 
 		.sw {
 			display: flex;

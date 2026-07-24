@@ -15,7 +15,7 @@ export interface BlockSchemaGroup {
 	schemas: BlockSchema[]
 }
 
-const GROUP_ORDER = ['Hero', 'Content', 'Sections', 'CTAs']
+const GROUP_ORDER = ['Hero', 'Content', 'Sections', 'Features', 'CTAs']
 
 export function getGroupedBlockSchemas(): BlockSchemaGroup[] {
 	const groups = new Map<string, BlockSchema[]>()

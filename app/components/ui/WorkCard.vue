@@ -25,7 +25,7 @@
 
 			<span
 				v-if="tag"
-				class="tag"
+				class="badge"
 			>
 				{{ tag }}
 			</span>
@@ -117,19 +117,6 @@
 				font-family: var(--heading-font-family);
 				font-size: var(--h1-size);
 				font-weight: var(--heading-font-weight);
-			}
-
-			.tag {
-				background: var(--bg-secondary);
-				border: 2px solid var(--border);
-				border-radius: var(--border-radius-pill);
-				color: var(--text-primary);
-				font-size: var(--eyebrow-size);
-				font-weight: 600;
-				left: var(--padding-sm);
-				padding: 0.25rem 0.5rem;
-				position: absolute;
-				top: var(--padding-sm);
 			}
 
 			&.accent-1 {

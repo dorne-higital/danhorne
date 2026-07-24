@@ -1,55 +1,55 @@
 /* LIGHT THEME (default) */
 :root {
-	// backgrounds
-	--bg-primary: #f1ede3;
+	/* backgrounds */
+	--bg-primary: #fafafa;
 	--bg-secondary: #fff;
-	--bg-gradient: linear-gradient(180deg, #f1ede3 0, transparent 100%);
+	--bg-gradient: linear-gradient(180deg, #fafafa 0, transparent 100%);
 
-	// text
-	--text-primary: #0b1626;
-	--text-secondary: rgb(29 53 87 / 70%);
+	/* text */
+	--text-primary: #1a1210;
+	--text-secondary: rgb(26 18 16 / 70%);
 	--text-inverse: #fff;
 
-	// brand — the core palette, never swapped between themes
-	--brand-primary: #e63946; // Punch Red
-	--brand-secondary: #457b9d; // Cerulean
-	--brand-accent: #a8dadc; // Frosted Blue
+	/* brand â€” the core palette, never swapped between themes */
+	--brand-primary: oklch(56% 0.2 25deg); /* refined red */
+	--brand-secondary: oklch(56% 0.2 45deg); /* warm ember */
+	--brand-accent: oklch(90% 0.05 25deg); /* soft rose */
+	--brand-gradient: linear-gradient(180deg, var(--brand-primary) 0, var(--brand-secondary) 100%);
 
-	// semantic
-	--success: #3a9d5d;
+	/* semantic */
+	--success: #16a34a;
 	--success-bg: color-mix(in srgb, var(--success) 15%, var(--bg-secondary) 85%);
-	--error: #c1121f;
+	--error: #dc2626;
 	--error-bg: color-mix(in srgb, var(--error) 15%, var(--bg-secondary) 85%);
-	--warning: #e9a23b;
+	--warning: #d97706;
 	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--bg-secondary) 82%);
 	--info: var(--brand-secondary);
 	--info-bg: color-mix(in srgb, var(--info) 15%, var(--bg-secondary) 85%);
 
-	// links
-	--link: #4492c3;
-	--link-hover: #156291;
+	/* links */
+	--link: var(--brand-secondary);
+	--link-hover: var(--brand-primary);
 
-	// borders
-	--border: rgb(29 53 87 / 14%);
-	--border-strong: rgb(29 53 87 / 28%);
+	/* borders */
+	--border: rgb(26 18 16 / 12%);
+	--border-strong: rgb(26 18 16 / 24%);
 
-	// radius
+	/* radius */
 	--border-radius-sm: 6px;
 	--border-radius-md: 12px;
 	--border-radius-lg: 20px;
 	--border-radius-pill: 9999px;
 
-	// shadows — soft elevation tiers (the hard "poster shadow" is a filter
-	// on .btn itself, not a shadow token — see components/_buttons.scss)
-	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%);
-	--shadow-md: 0 4px 10px rgb(29 53 87 / 12%);
-	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%);
+	/* shadows â€” soft elevation tiers, the only shadow mechanism in the app */
+	--shadow-sm: 0 1px 2px rgb(26 18 16 / 8%);
+	--shadow-md: 0 4px 10px rgb(26 18 16 / 12%);
+	--shadow-lg: 0 10px 24px rgb(26 18 16 / 16%);
 
-	// typography — font stacks
+	/* typography â€” font stacks */
 	--heading-font-family: 'Baloo 2', system-ui, sans-serif;
 	--body-font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
 
-	// typography — sizes
+	/* typography â€” sizes */
 	--hero-size: clamp(3.5rem, 7vw, 4.5rem);
 	--h1-size: 3.5rem;
 	--h2-size: 2.5rem;
@@ -62,54 +62,55 @@
 	--navigation-size: 0.9375rem;
 	--body-size: 1.0625rem;
 
-	// typography — weights
-	--heading-font-weight: 800;
-	--button-font-weight: 700;
+	/* typography â€” weights */
+	--heading-font-weight: 700;
+	--button-font-weight: 600;
 	--navigation-font-weight: 600;
 	--body-font-weight: 400;
 
-	// spacing
+	/* spacing */
 	--padding-xs: 0.5rem;
 	--padding-sm: 1rem;
 	--padding-md: 1.5rem;
-	--padding-lg: 2rem;
-	--padding-xl: 3rem;
+	--padding-lg: 2.5rem;
+	--padding-xl: 4rem;
 }
 
-/* DARK THEME — opt in per section with data-theme="dark" */
+/* DARK THEME â€” opt in per section with data-theme="dark" */
 [data-theme='dark'] {
-	// backgrounds — built from Oxford Navy, not a generic slate
-	--bg-primary: #1d3557;
-	--bg-secondary: #24406b;
+	/* backgrounds â€” warm near-black, sits with the red brand rather than a
+	   generic blue-black or gray */
+	--bg-primary: #140f0e;
+	--bg-secondary: #1e1614;
 
-	// text
-	--text-primary: #f1faee;
-	--text-secondary: rgb(241 250 238 / 60%);
-	--text-inverse: #1d3557;
+	/* text */
+	--text-primary: #f7f2f0;
+	--text-secondary: rgb(247 242 240 / 62%);
+	--text-inverse: #140f0e;
 
-	// brand — primary/accent stay identical to light mode, still sacred;
-	// secondary shifts lighter for contrast against navy
-	--brand-secondary: #6ba3c7;
+	/* brand â€” primary/accent stay identical to light mode, still sacred;
+	   secondary brightens for contrast against the near-black background */
+	--brand-secondary: oklch(66% 0.19 45deg);
 
-	// semantic — brightened for contrast against navy
-	--success: #4cb376;
-	--success-bg: rgb(76 179 118 / 15%);
-	--error: #e0524a;
-	--error-bg: rgb(224 82 74 / 15%);
-	--warning: #f0b25c;
-	--warning-bg: rgb(240 178 92 / 15%);
+	/* semantic â€” brightened for contrast against the dark background */
+	--success: #4ade80;
+	--success-bg: rgb(74 222 128 / 15%);
+	--error: #f87171;
+	--error-bg: rgb(248 113 113 / 15%);
+	--warning: #fbbf24;
+	--warning-bg: rgb(251 191 36 / 15%);
 	--info: var(--brand-secondary);
-	--info-bg: rgb(107 163 199 / 15%);
+	--info-bg: rgb(45 212 191 / 15%);
 
-	// links
+	/* links */
 	--link: var(--brand-accent);
 	--link-hover: var(--brand-primary);
 
-	// borders
-	--border: rgb(255 255 255 / 14%);
-	--border-strong: rgb(241 250 238 / 26%);
+	/* borders */
+	--border: rgb(255 250 248 / 12%);
+	--border-strong: rgb(247 242 240 / 24%);
 
-	// shadows
+	/* shadows */
 	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
 	--shadow-md: 0 4px 10px rgb(0 0 0 / 40%);
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%);
@@ -143,63 +144,48 @@ body.is-admin {
 	--heading-font-weight: 600;
 }
 
-body.is-admin .btn {
-	box-shadow: var(--shadow-sm);
-	filter: none;
-
-	&:hover {
-		box-shadow: var(--shadow-md);
-		transform: none;
-	}
-
-	&:active {
-		box-shadow: var(--shadow-sm);
-		transform: none;
-	}
-}
-
 body.is-admin .block-preview {
 	--bg-secondary: #fff !important;
-	--text-primary: #0b1626 !important;
-	--text-secondary: rgb(29 53 87 / 70%) !important;
+	--text-primary: #0f1222 !important;
+	--text-secondary: rgb(15 18 34 / 70%) !important;
 	--text-inverse: #fff !important;
-	--success: #3a9d5d !important;
+	--success: #16a34a !important;
 	--success-bg: color-mix(in srgb, var(--success) 15%, var(--bg-secondary) 85%) !important;
-	--error: #c1121f !important;
+	--error: #dc2626 !important;
 	--error-bg: color-mix(in srgb, var(--error) 15%, var(--bg-secondary) 85%) !important;
-	--warning: #e9a23b !important;
+	--warning: #d97706 !important;
 	--warning-bg: color-mix(in srgb, var(--warning) 18%, var(--bg-secondary) 82%) !important;
 	--info: var(--brand-secondary) !important;
 	--info-bg: color-mix(in srgb, var(--info) 15%, var(--bg-secondary) 85%) !important;
 	--link: var(--brand-secondary) !important;
 	--link-hover: var(--brand-primary) !important;
-	--border: rgb(29 53 87 / 14%) !important;
-	--border-strong: rgb(29 53 87 / 28%) !important;
-	--shadow-sm: 0 1px 2px rgb(29 53 87 / 8%) !important;
-	--shadow-md: 0 4px 10px rgb(29 53 87 / 12%) !important;
-	--shadow-lg: 0 10px 24px rgb(29 53 87 / 16%) !important;
+	--border: rgb(15 18 34 / 12%) !important;
+	--border-strong: rgb(15 18 34 / 24%) !important;
+	--shadow-sm: 0 1px 2px rgb(15 18 34 / 8%) !important;
+	--shadow-md: 0 4px 10px rgb(15 18 34 / 12%) !important;
+	--shadow-lg: 0 10px 24px rgb(15 18 34 / 16%) !important;
 	--heading-font-family: 'Baloo 2', system-ui, sans-serif !important;
-	--heading-font-weight: 800 !important;
+	--heading-font-weight: 700 !important;
 }
 
 body.is-admin .block-preview [data-theme='dark'] {
-	--bg-secondary: #24406b !important;
-	--text-primary: #f1faee !important;
-	--text-secondary: rgb(241 250 238 / 60%) !important;
-	--text-inverse: #1d3557 !important;
-	--brand-secondary: #6ba3c7 !important;
-	--success: #4cb376 !important;
-	--success-bg: rgb(76 179 118 / 15%) !important;
-	--error: #e0524a !important;
-	--error-bg: rgb(224 82 74 / 15%) !important;
-	--warning: #f0b25c !important;
-	--warning-bg: rgb(240 178 92 / 15%) !important;
+	--bg-secondary: #141726 !important;
+	--text-primary: #f5f5fa !important;
+	--text-secondary: rgb(245 245 250 / 60%) !important;
+	--text-inverse: #0b0d17 !important;
+	--brand-secondary: #22d3ee !important;
+	--success: #4ade80 !important;
+	--success-bg: rgb(74 222 128 / 15%) !important;
+	--error: #f87171 !important;
+	--error-bg: rgb(248 113 113 / 15%) !important;
+	--warning: #fbbf24 !important;
+	--warning-bg: rgb(251 191 36 / 15%) !important;
 	--info: var(--brand-secondary) !important;
-	--info-bg: rgb(107 163 199 / 15%) !important;
+	--info-bg: rgb(45 212 191 / 15%) !important;
 	--link: var(--brand-accent) !important;
 	--link-hover: var(--brand-primary) !important;
-	--border: rgb(255 255 255 / 14%) !important;
-	--border-strong: rgb(241 250 238 / 26%) !important;
+	--border: rgb(255 255 255 / 12%) !important;
+	--border-strong: rgb(245 245 250 / 22%) !important;
 	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%) !important;
 	--shadow-md: 0 4px 10px rgb(0 0 0 / 40%) !important;
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%) !important;

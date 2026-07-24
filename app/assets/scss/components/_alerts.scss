@@ -1,0 +1,35 @@
+.alert {
+	border: 1px solid var(--border);
+	border-radius: var(--border-radius-md);
+	display: flex;
+	font-size: 0.9375rem;
+	gap: var(--padding-sm);
+	margin: 0 auto;
+	padding: var(--padding-sm) var(--padding-md);
+	position: absolute;
+	width: 100%;
+
+	&.success {
+		background: var(--success-bg);
+		border-color: transparent;
+		color: var(--success);
+	}
+
+	&.error {
+		background: var(--error-bg);
+		border-color: transparent;
+		color: var(--error);
+	}
+
+	&.warning {
+		background: var(--warning-bg);
+		border-color: transparent;
+		color: var(--warning);
+	}
+
+	&.info {
+		background: var(--info-bg);
+		border-color: transparent;
+		color: var(--info);
+	}
+}

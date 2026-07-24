@@ -121,7 +121,7 @@
 <style lang="scss" scoped>
 	.header {
 		background: var(--bg-primary);
-		border-bottom: 2px solid var(--text-primary);
+		border-bottom: 1px solid var(--border);
 		left: 0;
 		position: fixed;
 		right: 0;

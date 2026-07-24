@@ -16,7 +16,7 @@ export function useUploads() {
 			await refresh()
 			return uploaded
 		} catch (err: any) {
-			error.value = err?.data?.statusMessage ?? 'Could not upload image'
+			error.value = err?.data?.statusMessage ?? 'Could not upload file'
 			throw err
 		} finally {
 			uploading.value = false

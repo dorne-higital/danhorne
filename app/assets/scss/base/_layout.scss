@@ -32,3 +32,65 @@ $container-xl: 1280px;
 	display: flex;
 	justify-content: space-between;
 }
+
+// ─── 12-column grid ────────────────────────────────────────────────────────
+// <div class="row gap-md">
+//   <div class="col-12 col-md-6 col-lg-4">...</div>
+//   <div class="col-12 col-md-6 col-lg-4">...</div>
+// </div>
+// .row is the grid context, .gap-* sets the gutter (goes on .row, not the
+// columns — gap is a container property), .col-* sets how many of the 12
+// tracks an item spans. CSS Grid divides the row's width into 12 equal
+// tracks AFTER subtracting the gap, so col-N is always exactly N/12 of the
+// available space — no manual percentage math, gutters included for free.
+// Mobile-first: an unprefixed .col-N applies at every size unless a
+// .col-md-N/.col-lg-N override also matches, which (being defined later,
+// inside the breakpoint's media query) wins at that size — same pattern as
+// Bootstrap's grid, just without the flexbox/negative-margin gutter hacks.
+.row {
+	display: grid;
+	gap: var(--padding-md);
+	grid-template-columns: repeat(12, 1fr);
+}
+
+.gap-xs {
+	gap: var(--padding-xs);
+}
+
+.gap-sm {
+	gap: var(--padding-sm);
+}
+
+.gap-md {
+	gap: var(--padding-md);
+}
+
+.gap-lg {
+	gap: var(--padding-lg);
+}
+
+.gap-xl {
+	gap: var(--padding-xl);
+}
+
+@for $i from 1 through 12 {
+	.col-#{$i} {
+		grid-column: span $i;
+	}
+}
+
+@media (width >= $container-md) {
+	@for $i from 1 through 12 {
+		.col-md-#{$i} {
+			grid-column: span $i;
+		}
+	}
+}
+
+@media (width >= $container-lg) {
+	@for $i from 1 through 12 {
+		.col-lg-#{$i} {
+			grid-column: span $i;
+		}
+	}
+}
