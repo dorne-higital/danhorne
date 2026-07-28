@@ -119,6 +119,12 @@
 				font-weight: var(--heading-font-weight);
 			}
 
+			.badge {
+				left: 0.5rem;
+				position: absolute;
+				top: 0.5rem;
+			}
+
 			&.accent-1 {
 				background: var(--brand-primary);
 				color: var(--text-primary);

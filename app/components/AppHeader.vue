@@ -135,6 +135,8 @@
 		.main-nav {
 			display: none;
 			gap: var(--padding-lg);
+			margin-left: auto;
+			margin-right: 2rem;
 
 			@media (width >= 900px) {
 				display: flex;

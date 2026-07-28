@@ -121,10 +121,14 @@
 			.panel {
 				border-radius: var(--border-radius-md);
 				padding: var(--padding-xl) var(--padding-md);
-			}
 
-			.heading {
-				font-size: clamp(var(--body-size), 3vw, var(--h3-size));
+				.content {
+					max-width: 100%;
+				}
+
+				.heading {
+					font-size: clamp(var(--h4-size), 3vw, var(--h1-size));
+				}
 			}
 
 			.sub {

@@ -1,13 +1,16 @@
 .alert {
+	align-items: center;
 	border: 1px solid var(--border);
 	border-radius: var(--border-radius-md);
 	display: flex;
 	font-size: 0.9375rem;
 	gap: var(--padding-sm);
+	justify-content: flex-start;
 	margin: 0 auto;
 	padding: var(--padding-sm) var(--padding-md);
 	position: absolute;
 	width: 100%;
+	z-index: 999;
 
 	&.success {
 		background: var(--success-bg);

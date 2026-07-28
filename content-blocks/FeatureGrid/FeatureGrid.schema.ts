@@ -1,0 +1,52 @@
+import type { BlockSchema } from '#shared/types/cms'
+
+export default {
+	type: 'FeatureGrid',
+	label: 'Feature Grid',
+	group: 'Features',
+	fields: [
+		{ name: 'heading', label: 'Heading', type: 'text', default: 'Why choose us' },
+		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },
+		{ name: 'columns', label: 'Columns', type: 'number', default: 3 },
+		{
+			name: 'items',
+			label: 'Features',
+			type: 'repeater',
+			default: [],
+			fields: [
+				{
+					name: 'icon',
+					label: 'Icon',
+					type: 'select',
+					default: 'lucide:sparkles',
+					options: [
+						{ label: 'Alert', value: 'lucide:circle-alert' },
+						{ label: 'Award', value: 'lucide:award' },
+						{ label: 'Check circle', value: 'lucide:circle-check' },
+						{ label: 'Clock', value: 'lucide:clock' },
+						{ label: 'Dollar sign', value: 'lucide:dollar-sign' },
+						{ label: 'Gift', value: 'lucide:gift' },
+						{ label: 'Heart', value: 'lucide:heart' },
+						{ label: 'Layers', value: 'lucide:layers' },
+						{ label: 'Lock', value: 'lucide:lock' },
+						{ label: 'Question mark', value: 'lucide:circle-question-mark' },
+						{ label: 'Rocket', value: 'lucide:rocket' },
+						{ label: 'Settings', value: 'lucide:settings' },
+						{ label: 'Shield', value: 'lucide:shield' },
+						{ label: 'Shield check', value: 'lucide:shield-check' },
+						{ label: 'Smile', value: 'lucide:smile' },
+						{ label: 'Sparkles', value: 'lucide:sparkles' },
+						{ label: 'Star', value: 'lucide:star' },
+						{ label: 'Target', value: 'lucide:target' },
+						{ label: 'Thumbs up', value: 'lucide:thumbs-up' },
+						{ label: 'Trending up', value: 'lucide:trending-up' },
+						{ label: 'Users', value: 'lucide:users' },
+						{ label: 'Zap', value: 'lucide:zap' },
+					],
+				},
+				{ name: 'title', label: 'Title', type: 'text', default: '' },
+				{ name: 'description', label: 'Description', type: 'text', default: '' },
+			],
+		},
+	],
+} satisfies BlockSchema

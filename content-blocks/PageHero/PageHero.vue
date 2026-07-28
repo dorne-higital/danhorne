@@ -1,6 +1,6 @@
 <template>
 	<section
-		class="cb-hero"
+		class="cb-hero sw"
 		:class="`shape-${bottomShape}`"
 	>
 		<NuxtImg

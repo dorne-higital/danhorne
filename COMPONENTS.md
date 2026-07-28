@@ -20,9 +20,9 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 
 ## Content
 
-- [ ] **ColumnsText** — rich text split across 2–3 columns, for denser copy than `TextBlock` suits
+- [x] **ColumnsText** — rich text split across 2–3 columns, for denser copy than `TextBlock` suits
 - [ ] **Quote** — a single large pull-quote, standalone (not part of a grid)
-- [ ] **Accordion** — expandable list of collapsible items — FAQs, process breakdowns, anything Q&A-shaped
+- [x] **Accordion** — expandable list of collapsible items — FAQs, process breakdowns, anything Q&A-shaped
 - [ ] **Tabs** — tabbed panel switcher for grouping related content without a long scroll
 - [ ] **Timeline** — step-by-step vertical/horizontal list — process, history, "how it works"
 - [ ] **Divider** — visual spacing/rule between blocks, adjustable size and style
@@ -37,7 +37,7 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 
 ## Features & sections
 
-- [ ] **FeatureGrid** — icon + heading + text, repeated in a grid — benefits, features, "why us" lists
+- [x] **FeatureGrid** — icon + heading + text, repeated in a grid — benefits, features, "why us" lists
 - [ ] **PricingTable** — pricing tiers, each with a feature list and its own CTA
 - [ ] **TeamGrid** — team member cards (photo, name, role, short bio)
 - [ ] **ChildPagesGrid** — auto-lists and links every child page of the current page (needs the auto-listing work flagged in `TODO.md` — this is the block that work unlocks; until then, Work/Services-style repeaters stay manual)
