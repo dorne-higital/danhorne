@@ -3,10 +3,19 @@
 		<header class="page-header">
 			<h1>Uploads</h1>
 			<div class="actions">
+				<button
+					v-if="selectedIds.size"
+					type="button"
+					class="btn outline"
+					@click="deleteSelected"
+				>
+					Delete selected ({{ selectedIds.size }})
+				</button>
 				<input
 					ref="fileInput"
 					type="file"
 					accept="image/*,video/*"
+					multiple
 					class="file-input"
 					@change="onFileChange"
 				/>
@@ -16,7 +25,7 @@
 					:disabled="uploading"
 					@click="fileInput?.click()"
 				>
-					{{ uploading ? 'Uploading…' : 'Upload file' }}
+					{{ uploading ? 'Uploading…' : 'Upload files' }}
 				</button>
 			</div>
 		</header>
@@ -48,8 +57,10 @@
 						:key="item.id"
 						:upload="item"
 						:copied="copiedId === item.id"
+						:selected="selectedIds.has(item.id)"
 						@copy="copyUrl(item)"
 						@delete="removeUpload(item)"
+						@update:selected="(value) => setSelected(item.id, value)"
 					/>
 				</div>
 			</section>
@@ -65,8 +76,10 @@
 						:key="item.id"
 						:upload="item"
 						:copied="copiedId === item.id"
+						:selected="selectedIds.has(item.id)"
 						@copy="copyUrl(item)"
 						@delete="removeUpload(item)"
+						@update:selected="(value) => setSelected(item.id, value)"
 					/>
 				</div>
 			</section>
@@ -79,20 +92,28 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	const { uploads, uploading, error: uploadError, upload, remove } = useUploads()
+	const { uploads, uploading, error: uploadError, uploadMany, remove, removeMany } = useUploads()
 
 	const imageUploads = computed(() => (uploads.value ?? []).filter((item) => !item.mime_type?.startsWith('video/')))
 	const videoUploads = computed(() => (uploads.value ?? []).filter((item) => item.mime_type?.startsWith('video/')))
 
 	const fileInput = ref<HTMLInputElement>()
 	const copiedId = ref<string | null>(null)
+	const selectedIds = ref<Set<string>>(new Set())
+
+	function setSelected(id: string, value: boolean) {
+		if (value) selectedIds.value.add(id)
+		else selectedIds.value.delete(id)
+		// Set mutations aren't reactive on their own — trigger with a fresh copy.
+		selectedIds.value = new Set(selectedIds.value)
+	}
 
 	async function onFileChange(event: Event) {
-		const file = (event.target as HTMLInputElement).files?.[0]
-		if (!file) return
+		const files = Array.from((event.target as HTMLInputElement).files ?? [])
+		if (!files.length) return
 
 		try {
-			await upload(file)
+			await uploadMany(files)
 		} catch {
 			// error is already surfaced via uploadError
 		} finally {
@@ -103,6 +124,16 @@
 	async function removeUpload(uploadItem: UploadRecord) {
 		if (!confirm(`Delete "${uploadItem.filename}"? This can't be undone.`)) return
 		await remove(uploadItem.id)
+		setSelected(uploadItem.id, false)
+	}
+
+	async function deleteSelected() {
+		const count = selectedIds.value.size
+		if (!count) return
+		if (!confirm(`Delete ${count} file${count === 1 ? '' : 's'}? This can't be undone.`)) return
+
+		await removeMany([...selectedIds.value])
+		selectedIds.value = new Set()
 	}
 
 	async function copyUrl(uploadItem: UploadRecord) {
@@ -123,6 +154,12 @@
 			display: flex;
 			justify-content: space-between;
 			margin-bottom: var(--padding-lg);
+		}
+
+		.actions {
+			align-items: center;
+			display: flex;
+			gap: var(--padding-sm);
 		}
 
 		h1 {

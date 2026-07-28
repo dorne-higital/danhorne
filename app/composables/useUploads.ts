@@ -23,10 +23,37 @@ export function useUploads() {
 		}
 	}
 
+	async function uploadMany(files: File[]): Promise<void> {
+		uploading.value = true
+		error.value = ''
+		const failures: string[] = []
+
+		await Promise.all(
+			files.map(async (file) => {
+				try {
+					const formData = new FormData()
+					formData.append('file', file)
+					await $fetch<UploadRecord>('/api/uploads', { method: 'POST', body: formData })
+				} catch (err: any) {
+					failures.push(`${file.name}: ${err?.data?.statusMessage ?? 'upload failed'}`)
+				}
+			}),
+		)
+
+		if (failures.length) error.value = failures.join('; ')
+		await refresh()
+		uploading.value = false
+	}
+
 	async function remove(id: string) {
 		await $fetch(`/api/uploads/${id}`, { method: 'DELETE' })
 		await refresh()
 	}
 
-	return { uploads, refresh, uploading, error, upload, remove }
+	async function removeMany(ids: string[]): Promise<void> {
+		await Promise.all(ids.map((id) => $fetch(`/api/uploads/${id}`, { method: 'DELETE' })))
+		await refresh()
+	}
+
+	return { uploads, refresh, uploading, error, upload, uploadMany, remove, removeMany }
 }

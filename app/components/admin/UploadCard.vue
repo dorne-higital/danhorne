@@ -1,5 +1,16 @@
 <template>
-	<div class="upload-card">
+	<div
+		class="upload-card"
+		:class="{ selected }"
+	>
+		<label class="select-toggle">
+			<input
+				type="checkbox"
+				:checked="selected"
+				@change="emit('update:selected', ($event.target as HTMLInputElement).checked)"
+			/>
+		</label>
+
 		<video
 			v-if="upload.mime_type?.startsWith('video/')"
 			:src="upload.url"
@@ -41,11 +52,13 @@
 	defineProps<{
 		upload: UploadRecord
 		copied: boolean
+		selected: boolean
 	}>()
 
 	const emit = defineEmits<{
 		copy: []
 		delete: []
+		'update:selected': [value: boolean]
 	}>()
 </script>
 
@@ -55,6 +68,29 @@
 		border: 1px solid var(--text-primary);
 		border-radius: var(--border-radius-md);
 		overflow: hidden;
+		position: relative;
+
+		&.selected {
+			border-color: var(--brand-primary);
+			box-shadow: 0 0 0 2px var(--brand-primary);
+		}
+
+		.select-toggle {
+			background: var(--bg-secondary);
+			border-radius: var(--border-radius-sm);
+			left: 0.5rem;
+			line-height: 0;
+			padding: 0.125rem;
+			position: absolute;
+			top: 0.5rem;
+			z-index: 1;
+
+			input {
+				cursor: pointer;
+				height: 1.125rem;
+				width: 1.125rem;
+			}
+		}
 
 		img,
 		video {
