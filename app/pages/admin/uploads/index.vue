@@ -25,10 +25,56 @@
 					:disabled="uploading"
 					@click="fileInput?.click()"
 				>
-					{{ uploading ? 'Uploading…' : 'Upload files' }}
+					{{ uploading ? `Uploading ${uploadedCount} of ${progress.length}…` : 'Upload files' }}
 				</button>
 			</div>
 		</header>
+
+		<div
+			v-if="progress.length"
+			class="upload-progress"
+		>
+			<div
+				v-for="item in progress"
+				:key="item.name"
+				class="progress-item"
+				:class="item.status"
+			>
+				<Icon
+					v-if="item.status === 'pending'"
+					name="lucide:circle"
+				/>
+				<Icon
+					v-else-if="item.status === 'uploading'"
+					name="lucide:loader-2"
+					class="spin"
+				/>
+				<Icon
+					v-else-if="item.status === 'done'"
+					name="lucide:check-circle"
+				/>
+				<Icon
+					v-else
+					name="lucide:x-circle"
+				/>
+				<span class="name">{{ item.name }}</span>
+				<span
+					v-if="item.message"
+					class="message"
+				>
+					{{ item.message }}
+				</span>
+			</div>
+
+			<button
+				v-if="!uploading"
+				type="button"
+				class="link-btn"
+				@click="progress = []"
+			>
+				Dismiss
+			</button>
+		</div>
 
 		<p
 			v-if="uploadError"
@@ -92,10 +138,13 @@
 
 	definePageMeta({ layout: 'admin' })
 
-	const { uploads, uploading, error: uploadError, uploadMany, remove, removeMany } = useUploads()
+	const { uploads, uploading, error: uploadError, progress, uploadMany, remove, removeMany } = useUploads()
 
 	const imageUploads = computed(() => (uploads.value ?? []).filter((item) => !item.mime_type?.startsWith('video/')))
 	const videoUploads = computed(() => (uploads.value ?? []).filter((item) => item.mime_type?.startsWith('video/')))
+	const uploadedCount = computed(
+		() => progress.value.filter((item) => item.status === 'done' || item.status === 'error').length,
+	)
 
 	const fileInput = ref<HTMLInputElement>()
 	const copiedId = ref<string | null>(null)
@@ -179,6 +228,64 @@
 			margin-bottom: var(--padding-md);
 		}
 
+		.upload-progress {
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-md);
+			margin-bottom: var(--padding-lg);
+			padding: var(--padding-md);
+
+			.progress-item {
+				align-items: center;
+				display: flex;
+				gap: var(--padding-sm);
+				padding-block: 0.375rem;
+
+				.name {
+					flex: 1;
+					font-size: var(--eyebrow-size);
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				.message {
+					color: var(--error);
+					font-size: var(--eyebrow-size);
+				}
+
+				&.pending {
+					color: var(--text-secondary);
+				}
+
+				&.uploading {
+					color: var(--brand-primary);
+				}
+
+				&.done {
+					color: var(--success);
+				}
+
+				&.error {
+					color: var(--error);
+				}
+			}
+
+			.spin {
+				animation: spin 0.8s linear infinite;
+			}
+
+			.link-btn {
+				background: none;
+				border: none;
+				color: var(--link);
+				cursor: pointer;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+				margin-top: var(--padding-xs);
+			}
+		}
+
 		.section {
 			margin-bottom: var(--padding-xl);
 
@@ -198,6 +305,12 @@
 
 		.empty {
 			color: var(--text-secondary);
+		}
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
 		}
 	}
 </style>
