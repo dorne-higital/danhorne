@@ -2,6 +2,7 @@
 	"name": "nuxt-cms-template",
 	"private": true,
 	"type": "module",
+	"packageManager": "yarn@4.5.3",
 	"scripts": {
 		"build": "nuxt build",
 		"dev": "nuxt dev",
