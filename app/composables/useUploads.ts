@@ -6,13 +6,31 @@ export interface UploadProgressItem {
 	message?: string
 }
 
-// Uploads go browser -> our server -> Supabase Storage, so more in-flight
-// requests than this doesn't move file bytes any faster — it just adds
-// contention (browser per-host connection limits, server concurrency) and,
-// worse, gives zero feedback while it happens. A small bounded queue with
-// per-file status is both a bit quicker in practice for many files and lets
-// the UI show real progress instead of one generic "Uploading…" state.
+// Files upload straight from the browser to Supabase Storage via a signed
+// URL (see sign.post.ts) rather than through our own server, so this cap is
+// purely about not overwhelming the browser/network with too many
+// simultaneous transfers — it's no longer working around a server-side
+// bottleneck. A bounded queue with per-file status also lets the UI show
+// real progress instead of one generic "Uploading…" state.
 const UPLOAD_CONCURRENCY = 3
+
+// $fetch's error only has a clean `.data.statusMessage` when OUR server
+// actually produced it (via createError) — sign/confirm requests are tiny
+// JSON, so this should always be the case now, but kept defensive in case
+// something upstream (Netlify itself, a network failure) still returns a
+// bare HTTP status with no JSON body.
+function describeUploadError(err: any): string {
+	if (err?.statusCode === 413 || err?.response?.status === 413) {
+		return 'File is too large for the server to accept in production (this limit is lower than local dev)'
+	}
+	return (
+		err?.data?.statusMessage ??
+		err?.statusMessage ??
+		(err?.statusCode ? `Server responded with ${err.statusCode}` : undefined) ??
+		err?.message ??
+		'Upload failed for an unknown reason'
+	)
+}
 
 export function useUploads() {
 	const { data: uploads, refresh } = useFetch<UploadRecord[]>('/api/uploads', { key: 'admin-uploads' })
@@ -21,17 +39,39 @@ export function useUploads() {
 	const error = ref('')
 	const progress = ref<UploadProgressItem[]>([])
 
+	// Bypasses our server for the actual file bytes: 1) ask for a signed
+	// upload slot, 2) upload directly to Supabase Storage from the browser,
+	// 3) confirm with our server, which validates the real stored object and
+	// inserts the DB record. Both server round trips are tiny JSON — only
+	// step 2 carries the file, and that goes straight to Supabase, never
+	// through our Netlify Function.
+	async function uploadOne(file: File): Promise<UploadRecord> {
+		const { path, token } = await $fetch<{ path: string; token: string }>('/api/uploads/sign', {
+			method: 'POST',
+			body: { filename: file.name, contentType: file.type },
+		})
+
+		const supabase = useSupabaseClient()
+		const { error: storageError } = await supabase.storage
+			.from('uploads')
+			.uploadToSignedUrl(path, token, file, { contentType: file.type })
+		if (storageError) throw storageError
+
+		return await $fetch<UploadRecord>('/api/uploads/confirm', {
+			method: 'POST',
+			body: { path, filename: file.name },
+		})
+	}
+
 	async function upload(file: File): Promise<UploadRecord> {
 		uploading.value = true
 		error.value = ''
 		try {
-			const formData = new FormData()
-			formData.append('file', file)
-			const uploaded = await $fetch<UploadRecord>('/api/uploads', { method: 'POST', body: formData })
+			const uploaded = await uploadOne(file)
 			await refresh()
 			return uploaded
 		} catch (err: any) {
-			error.value = err?.data?.statusMessage ?? 'Could not upload file'
+			error.value = describeUploadError(err)
 			throw err
 		} finally {
 			uploading.value = false
@@ -51,12 +91,10 @@ export function useUploads() {
 				const file = files[i]
 				progress.value[i].status = 'uploading'
 				try {
-					const formData = new FormData()
-					formData.append('file', file)
-					await $fetch<UploadRecord>('/api/uploads', { method: 'POST', body: formData })
+					await uploadOne(file)
 					progress.value[i].status = 'done'
 				} catch (err: any) {
-					const message = err?.data?.statusMessage ?? 'upload failed'
+					const message = describeUploadError(err)
 					progress.value[i].status = 'error'
 					progress.value[i].message = message
 					failures.push(`${file.name}: ${message}`)
