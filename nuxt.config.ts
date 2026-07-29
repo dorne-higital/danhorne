@@ -4,6 +4,19 @@ export default defineNuxtConfig({
 
 	modules: ['@nuxt/image', '@nuxt/icon', '@nuxtjs/supabase'],
 
+	// Every image in this app is dynamic content from Supabase Storage
+	// (uploaded via the CMS), which already serves everything through its
+	// own CDN — there's no local/static image usage that benefits from
+	// Nuxt Image's default IPX provider resizing it further. Also sidesteps
+	// IPX's dependency on sharp's native binary, which is fragile on
+	// serverless platforms (works locally, can silently fail to load the
+	// right platform build in a deployed function) — 'none' just passes the
+	// original URL straight through as a plain <img>, no server-side
+	// processing involved.
+	image: {
+		provider: 'none',
+	},
+
 	// We drive /admin protection ourselves via app/middleware/admin-auth.global.ts
 	// (already scoped to just /admin/**) — the module's own auto-redirect would
 	// otherwise gate the whole site, including the public catch-all pages.
