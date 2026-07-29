@@ -9,6 +9,26 @@
 			class="seo-form"
 			@submit.prevent="save"
 		>
+			<div class="seo-score">
+				<span
+					class="score-badge"
+					:class="grade"
+				>
+					{{ score }}
+				</span>
+				<div class="score-checks">
+					<span
+						v-for="check in checks"
+						:key="check.id"
+						class="check"
+						:class="check.status"
+					>
+						<Icon :name="checkIcon(check.status)" />
+						{{ check.label }}
+					</span>
+				</div>
+			</div>
+
 			<label for="seo-title">Meta title</label>
 			<input
 				id="seo-title"
@@ -110,6 +130,24 @@
 	const saving = ref(false)
 	const error = ref('')
 
+	const seoResult = computed(() =>
+		scoreSeo({
+			title: seoTitle.value,
+			description: seoDescription.value,
+			keywords: seoKeywords.value,
+			ogImage: ogImage.value,
+		}),
+	)
+	const score = computed(() => seoResult.value.score)
+	const grade = computed(() => seoResult.value.grade)
+	const checks = computed(() => seoResult.value.checks)
+
+	function checkIcon(status: 'good' | 'warning' | 'bad') {
+		if (status === 'good') return 'lucide:check'
+		if (status === 'warning') return 'lucide:alert-triangle'
+		return 'lucide:x'
+	}
+
 	watch(
 		() => props.page,
 		(page) => {
@@ -197,6 +235,74 @@
 		.og-image-actions {
 			display: flex;
 			gap: var(--padding-sm);
+		}
+
+		.seo-score {
+			align-items: center;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-sm);
+			display: flex;
+			gap: var(--padding-sm);
+			padding: var(--padding-sm);
+		}
+
+		.score-badge {
+			align-items: center;
+			border-radius: 50%;
+			display: flex;
+			flex-shrink: 0;
+			font-family: var(--heading-font-family);
+			font-size: 1.125rem;
+			font-weight: var(--heading-font-weight);
+			height: 3rem;
+			justify-content: center;
+			width: 3rem;
+
+			&.good {
+				background: var(--success-bg);
+				color: var(--success);
+			}
+
+			&.ok {
+				background: var(--warning-bg);
+				color: var(--warning);
+			}
+
+			&.poor {
+				background: var(--error-bg);
+				color: var(--error);
+			}
+		}
+
+		.score-checks {
+			display: flex;
+			flex-direction: column;
+			gap: 0.25rem;
+		}
+
+		.check {
+			align-items: center;
+			display: flex;
+			font-size: 0.8125rem;
+			font-weight: 500;
+			gap: 0.375rem;
+
+			svg {
+				flex-shrink: 0;
+			}
+
+			&.good {
+				color: var(--success);
+			}
+
+			&.warning {
+				color: var(--warning);
+			}
+
+			&.bad {
+				color: var(--error);
+			}
 		}
 
 		.link-btn {

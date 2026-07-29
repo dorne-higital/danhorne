@@ -62,6 +62,7 @@
 		const items = [
 			{ label: 'Dashboard', to: '/admin' },
 			{ label: 'Pages', to: '/admin/pages' },
+			{ label: 'SEO', to: '/admin/seo' },
 			{ label: 'Uploads', to: '/admin/uploads' },
 			{ label: 'Menus', to: '/admin/menus' },
 			{ label: 'Forms', to: '/admin/forms' },
