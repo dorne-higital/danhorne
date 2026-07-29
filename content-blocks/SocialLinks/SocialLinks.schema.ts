@@ -30,7 +30,7 @@ export default {
 				},
 				{
 					name: 'value',
-					label: 'Number / email / username (not the full link — e.g. "07123 456789", "hello@site.com", "yourhandle"). Leave blank to use the one already set in Settings.',
+					label: 'Leave blank to use the one already set in Settings.',
 					type: 'text',
 					default: '',
 				},
