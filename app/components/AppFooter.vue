@@ -3,7 +3,10 @@
 		<div class="sw">
 			<div class="footer-top">
 				<div class="brand">
-					<AppLogo />
+					<AppLogo
+						:logo-text="'dan'"
+						:highlighted-text="'horne.'"
+					/>
 					<ul
 						v-if="socialLinks.length"
 						class="socials"

@@ -1,7 +1,10 @@
 <template>
 	<header class="header">
 		<nav class="nav-container sw flex-between">
-			<AppLogo />
+			<AppLogo
+				:logo-text="'dan'"
+				:highlighted-text="'horne.'"
+			/>
 
 			<ul
 				v-if="menu?.items?.length"

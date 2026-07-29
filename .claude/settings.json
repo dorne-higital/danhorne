@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(curl -s \"http://localhost:3000/_nuxt/@fs/Users/danielhorne/Desktop/Business/websites/Github/danhorne/content-blocks/SplitContent/SplitContent.vue\")",
-      "Bash(curl -s \"http://localhost:3000/_nuxt/@fs/Users/danielhorne/Desktop/Business/websites/Github/danhorne/content-blocks/SplitContent/SplitContent.vue?vue&type=style&index=0&scoped=1&lang.scss\")"
+      "Bash(curl -s \"http://localhost:3000/_nuxt/@fs/Users/danielhorne/Desktop/Business/websites/Github/danhorne/content-blocks/SplitContent/SplitContent.vue?vue&type=style&index=0&scoped=1&lang.scss\")",
+      "Bash(git credential-osxkeychain *)",
+      "Bash(gh auth *)",
+      "Bash(rsync -a --exclude=.git --exclude=node_modules --exclude=.nuxt --exclude=.output --exclude=dist --exclude=.env --exclude=.env.* --exclude=.DS_Store /Users/danielhorne/Desktop/Business/websites/Github/danhorne/ /Users/danielhorne/Desktop/Business/websites/Github/template/ --delete-excluded)"
     ]
   }
 }
