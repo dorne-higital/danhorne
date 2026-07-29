@@ -160,10 +160,19 @@
 		background: var(--bg-primary);
 		color: var(--text-primary);
 		overflow: hidden;
-		padding-block: calc(var(--padding-xl) * 2);
+
+		// Mobile-first: doubled padding and the wide inter-column gap below
+		// were fixed at every size, leaving a large empty gap above the
+		// eyebrow — and, pre-1024px where the layout is a single stacked
+		// column, an oversized gap between the content and the image.
+		padding-block: var(--padding-xl);
 
 		&.small-padding {
 			padding: var(--padding-sm);
+		}
+
+		@media (width >= 768px) {
+			padding-block: calc(var(--padding-xl) * 2);
 		}
 
 		// Brand primary/secondary are mid-lightness saturated colors in both
@@ -214,10 +223,11 @@
 		.inner {
 			align-items: center;
 			display: grid;
-			gap: calc(var(--padding-xl) * 1.5);
+			gap: var(--padding-lg);
 			grid-template-columns: 1fr;
 
 			@media (width >= 1024px) {
+				gap: calc(var(--padding-xl) * 1.5);
 				grid-template-columns: 1.1fr 1fr;
 			}
 		}

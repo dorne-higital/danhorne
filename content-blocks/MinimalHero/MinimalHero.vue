@@ -103,11 +103,18 @@
 		background: var(--bg-primary);
 		color: var(--text-primary);
 		overflow: hidden;
-		padding-block: calc(var(--padding-xl) * 2);
+
+		// Mobile-first: doubled padding was fixed at every size, leaving a
+		// large empty gap above the eyebrow on phone-height viewports.
+		padding-block: var(--padding-xl);
 		text-align: center;
 
 		&.small-padding {
 			padding: var(--padding-sm);
+		}
+
+		@media (width >= 768px) {
+			padding-block: calc(var(--padding-xl) * 2);
 		}
 
 		// Brand primary/secondary are mid-lightness saturated colors in both

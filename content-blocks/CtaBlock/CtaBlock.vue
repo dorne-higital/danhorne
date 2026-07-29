@@ -113,7 +113,14 @@
 
 <style lang="scss" scoped>
 	.cb-cta {
-		padding-block: calc(var(--padding-xl) * 2);
+		// Mobile-first: doubled outer padding plus the panel's own doubled
+		// inner padding stacked to ~256px of combined whitespace above and
+		// below the actual CTA copy on a phone-height viewport.
+		padding-block: var(--padding-xl);
+
+		@media (width >= 768px) {
+			padding-block: calc(var(--padding-xl) * 2);
+		}
 
 		&.minimal {
 			padding-block: var(--padding-lg);
@@ -141,8 +148,12 @@
 			border: 2px solid var(--border-strong);
 			border-radius: 32px;
 			overflow: hidden;
-			padding: calc(var(--padding-xl) * 2) var(--padding-lg);
+			padding: var(--padding-xl) var(--padding-lg);
 			position: relative;
+
+			@media (width >= 768px) {
+				padding: calc(var(--padding-xl) * 2) var(--padding-lg);
+			}
 
 			.glow {
 				border-radius: 50%;

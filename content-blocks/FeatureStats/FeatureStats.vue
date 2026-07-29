@@ -20,7 +20,7 @@
 				<div
 					v-for="item in feature"
 					:key="item.id"
-					class="feature-item col-3"
+					class="feature-item col-6 col-md-3"
 				>
 					<h2
 						v-if="item.stat"
@@ -105,6 +105,16 @@
 
 			&:not(:first-child) {
 				border-left: 1px solid var(--border);
+			}
+
+			// The mobile layout (col-6, below) wraps to 2 per row — the
+			// DOM-order divider above would otherwise land a floating
+			// border-left on whichever card starts each new row, with
+			// nothing to its left to actually divide from.
+			@media (width < 768px) {
+				&:nth-child(odd) {
+					border-left: none;
+				}
 			}
 		}
 	}

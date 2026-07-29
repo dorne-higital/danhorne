@@ -45,7 +45,14 @@
 <style lang="scss" scoped>
 	.cb-services {
 		background: var(--bg-primary);
-		padding-block: calc(var(--padding-xl) * 2);
+
+		// Mobile-first: this was fixed at every size, leaving a large empty
+		// gap above the eyebrow on a phone-height viewport.
+		padding-block: var(--padding-xl);
+
+		@media (width >= 768px) {
+			padding-block: calc(var(--padding-xl) * 2);
+		}
 
 		.head {
 			display: flex;

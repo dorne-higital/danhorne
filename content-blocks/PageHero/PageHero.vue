@@ -87,12 +87,28 @@
 
 <style lang="scss" scoped>
 	.cb-hero {
-		aspect-ratio: 3/1;
 		background-color: var(--bg-primary);
 		box-shadow: var(--shadow-sm);
+
+		// Mobile-first: the 3/1 ratio plus this padding (256px top alone)
+		// were fixed at every size. Combined with `overflow: hidden` below,
+		// a phone-width viewport resolves that ratio to well under 150px
+		// tall — nowhere near enough room for the padding, let alone the
+		// heading/sub/CTAs, so the content was getting silently clipped
+		// off, not just cramped. A min-height stand-in with much smaller
+		// padding replaces the ratio below 768px; the original wide-banner
+		// treatment only applies once there's enough width for it to still
+		// leave a sane amount of vertical room.
+		min-height: 420px;
 		overflow: hidden;
-		padding: calc(var(--padding-xl) * 4) var(--padding-xl) calc(var(--padding-xl) * 2);
+		padding: var(--padding-xl) var(--padding-md) var(--padding-lg);
 		position: relative;
+
+		@media (width >= 768px) {
+			aspect-ratio: 3/1;
+			min-height: unset;
+			padding: calc(var(--padding-xl) * 4) var(--padding-xl) calc(var(--padding-xl) * 2);
+		}
 
 		.bg {
 			height: 100%;

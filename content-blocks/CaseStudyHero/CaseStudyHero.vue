@@ -110,6 +110,8 @@
 		.top {
 			align-items: center;
 			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-sm);
 			justify-content: space-between;
 			margin-bottom: var(--padding-sm);
 		}

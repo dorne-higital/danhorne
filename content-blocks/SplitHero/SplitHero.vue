@@ -120,19 +120,30 @@
 <style lang="scss" scoped>
 	.cb-split-hero {
 		background: var(--bg-primary);
-		padding-block: calc(var(--padding-xl) * 2);
+		overflow: hidden;
+
+		// Mobile-first: the doubled padding and wide inter-column gap below
+		// are tuned for the two-column desktop layout — left at those
+		// values on a phone-height viewport they read as a big empty gap
+		// above the eyebrow before anything else shows.
+		padding-block: var(--padding-xl);
 
 		&.small-padding {
 			padding: var(--padding-sm);
 		}
 
+		@media (width >= 768px) {
+			padding-block: calc(var(--padding-xl) * 2);
+		}
+
 		.inner {
 			align-items: center;
 			display: grid;
-			gap: calc(var(--padding-xl) * 1.5);
+			gap: var(--padding-lg);
 			grid-template-columns: 1fr;
 
 			@media (width >= 1024px) {
+				gap: calc(var(--padding-xl) * 1.5);
 				grid-template-columns: 1.1fr 1fr;
 			}
 		}
