@@ -104,7 +104,7 @@
 						/>
 						<span
 							v-if="item.tag"
-							class="badge tag caption"
+							class="badge tag"
 						>
 							{{ item.tag }}
 						</span>
@@ -196,8 +196,10 @@
 				}
 
 				.tag {
+					font-size: 0.75rem;
 					position: absolute;
 					right: 0.5rem;
+					text-transform: uppercase;
 					top: 0.5rem;
 				}
 			}
