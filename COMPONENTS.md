@@ -24,7 +24,7 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 - [ ] **Quote** — a single large pull-quote, standalone (not part of a grid)
 - [x] **Accordion** — expandable list of collapsible items — FAQs, process breakdowns, anything Q&A-shaped
 - [ ] **Tabs** — tabbed panel switcher for grouping related content without a long scroll
-- [ ] **Timeline** — step-by-step vertical/horizontal list — process, history, "how it works"
+- [x] **Timeline** — step-by-step vertical/horizontal list — process, history, "how it works"
 - [ ] **Divider** — visual spacing/rule between blocks, adjustable size and style
 - [x] **VideoEmbed** — embedded YouTube/Vimeo video with an optional caption
 - [ ] **GalleryCarousel** — swipeable image carousel, the sliding alternative to `ImageGallery`'s static grid
