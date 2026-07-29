@@ -13,7 +13,7 @@
 				v-model="password"
 				type="password"
 				autocomplete="new-password"
-				minlength="6"
+				minlength="8"
 				required
 			/>
 
@@ -23,7 +23,7 @@
 				v-model="confirm"
 				type="password"
 				autocomplete="new-password"
-				minlength="6"
+				minlength="8"
 				required
 			/>
 

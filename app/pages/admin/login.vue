@@ -35,9 +35,9 @@
 			<button
 				type="submit"
 				class="btn primary"
-				:disabled="loading"
+				:disabled="loading || isLocked"
 			>
-				{{ loading ? 'Signing in…' : 'Sign in' }}
+				{{ isLocked ? `Try again in ${lockRemaining}s` : loading ? 'Signing in…' : 'Sign in' }}
 			</button>
 
 			<NuxtLink
@@ -60,7 +60,30 @@
 	const error = ref('')
 	const loading = ref(false)
 
+	// Client-side speed bump only — Supabase's own hosted auth applies the
+	// real rate limiting. This just discourages rapid guessing from this
+	// form specifically, backing off further after each consecutive failure.
+	const LOCK_THRESHOLD = 3
+	const failedAttempts = ref(0)
+	const lockedUntil = ref(0)
+	const now = ref(Date.now())
+	let ticker: ReturnType<typeof setInterval> | undefined
+
+	onMounted(() => {
+		ticker = setInterval(() => {
+			now.value = Date.now()
+		}, 1000)
+	})
+	onUnmounted(() => {
+		clearInterval(ticker)
+	})
+
+	const lockRemaining = computed(() => Math.max(0, Math.ceil((lockedUntil.value - now.value) / 1000)))
+	const isLocked = computed(() => lockRemaining.value > 0)
+
 	async function submit() {
+		if (isLocked.value) return
+
 		loading.value = true
 		error.value = ''
 		try {
@@ -69,9 +92,15 @@
 				password: password.value,
 			})
 			if (signInError) throw signInError
+			failedAttempts.value = 0
 			await navigateTo('/admin')
 		} catch {
 			error.value = 'Incorrect email or password'
+			failedAttempts.value += 1
+			if (failedAttempts.value >= LOCK_THRESHOLD) {
+				const backoff = Math.min(60, 2 ** (failedAttempts.value - LOCK_THRESHOLD + 1))
+				lockedUntil.value = Date.now() + backoff * 1000
+			}
 		} finally {
 			loading.value = false
 		}
