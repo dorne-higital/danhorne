@@ -167,7 +167,7 @@
 
 		.top {
 			display: grid;
-			gap: var(--padding-lg);
+			gap: var(--padding-sm);
 			grid-template-columns: 1fr;
 
 			@media (width >= 1024px) {
@@ -182,14 +182,18 @@
 			border-radius: var(--border-radius-md);
 			display: block;
 			overflow: hidden;
+			padding: var(--padding-sm);
 			text-decoration: none;
 
 			.image {
-				aspect-ratio: 16 / 10;
+				aspect-ratio: 4/3;
 				background: var(--bg-primary);
+				border-radius: var(--border-radius-sm);
 				position: relative;
 
 				img {
+					border: 1px solid var(--border);
+					border-radius: var(--border-radius-sm);
 					height: 100%;
 					object-fit: cover;
 					width: 100%;
@@ -287,9 +291,9 @@
 
 		.grid {
 			display: grid;
-			gap: var(--padding-lg);
+			gap: var(--padding-sm);
 			grid-template-columns: 1fr;
-			margin-top: var(--padding-lg);
+			margin-top: var(--padding-sm);
 
 			@media (width >= 640px) {
 				grid-template-columns: repeat(var(--columns, 2), 1fr);
