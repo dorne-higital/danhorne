@@ -15,8 +15,8 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 ## Hero
 
 - [ ] **VideoHero** — full-bleed background video with a heading + CTA overlaid on top
-- [ ] **MinimalHero** — text-only, no image — for simpler inner pages where a big photo would be overkill
-- [ ] **StatHero** — heading/intro paired with a row of key stats alongside (e.g. "10 years", "120 projects shipped")
+- [x] **MinimalHero** — text-only, no image — for simpler inner pages where a big photo would be overkill
+- [x] **StatHero** — heading/intro paired with a row of key stats alongside (e.g. "10 years", "120 projects shipped")
 
 ## Content
 
