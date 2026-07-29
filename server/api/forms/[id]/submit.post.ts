@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import type { FormRecord } from '#shared/types/cms'
+import { isFieldVisible } from '#shared/utils/formFields'
 import { buildFormEmailHtml } from '../../../utils/formEmail'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -33,6 +34,12 @@ export default defineEventHandler(async (event) => {
 	let replyTo: string | undefined
 
 	for (const field of (form as FormRecord).fields) {
+		// A field hidden by a showIf condition was never shown to (or
+		// validated for) the submitter, so it can't be enforced as required
+		// here — e.g. a recruiter-only field must not block a submission
+		// where the visitor answered "Company" on an earlier step.
+		if (!isFieldVisible(field, values)) continue
+
 		const raw = (values[field.name] ?? '').toString().trim()
 
 		if (field.required && !raw) {

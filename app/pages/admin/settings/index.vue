@@ -180,8 +180,8 @@
 						<input
 							:id="`social-${platform.key}`"
 							v-model="socials[platform.key]"
-							type="url"
-							placeholder="https://…"
+							:type="platform.inputType ?? 'url'"
+							:placeholder="platform.placeholder ?? 'https://…'"
 						/>
 					</div>
 					<button
@@ -222,6 +222,7 @@
 		linkedin: settings.value?.socials?.linkedin ?? '',
 		tiktok: settings.value?.socials?.tiktok ?? '',
 		youtube: settings.value?.socials?.youtube ?? '',
+		whatsapp: settings.value?.socials?.whatsapp ?? '',
 	})
 	const companyName = ref(settings.value?.company?.name ?? '')
 	const companyEmail = ref(settings.value?.company?.email ?? '')
@@ -242,6 +243,7 @@
 		socials.linkedin = value.socials?.linkedin ?? ''
 		socials.tiktok = value.socials?.tiktok ?? ''
 		socials.youtube = value.socials?.youtube ?? ''
+		socials.whatsapp = value.socials?.whatsapp ?? ''
 		companyName.value = value.company?.name ?? ''
 		companyEmail.value = value.company?.email ?? ''
 		companyPhone.value = value.company?.phone ?? ''
@@ -429,6 +431,7 @@
 			input[type='text'],
 			input[type='email'],
 			input[type='url'],
+			input[type='tel'],
 			select {
 				background: var(--bg-primary);
 				border: 1px solid var(--text-primary);

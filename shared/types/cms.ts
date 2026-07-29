@@ -137,6 +137,11 @@ export interface SocialLinks {
 	linkedin?: string
 	tiktok?: string
 	youtube?: string
+	// A phone number, not a URL — unlike the other platforms above, which
+	// store the full profile URL directly. Consumers build the wa.me chat
+	// link from it (see app/utils/socials.ts), the same way phone/email
+	// links get built from a raw value elsewhere in the CMS.
+	whatsapp?: string
 }
 
 export interface SiteSettings {
@@ -165,6 +170,14 @@ export interface FormFieldDef {
 	hint?: string
 	// Only used when type === 'select'
 	options?: SelectOption[]
+	// Which step (1-based) this field appears on. Unset/1 means "the first
+	// (and typically only) step" — every existing single-step form keeps
+	// working with zero migration since this is purely additive.
+	step?: number
+	// Only show (and require/validate) this field when another field's
+	// value equals a given value — e.g. a "Request CV" checkbox that only
+	// appears once an earlier "I am a…" field is set to "Recruiter".
+	showIf?: { field: string; equals: string }
 }
 
 export interface FormRecord {

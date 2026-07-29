@@ -72,10 +72,6 @@
 				class="visual"
 			>
 				<span
-					class="deco deco-frame"
-					aria-hidden="true"
-				/>
-				<span
 					class="deco deco-square"
 					aria-hidden="true"
 				/>
@@ -288,13 +284,6 @@
 
 		.deco {
 			position: absolute;
-		}
-
-		.deco-frame {
-			border: 3px solid var(--deco-1);
-			border-radius: var(--border-radius-lg);
-			inset: -24px 24px 24px -24px;
-			z-index: 0;
 		}
 
 		.deco-square {

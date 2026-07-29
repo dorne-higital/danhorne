@@ -5,9 +5,22 @@
 			novalidate
 			@submit.prevent="onSubmit"
 		>
+			<div
+				v-if="totalSteps > 1"
+				class="progress-wrap"
+			>
+				<span class="step-label">Step {{ currentStepIndex + 1 }} of {{ totalSteps }}</span>
+				<div class="progress">
+					<div
+						class="bar"
+						:style="{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }"
+					/>
+				</div>
+			</div>
+
 			<div class="grid">
 				<FormField
-					v-for="field in form.fields"
+					v-for="field in currentStepFields"
 					:key="field.id"
 					:ref="(el) => setFieldRef(field.name, el)"
 					:model-value="values[field.name] ?? ''"
@@ -47,13 +60,33 @@
 				{{ submitError }}
 			</p>
 
-			<button
-				type="submit"
-				class="btn primary lg"
-				:disabled="sending"
-			>
-				{{ sending ? 'Sending…' : form.submit_label }}
-			</button>
+			<div class="actions">
+				<button
+					v-if="currentStepIndex > 0"
+					type="button"
+					class="btn outline lg"
+					@click="goPrev"
+				>
+					Back
+				</button>
+
+				<button
+					v-if="!isLastStep"
+					type="button"
+					class="btn primary lg"
+					@click="goNext"
+				>
+					Next
+				</button>
+				<button
+					v-else
+					type="submit"
+					class="btn primary lg"
+					:disabled="sending"
+				>
+					{{ sending ? 'Sending…' : form.submit_label }}
+				</button>
+			</div>
 		</form>
 
 		<div
@@ -98,7 +131,43 @@
 	const fieldRefs = ref<Record<string, FieldHandle>>({})
 
 	function setFieldRef(name: string, el: unknown) {
-		if (el) fieldRefs.value[name] = el as FieldHandle
+		if (el) {
+			fieldRefs.value[name] = el as FieldHandle
+		} else {
+			// v-for over currentStepFields unmounts fields as steps change —
+			// without this, a stale ref to an unmounted step's field would
+			// linger and get (incorrectly) validated later.
+			delete fieldRefs.value[name]
+		}
+	}
+
+	// Steps come from whatever step numbers are actually set on the fields —
+	// a form where every field is left on step 1 (the default) is a
+	// single-step form and this whole step UI stays invisible.
+	const stepNumbers = computed(() => getStepNumbers(form.value?.fields ?? []))
+	const totalSteps = computed(() => stepNumbers.value.length)
+
+	const currentStepIndex = ref(0)
+	const currentStep = computed(() => stepNumbers.value[currentStepIndex.value] ?? 1)
+	const isLastStep = computed(() => currentStepIndex.value >= totalSteps.value - 1)
+
+	const currentStepFields = computed(() =>
+		(form.value?.fields ?? []).filter(
+			(field) => (field.step ?? 1) === currentStep.value && isFieldVisible(field, values),
+		),
+	)
+
+	function validateCurrentStep(): boolean {
+		return currentStepFields.value.map((field) => fieldRefs.value[field.name]?.validate() ?? true).every(Boolean)
+	}
+
+	function goNext() {
+		if (!validateCurrentStep()) return
+		if (currentStepIndex.value < totalSteps.value - 1) currentStepIndex.value++
+	}
+
+	function goPrev() {
+		if (currentStepIndex.value > 0) currentStepIndex.value--
 	}
 
 	const submitted = ref(false)
@@ -107,11 +176,7 @@
 	const company = ref('')
 
 	async function onSubmit() {
-		const allValid = (form.value?.fields ?? [])
-			.map((field) => fieldRefs.value[field.name]?.validate() ?? true)
-			.every(Boolean)
-
-		if (!allValid) return
+		if (!validateCurrentStep()) return
 
 		sending.value = true
 		submitError.value = ''
@@ -133,11 +198,42 @@
 
 <style lang="scss" scoped>
 	.dynamic-form {
+		.progress-wrap {
+			margin-bottom: var(--padding-lg);
+		}
+
+		.step-label {
+			color: var(--text-secondary);
+			display: block;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			margin-bottom: var(--padding-xs);
+		}
+
+		.progress {
+			background: var(--bg-secondary);
+			border-radius: var(--border-radius-pill);
+			height: 4px;
+			overflow: hidden;
+
+			.bar {
+				background: var(--brand-primary);
+				height: 100%;
+				transition: width var(--transition-base);
+			}
+		}
+
 		.grid {
 			display: grid;
 			gap: var(--padding-md);
 			grid-template-columns: repeat(4, 1fr);
 			margin-bottom: var(--padding-lg);
+		}
+
+		.actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-sm);
 		}
 
 		.success {

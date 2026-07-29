@@ -157,6 +157,18 @@
 								</div>
 							</div>
 
+							<div class="row">
+								<div class="field">
+									<label>Step</label>
+									<input
+										v-model.number="element.step"
+										type="number"
+										min="1"
+										placeholder="1"
+									/>
+								</div>
+							</div>
+
 							<label class="checkbox">
 								<input
 									v-model="element.required"
@@ -164,6 +176,71 @@
 								/>
 								Required
 							</label>
+
+							<div class="conditional-editor">
+								<label class="checkbox">
+									<input
+										type="checkbox"
+										:checked="!!element.showIf"
+										@change="onToggleShowIf(element, ($event.target as HTMLInputElement).checked)"
+									/>
+									Only show when another field has a specific value
+								</label>
+
+								<div
+									v-if="element.showIf"
+									class="row"
+								>
+									<div class="field">
+										<label>Depends on field</label>
+										<select
+											v-model="element.showIf.field"
+											@change="onShowIfFieldChange(element)"
+										>
+											<option
+												value=""
+												disabled
+											>
+												Select a field…
+											</option>
+											<option
+												v-for="other in otherFields(element)"
+												:key="other.id"
+												:value="other.name"
+											>
+												{{ other.label || other.name }}
+											</option>
+										</select>
+									</div>
+									<div class="field">
+										<label>Equals</label>
+										<select
+											v-if="dependencyOptions(element).length"
+											v-model="element.showIf.equals"
+										>
+											<option
+												value=""
+												disabled
+											>
+												Select a value…
+											</option>
+											<option
+												v-for="opt in dependencyOptions(element)"
+												:key="opt.value"
+												:value="opt.value"
+											>
+												{{ opt.label }}
+											</option>
+										</select>
+										<input
+											v-else
+											v-model="element.showIf.equals"
+											type="text"
+											placeholder="Value"
+										/>
+									</div>
+								</div>
+							</div>
 
 							<div
 								v-if="element.type === 'select'"
@@ -226,7 +303,7 @@
 
 <script setup lang="ts">
 	import draggable from 'vuedraggable'
-	import type { FormFieldDef, FormRecord } from '#shared/types/cms'
+	import type { FormFieldDef, FormRecord, SelectOption } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
@@ -276,6 +353,7 @@
 			type: 'text',
 			required: false,
 			width: 'full',
+			step: 1,
 		})
 	}
 
@@ -327,6 +405,29 @@
 
 	function removeOption(field: FormFieldDef, index: number | string) {
 		field.options?.splice(Number(index), 1)
+	}
+
+	function onToggleShowIf(field: FormFieldDef, checked: boolean) {
+		field.showIf = checked ? { field: '', equals: '' } : undefined
+	}
+
+	// A field can't depend on itself.
+	function otherFields(field: FormFieldDef): FormFieldDef[] {
+		return fields.value.filter((other) => other.id !== field.id)
+	}
+
+	// The dependency field's own value changed, so whatever "equals" value
+	// was picked against the previous dependency is very likely invalid now.
+	function onShowIfFieldChange(field: FormFieldDef) {
+		if (field.showIf) field.showIf.equals = ''
+	}
+
+	// When the chosen dependency is itself a select field, offer its options
+	// as a dropdown instead of a freeform text input — removes any chance of
+	// a typo silently making the condition never match.
+	function dependencyOptions(field: FormFieldDef): SelectOption[] {
+		const dependsOn = fields.value.find((other) => other.name === field.showIf?.field)
+		return dependsOn?.type === 'select' ? (dependsOn.options ?? []) : []
 	}
 
 	async function save() {
@@ -496,6 +597,14 @@
 					input {
 						width: auto;
 					}
+				}
+
+				.conditional-editor {
+					border-top: 1px solid var(--border);
+					display: flex;
+					flex-direction: column;
+					gap: var(--padding-sm);
+					padding-top: var(--padding-sm);
 				}
 
 				.options-editor {

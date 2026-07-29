@@ -47,5 +47,5 @@ Suggested content blocks for `content-blocks/`, on top of the 7 already built. A
 - [ ] **ContactForm** — the existing contact form, embeddable directly in page content instead of only reachable via the header/footer modal
 - [ ] **ContactDetails** — address/phone/email/hours as a styled info card
 - [ ] **MapEmbed** — embedded location map
-- [ ] **SocialLinks** — row of social/contact icon links
+- [x] **SocialLinks** — row of social/contact icon links
 - [ ] **NewsletterSignup** — email capture form, standalone block
