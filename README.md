@@ -35,6 +35,7 @@ cp .env.example .env
 | `NUXT_RESEND_API_KEY`       | Resend dashboard → API Keys         | Powers the contact form                                                                                                                       |
 | `NUXT_CONTACT_EMAIL_TO`     | —                                   | Where contact form submissions land                                                                                                           |
 | `NUXT_CONTACT_EMAIL_FROM`   | —                                   | Must be `onboarding@resend.dev` until you verify a sending domain in Resend                                                                   |
+| `NUXT_PUBLIC_SITE_URL`      | —                                   | Your real deployed URL, no trailing slash (e.g. `https://danhorne.co.uk`). Public — used to build absolute URLs in `robots.txt`/`sitemap.xml` |
 | `NUXT_SUPABASE_URL`         | Supabase dashboard → Settings → API | Your project URL                                                                                                                              |
 | `NUXT_SUPABASE_SERVICE_KEY` | Supabase dashboard → Settings → API | **Service role key.** Server-only, never exposed to the browser. Used for all DB/Storage access and admin operations (inviting/banning users) |
 | `NUXT_PUBLIC_SUPABASE_URL`  | Same as `NUXT_SUPABASE_URL`         | Public — safe to ship to the browser                                                                                                          |

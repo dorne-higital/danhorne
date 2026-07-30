@@ -53,6 +53,11 @@ export default defineNuxtConfig({
 		contactEmailFrom: 'Your Name <onboarding@resend.dev>',
 		supabaseUrl: '',
 		supabaseServiceKey: '',
+		public: {
+			// Site's real deployed URL, no trailing slash — used to build the
+			// absolute URLs robots.txt/sitemap.xml require.
+			siteUrl: '',
+		},
 	},
 
 	app: {
