@@ -10,13 +10,6 @@ Severity: 🔴 Critical (live exploit, fix now) · 🟠 High · 🟡 Medium · �
 
 ## 🟠 High priority
 
-### 2. Stored XSS via unsanitized rich text
-`content-blocks/{Accordion,SplitHero,StatHero,SplitContent,Text1Col,CtaBlock,VectorHero,CaseStudyHero,ColumnsText,SectionHeading}/*.vue`
-
-These blocks render Tiptap-authored HTML via `v-html` with no sanitization — no DOMPurify/sanitize-html anywhere in `package.json`. `server/api/pages/[slug].put.ts:661-663` only checks that `blocks` is an array, never sanitizes contents. The #1 escalation path that made this reachable by any user is now closed, but it's still a real risk from any compromised or malicious editor/admin account — injected `<script>`/event-handler HTML in a block gets served to every visitor.
-
-**Fix:** run block HTML through `sanitize-html` (or DOMPurify server-side via `isomorphic-dompurify`) in `server/api/pages/[slug].put.ts` before it's written to the DB — sanitize once at the write boundary rather than on every render.
-
 ### 5. Heading hierarchy isn't guaranteed
 Only the six hero blocks (`PageHero`, `MinimalHero`, `SplitHero`, `StatHero`, `VectorHero`, `CaseStudyHero`) render an `<h1>`; everything else renders `<h2>`. Block composition is fully admin-driven with no enforcement, so a page built with zero hero blocks has zero `<h1>`s, and one built with two hero blocks has two — both bad for SEO and screen-reader navigation.
 
@@ -132,3 +125,12 @@ Both added as dynamic Nitro routes rather than a static `public/robots.txt`, sin
 - [server/routes/sitemap.xml.ts](server/routes/sitemap.xml.ts) — queries `pages(slug, updated_at)` directly and renders `<url>` entries for every page, XML-escaped.
 - Both need `NUXT_PUBLIC_SITE_URL` set (new env var, documented in `.env.example`/README) to produce absolute URLs — verified locally that with it unset, `sitemap.xml` degrades to relative paths and `robots.txt` just omits the `Sitemap:` line rather than emitting something broken. **Set this in production** or the sitemap won't validate.
 - Verified live: `curl localhost:3000/robots.txt` and `/sitemap.xml` both return correctly, homepage still 200.
+
+### 2. ~~Stored XSS via unsanitized rich text~~ — Fixed 2026-07-30
+`content-blocks/{Accordion,SplitHero,StatHero,SplitContent,Text1Col,CtaBlock,VectorHero,CaseStudyHero,ColumnsText,SectionHeading}/*.vue` render Tiptap-authored HTML via `v-html` with no sanitization on write.
+
+**Fix applied:** [server/utils/sanitizeBlocks.ts](server/utils/sanitizeBlocks.ts), wired into `server/api/pages/[slug].put.ts` (the sole write path for block content — confirmed `index.post.ts` always inserts `blocks: []` at creation). Two design notes:
+- Sanitizes by **content shape, not field name** — walks every string in a block's `props` (recursing into repeaters) and runs it through `sanitize-html` only if it looks like it contains a tag. A hardcoded list of "which fields are richtext" was considered and rejected: the client-side block registry that would've supplied that list uses Vite's `import.meta.glob`, which doesn't work in Nitro's server build (confirmed by an empirical test — it throws `Cannot access '...' before initialization` at runtime), and a manually-maintained field list would silently stop covering new richtext fields added later.
+- The tag-sniff pre-check also avoids corrupting plain-text fields: running an untagged string like `"Tom & Jerry"` through `sanitize-html` directly would re-encode it to `"Tom &amp; Jerry"` (verified), which Vue's `{{ }}` would then render as literal text — a regression for any title/subtitle containing `&`, `<`, or `"`. Only strings matching `/<[a-z][\s\S]*>/i` pay the sanitize cost.
+- Allowlist (`p, br, strong, b, em, i, s, strike, ul, ol, li, blockquote, code, pre, hr, h1-h6, a[href|target|rel]`, schemes `http/https/mailto/tel`) matches exactly what `RichTextEditor.vue`'s Tiptap config (StarterKit + Link) can produce — verified against `node -e` test cases: `<script>`, `onclick=`, `<img onerror=>`, and `javascript:` hrefs are all stripped; legitimate bold/links/lists pass through unchanged.
+- Installed `sanitize-html` + `@types/sanitize-html` (`yarn add`).

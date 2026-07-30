@@ -66,7 +66,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	}
 
 	const update: Record<string, unknown> = {}
-	if (body.blocks !== undefined) update.blocks = body.blocks
+	if (body.blocks !== undefined) update.blocks = sanitizeBlocks(body.blocks)
 	if (body.title) update.title = body.title
 	if (body.seo !== undefined) update.seo = body.seo
 
