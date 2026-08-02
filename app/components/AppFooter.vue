@@ -21,7 +21,10 @@
 								rel="noopener noreferrer"
 								:aria-label="social.label"
 							>
-								<Icon :name="social.icon" />
+								<Icon
+									:name="social.icon"
+									size="1.5rem"
+								/>
 							</a>
 						</li>
 					</ul>
@@ -47,14 +50,18 @@
 							</button>
 						</li>
 						<li v-if="company?.phone">
-							<span>
+							<a
+								:href="buildWhatsAppHref(company.phone)"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
 								<Icon
 									name="lucide:phone"
 									class="icon"
 									aria-hidden="true"
 								/>
 								{{ company.phone }}
-							</span>
+							</a>
 						</li>
 						<li v-if="address">
 							<span>
@@ -127,11 +134,13 @@
 						align-items: center;
 						color: var(--text-secondary);
 						display: flex;
+						height: 2rem;
 						transition: color var(--transition-base);
+						width: 2rem;
 
 						svg {
-							height: 20px;
-							width: 20px;
+							height: 2rem;
+							width: 2rem;
 						}
 
 						&:hover {

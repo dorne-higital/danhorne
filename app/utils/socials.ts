@@ -14,6 +14,15 @@ interface SocialPlatform {
 	buildHref?: (value: string) => string
 }
 
+// wa.me is WhatsApp's own "click to chat" link format — it always opens a
+// chat with that number, never a phone call. Exported separately (not just
+// inlined in the whatsapp platform's buildHref below) so anywhere else that
+// already shows a raw phone number, like the footer, can link it to
+// WhatsApp too without duplicating the digit-stripping logic.
+export function buildWhatsAppHref(value: string): string {
+	return `https://wa.me/${value.replace(/[^0-9]/g, '')}`
+}
+
 // Canonical list of supported social platforms — the single place that maps
 // a SocialLinks key to its label/icon, so any component (footer, the
 // SocialLinks content-block, etc.) can just loop through this instead of
@@ -31,9 +40,7 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
 		icon: 'simple-icons:whatsapp',
 		inputType: 'tel',
 		placeholder: 'e.g. 07123 456789',
-		// wa.me is WhatsApp's own "click to chat" link format — it always
-		// opens a chat with that number, never a phone call.
-		buildHref: (value) => `https://wa.me/${value.replace(/[^0-9]/g, '')}`,
+		buildHref: buildWhatsAppHref,
 	},
 ]
 
