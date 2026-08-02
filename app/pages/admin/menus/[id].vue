@@ -107,8 +107,8 @@
 			})
 			toast.show('Saved.')
 			dirty.value = false
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save menu', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save menu'), 'error')
 		} finally {
 			saving.value = false
 		}

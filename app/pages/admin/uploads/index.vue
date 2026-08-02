@@ -139,6 +139,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { uploads, uploading, error: uploadError, progress, uploadMany, remove, removeMany } = useUploads()
+	const { confirm } = useConfirm()
 
 	const imageUploads = computed(() => (uploads.value ?? []).filter((item) => !item.mime_type?.startsWith('video/')))
 	const videoUploads = computed(() => (uploads.value ?? []).filter((item) => item.mime_type?.startsWith('video/')))
@@ -171,7 +172,13 @@
 	}
 
 	async function removeUpload(uploadItem: UploadRecord) {
-		if (!confirm(`Delete "${uploadItem.filename}"? This can't be undone.`)) return
+		if (
+			!(await confirm(`Delete "${uploadItem.filename}"? This can't be undone.`, {
+				confirmLabel: 'Delete',
+				danger: true,
+			}))
+		)
+			return
 		await remove(uploadItem.id)
 		setSelected(uploadItem.id, false)
 	}
@@ -179,7 +186,13 @@
 	async function deleteSelected() {
 		const count = selectedIds.value.size
 		if (!count) return
-		if (!confirm(`Delete ${count} file${count === 1 ? '' : 's'}? This can't be undone.`)) return
+		if (
+			!(await confirm(`Delete ${count} file${count === 1 ? '' : 's'}? This can't be undone.`, {
+				confirmLabel: 'Delete',
+				danger: true,
+			}))
+		)
+			return
 
 		await removeMany([...selectedIds.value])
 		selectedIds.value = new Set()

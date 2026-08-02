@@ -4,8 +4,6 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 
 ## Consistency nits (worth doing before/while building out the component library)
 
-- [ ] **Native `confirm()` dialogs instead of the styled `Modal`.** Used for all deletes and the unsaved-changes guard — the one place the admin UI looks like the browser instead of the app. A `ConfirmModal` wrapper would fix all call sites at once.
-- [ ] **`catch (err: any)` duplicated ~17 times** across admin pages, all doing the same `err?.data?.statusMessage ?? fallback` dance. A shared `getApiErrorMessage(err, fallback)` helper in `shared/utils/` would cut the repetition.
 - [ ] **Drag-and-drop has no keyboard alternative.** Block canvas, block picker, menu tree, repeater items — all `vuedraggable`, all mouse-only. Real accessibility gap if that matters here.
 
 ## Known gaps, not urgent
@@ -23,6 +21,8 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 
 ## Done
 
+- [x] Native `confirm()` dialogs replaced with the styled `Modal` — new `ConfirmModal.vue` + `useConfirm()` composable (module-scope state, same singleton pattern as `useToast`), mounted once in `admin.vue`. `confirm(message, options)` returns a `Promise<boolean>` so every delete call site just does `if (!(await confirm(...))) return`, same shape as the old `window.confirm()` call. The unsaved-changes route guard (`useUnsavedChanges.ts`) uses it too — Vue Router awaits a Promise returned from `onBeforeRouteLeave`, so that worked out without any special-casing. Added a `.danger` button style (red, for delete/remove confirms) to `_buttons.scss`. The native `beforeunload` prompt in the same file is untouched — browsers force that one, it can never be styled.
+- [x] `catch (err: any)` duplication cut — new `shared/utils/getApiErrorMessage.ts` checks both error shapes used across the admin (`err.data.statusMessage` from `$fetch` against our own API, `err.message` from Supabase Auth client calls) and falls back to the caller's message. Replaced at all ~21 call sites; also dropped the now-unnecessary `: any` on each `catch` since the helper takes `unknown`. Left `useUploads.ts`'s two catch blocks alone — those use `describeUploadError()`, a different, upload-specific helper, not this pattern.
 - [x] Public endpoints no longer leak raw Postgres error text — new `server/utils/publicError.ts` helper (`publicErrorMessage()`) logs the real error server-side and returns a generic message to the client instead. Applied to every genuinely public route: `settings/index.get`, `forms/[id].get`, `forms/[id]/submit.post`, `menus/[id].get`, `pages/[slug].get`, and `sitemap.xml`. Admin-gated routes were left as-is since only trusted logged-in users see those.
 - [x] Form submissions rate-limited — `server/utils/rateLimit.ts` is an in-memory sliding-window throttle (5 submissions per 15 min per IP, across all forms), checked in `server/api/forms/[id]/submit.post.ts` before the DB lookup. It's in-memory rather than DB-backed, so it resets on a cold start and isn't shared across concurrent serverless instances — a determined/distributed spammer can get around it, but it stops the actual threat described (a script hammering the endpoint in a loop) without new infra, which fits a low-traffic personal site.
 - [x] Two more dashboard nudges: empty pages (zero content blocks) and broken menu links (pointing at a since-deleted/renamed page slug)

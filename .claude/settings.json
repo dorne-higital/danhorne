@@ -15,7 +15,8 @@
       "Bash(curl -s http://localhost:3000/api/settings -o /dev/null -w \"settings: %{http_code}\\\\n\" --max-time 8)",
       "Bash(curl -s http://localhost:3000/sitemap.xml -o /dev/null -w \"sitemap: %{http_code}\\\\n\" --max-time 8)",
       "Bash(curl -s http://localhost:3000/api/menus/not-a-valid-uuid -w \"\\\\ncode:%{http_code}\\\\n\")",
-      "Bash(curl -s \"http://localhost:3000/api/forms/not-a-valid-uuid\" -w \"\\\\ncode:%{http_code}\\\\n\")"
+      "Bash(curl -s \"http://localhost:3000/api/forms/not-a-valid-uuid\" -w \"\\\\ncode:%{http_code}\\\\n\")",
+      "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin/login -o /dev/null -w \"admin login: %{http_code}\\\\n\" --max-time 8)"
     ]
   }
 }

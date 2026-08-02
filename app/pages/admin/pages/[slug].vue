@@ -144,8 +144,8 @@
 			if (updated.slug !== route.params.slug) {
 				await navigateTo(`/admin/pages/${encodeURIComponent(updated.slug)}`, { replace: true })
 			}
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save page', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save page'), 'error')
 		} finally {
 			saving.value = false
 		}

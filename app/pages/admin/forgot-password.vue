@@ -67,8 +67,8 @@
 			})
 			if (resetError) throw resetError
 			sent.value = true
-		} catch (err: any) {
-			error.value = err?.message ?? 'Could not send reset link'
+		} catch (err) {
+			error.value = getApiErrorMessage(err, 'Could not send reset link')
 		} finally {
 			loading.value = false
 		}

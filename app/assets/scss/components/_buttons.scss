@@ -45,6 +45,11 @@
 		color: var(--text-inverse);
 	}
 
+	&.danger {
+		background: var(--error);
+		color: var(--text-inverse);
+	}
+
 	&.secondary {
 		background: var(--bg-secondary);
 		border-color: var(--border);

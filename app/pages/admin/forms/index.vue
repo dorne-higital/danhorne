@@ -102,6 +102,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { data: forms, refresh } = await useFetch<FormSummary[]>('/api/forms', { key: 'admin-forms-list' })
+	const { confirm } = useConfirm()
 
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
@@ -120,15 +121,16 @@
 			newName.value = ''
 			await refresh()
 			await navigateTo(`/admin/forms/${created.id}`)
-		} catch (err: any) {
-			createError.value = err?.data?.statusMessage ?? 'Could not create form'
+		} catch (err) {
+			createError.value = getApiErrorMessage(err, 'Could not create form')
 		} finally {
 			creating.value = false
 		}
 	}
 
 	async function deleteForm(form: FormSummary) {
-		if (!confirm(`Delete "${form.name}"? This can't be undone.`)) return
+		if (!(await confirm(`Delete "${form.name}"? This can't be undone.`, { confirmLabel: 'Delete', danger: true })))
+			return
 		await $fetch(`/api/forms/${form.id}`, { method: 'DELETE' })
 		await refresh()
 	}

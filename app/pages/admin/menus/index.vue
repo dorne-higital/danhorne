@@ -111,6 +111,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-menus-list' })
+	const { confirm } = useConfirm()
 
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
@@ -144,15 +145,16 @@
 			idTouched.value = false
 			await refresh()
 			await navigateTo(`/admin/menus/${newId.value}`)
-		} catch (err: any) {
-			createError.value = err?.data?.statusMessage ?? 'Could not create menu'
+		} catch (err) {
+			createError.value = getApiErrorMessage(err, 'Could not create menu')
 		} finally {
 			creating.value = false
 		}
 	}
 
 	async function deleteMenu(menu: MenuSummary) {
-		if (!confirm(`Delete "${menu.name}"? This can't be undone.`)) return
+		if (!(await confirm(`Delete "${menu.name}"? This can't be undone.`, { confirmLabel: 'Delete', danger: true })))
+			return
 		await $fetch(`/api/menus/${menu.id}`, { method: 'DELETE' })
 		await refresh()
 	}

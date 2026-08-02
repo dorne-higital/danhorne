@@ -136,8 +136,8 @@
 			})
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save name', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save name'), 'error')
 		} finally {
 			savingName.value = false
 		}
@@ -154,8 +154,8 @@
 			if (error) throw error
 			emailMessage.value = 'Check your inbox to confirm the new email address.'
 			newEmail.value = ''
-		} catch (err: any) {
-			toast.show(err?.message ?? 'Could not update email', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not update email'), 'error')
 		} finally {
 			savingEmail.value = false
 		}
@@ -176,8 +176,8 @@
 			toast.show('Password updated.')
 			newPassword.value = ''
 			confirmPassword.value = ''
-		} catch (err: any) {
-			toast.show(err?.message ?? 'Could not update password', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not update password'), 'error')
 		} finally {
 			savingPassword.value = false
 		}

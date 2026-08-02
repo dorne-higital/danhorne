@@ -176,8 +176,8 @@
 			})
 			emit('saved', seo)
 			emit('update:open', false)
-		} catch (err: any) {
-			error.value = err?.data?.statusMessage ?? 'Could not save SEO'
+		} catch (err) {
+			error.value = getApiErrorMessage(err, 'Could not save SEO')
 		} finally {
 			saving.value = false
 		}

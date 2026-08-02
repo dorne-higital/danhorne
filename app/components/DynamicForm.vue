@@ -188,9 +188,11 @@
 			})
 
 			submitted.value = true
-		} catch (err: any) {
-			submitError.value =
-				err?.data?.statusMessage ?? 'Something went wrong sending that — please try again in a moment.'
+		} catch (err) {
+			submitError.value = getApiErrorMessage(
+				err,
+				'Something went wrong sending that — please try again in a moment.',
+			)
 		} finally {
 			sending.value = false
 		}

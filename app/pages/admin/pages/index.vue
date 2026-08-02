@@ -301,6 +301,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { data: pages, refresh } = await useFetch<PageSummary[]>('/api/pages', { key: 'admin-pages-list' })
+	const { confirm } = useConfirm()
 
 	const childrenByParent = computed(() => groupPagesByParent(pages.value ?? []))
 	const topLevelSorted = computed(() => sortPageSiblings(childrenByParent.value.get(null) ?? []))
@@ -393,8 +394,8 @@
 			showDuplicate.value = false
 			await refresh()
 			await navigateTo(`/admin/pages/${encodeURIComponent(page.slug)}`)
-		} catch (err: any) {
-			duplicateError.value = err?.data?.statusMessage ?? 'Could not duplicate page'
+		} catch (err) {
+			duplicateError.value = getApiErrorMessage(err, 'Could not duplicate page')
 		} finally {
 			duplicating.value = false
 		}
@@ -416,8 +417,8 @@
 			slugTouched.value = false
 			await refresh()
 			await navigateTo(`/admin/pages/${encodeURIComponent(page.slug)}`)
-		} catch (err: any) {
-			createError.value = err?.data?.statusMessage ?? 'Could not create page'
+		} catch (err) {
+			createError.value = getApiErrorMessage(err, 'Could not create page')
 		} finally {
 			creating.value = false
 		}
@@ -428,7 +429,13 @@
 		const warning = childCount
 			? ` ${childCount} sub-page${childCount > 1 ? 's' : ''} will become top-level pages.`
 			: ''
-		if (!confirm(`Delete "${page.title}"? This can't be undone.${warning}`)) return
+		if (
+			!(await confirm(`Delete "${page.title}"? This can't be undone.${warning}`, {
+				confirmLabel: 'Delete',
+				danger: true,
+			}))
+		)
+			return
 		await $fetch(`/api/pages/${encodeURIComponent(page.slug)}`, { method: 'DELETE' })
 		await refresh()
 	}

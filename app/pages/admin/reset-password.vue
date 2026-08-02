@@ -67,8 +67,8 @@
 			const { error: updateError } = await supabase.auth.updateUser({ password: password.value })
 			if (updateError) throw updateError
 			await navigateTo('/admin')
-		} catch (err: any) {
-			error.value = err?.message ?? 'Could not set password'
+		} catch (err) {
+			error.value = getApiErrorMessage(err, 'Could not set password')
 		} finally {
 			loading.value = false
 		}

@@ -127,6 +127,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const toast = useToast()
+	const { confirm } = useConfirm()
 	const { data: me } = await useAdminProfile()
 
 	if (me.value?.profile.role !== 'admin') {
@@ -164,8 +165,8 @@
 			inviteEmail.value = ''
 			await refresh()
 			toast.show('Invite sent.')
-		} catch (err: any) {
-			inviteError.value = err?.data?.statusMessage ?? 'Could not send invite'
+		} catch (err) {
+			inviteError.value = getApiErrorMessage(err, 'Could not send invite')
 		} finally {
 			inviting.value = false
 		}
@@ -176,18 +177,24 @@
 			await $fetch(`/api/admin/users/${user.id}`, { method: 'PATCH', body: { role: role as UserRole } })
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not update role', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not update role'), 'error')
 		}
 	}
 
 	async function removeUser(user: AdminUser) {
-		if (!confirm(`Remove "${user.email}"? They'll lose access immediately.`)) return
+		if (
+			!(await confirm(`Remove "${user.email}"? They'll lose access immediately.`, {
+				confirmLabel: 'Remove',
+				danger: true,
+			}))
+		)
+			return
 		try {
 			await $fetch(`/api/admin/users/${user.id}`, { method: 'DELETE' })
 			await refresh()
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not remove user', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not remove user'), 'error')
 		}
 	}
 </script>

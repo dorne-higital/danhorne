@@ -260,8 +260,8 @@
 			logoUrl.value = url ?? ''
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save logo', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save logo'), 'error')
 		}
 	}
 
@@ -286,8 +286,8 @@
 			})
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save site settings', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save site settings'), 'error')
 		} finally {
 			savingSiteConfig.value = false
 		}
@@ -305,8 +305,8 @@
 			await $fetch('/api/settings', { method: 'PATCH', body: { socials: cleaned } })
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save socials', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save socials'), 'error')
 		} finally {
 			savingSocials.value = false
 		}
@@ -333,8 +333,8 @@
 			})
 			await refresh()
 			toast.show('Saved.')
-		} catch (err: any) {
-			toast.show(err?.data?.statusMessage ?? 'Could not save business info', 'error')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not save business info'), 'error')
 		} finally {
 			savingBusiness.value = false
 		}

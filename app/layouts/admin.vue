@@ -6,6 +6,7 @@
 		</main>
 
 		<AdminToast />
+		<ConfirmModal />
 	</div>
 </template>
 
