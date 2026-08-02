@@ -11,46 +11,29 @@ Severity: 🔴 Critical (live exploit, fix now) · 🟠 High · 🟡 Medium · �
 ## 🟠 High priority
 
 ### 5. Heading hierarchy isn't guaranteed
+
 Only the six hero blocks (`PageHero`, `MinimalHero`, `SplitHero`, `StatHero`, `VectorHero`, `CaseStudyHero`) render an `<h1>`; everything else renders `<h2>`. Block composition is fully admin-driven with no enforcement, so a page built with zero hero blocks has zero `<h1>`s, and one built with two hero blocks has two — both bad for SEO and screen-reader navigation.
 
 **Fix:** either warn in the admin page editor when a page has ≠1 hero block, or make the page-level `<h1>` come from the page title itself (visually hidden if a hero block already shows a heading) so it's never dependent on block choice.
 
 ### 6. No redirect mechanism for renamed/moved pages
+
 `app/pages/admin/pages/[slug].vue:67-71` only warns that menu links won't auto-update on rename — there's no redirects table or `routeRules`. Now that [error.vue](app/error.vue) renders a proper 404, a renamed page silently 404s instead of 301-redirecting, losing indexed-URL equity and breaking bookmarks/backlinks.
 
 **Fix:** a small `redirects` table (`old_slug`, `new_slug`) written automatically when a slug changes, checked in `[...slug].vue` before falling through to the 404.
-
-### 7. Zero automated tests
-No vitest/jest/playwright/cypress anywhere — confirmed zero `*.test.ts`/`*.spec.ts` files. This is a CMS handling auth, forms, and content mutations with no regression safety net.
-
-**Fix:** start small — vitest coverage on `shared/utils/*` (pure functions like `seoScore.ts`, `formFields.ts`) gives the most value for the least setup, before attempting component/e2e tests.
-
-### 8. No CI
-No `.github/workflows/` or any CI config — lint/typecheck/stylelint are 100% manual, nothing blocks a broken PR from merging.
-
-**Fix:** a single GitHub Actions workflow running `yarn lint:css`, `yarn format --check`, and `npx nuxi typecheck` on push would catch most regressions for very little setup.
-
-### 9. Focus ring removed on every form input with no real replacement
-`app/components/ui/FormField.vue:257-260`:
-
-```scss
-&:focus { border-color: var(--brand-secondary); outline: none; }
-```
-
-Strips the native focus ring app-wide on text/email/select/textarea, replacing it with only a border-color shift — a much weaker signal for low-vision/keyboard users, and there's no `:focus-visible` fallback. Compare `app/assets/scss/components/_buttons.scss:38-40`, which does this correctly (`:focus-visible` + visible `outline`).
-
-**Fix:** match the button pattern — keep `outline: none` only inside `&:focus-visible`, paired with an actual `outline: 2px solid var(--brand-secondary); outline-offset: 2px;`.
 
 ---
 
 ## 🟡 Medium priority
 
 **Security**
+
 - **No HTTP security headers** — no CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, or HSTS configured anywhere (`nuxt.config.ts` `routeRules` could set these).
-- **No server-side rate limiting** *(already in TODO.md)* — `server/api/forms/[id]/submit.post.ts` has only a client-side honeypot, trivially bypassed by a script; unlimited requests can burn the Resend send quota.
+- **No server-side rate limiting** _(already in TODO.md)_ — `server/api/forms/[id]/submit.post.ts` has only a client-side honeypot, trivially bypassed by a script; unlimited requests can burn the Resend send quota.
 - **CORS is fully default/open** — no explicit policy on the public form-submit endpoint, so it can be invoked cross-origin from any site for spam automation.
 
 **SEO**
+
 - **No `<link rel="canonical">`** — `app/pages/[...slug].vue:26-35`'s `useHead()` sets OG tags but never a canonical URL.
 - **No Twitter Card meta** — same block, zero `twitter:*` tags; link previews on X/Slack fall back to weaker rendering.
 - **No structured data (JSON-LD)** — nothing anywhere. `Person`/`ProfessionalService`, `WebSite`, and `BreadcrumbList` schema would all fit a freelance portfolio site and can earn rich results.
@@ -58,14 +41,17 @@ Strips the native focus ring app-wide on text/email/select/textarea, replacing i
 - **Slugs aren't normalized** — `app/pages/admin/pages/index.vue:268-276` only requires a leading `/`; no lowercase/hyphenation enforcement, so `/My Page!` is a valid slug.
 
 **Performance**
+
 - **No caching on public GET routes** — `server/api/settings/index.get.ts`, `server/api/pages/[slug].get.ts`, `server/api/menus/[id].get.ts` set no `Cache-Control`, so every page view refetches from Supabase even though content only changes on admin edits. A `routeRules` entry with `swr` or `s-maxage` would help.
 - **Missing intrinsic image dimensions (CLS)** — `NuxtImg` usages across `PageHero`, `SplitHero`, `SplitContent`, `ImageGallery`, `VectorHero`, `CaseStudyHero`, `FeaturedWork`, `Timeline` all correctly use `loading="lazy"` but never set `width`/`height`/`aspect-ratio`, so the browser can't reserve space before Supabase images load.
 
 **Accessibility**
+
 - **No skip-to-content link** — keyboard users tab through the full nav on every page load (`app/app.vue`/`app/layouts/default.vue`).
 - **Form errors aren't programmatically linked to their field** — `app/components/ui/FormField.vue:91-97`'s error `<p role="alert">` has no `id`, and the input has no matching `aria-describedby`/`aria-invalid`.
 
 **Code quality / devops**
+
 - **No error monitoring** — server errors are `createError`'d back to the client (correct) but nothing aggregates/alerts on them in production; only visible via host platform logs.
 - **No backup/export story** — no documented backup strategy or admin content-export feature for the CMS data.
 - **No deployment config in-repo** — no `vercel.json`/`netlify.toml`/`nitro.preset` override, so the deploy target isn't pinned or documented.
@@ -81,7 +67,7 @@ Strips the native focus ring app-wide on text/email/select/textarea, replacing i
 - **No `og:url`** — minor omission alongside the missing canonical tag (#Medium).
 - **`prefers-reduced-motion` only covers one animation** — the `.float` keyframe respects it (`main.scss:20-24`), but the mobile-nav slide/fade transition and other `--transition-base` hover transitions don't. Low impact given short (200ms) durations.
 - **TypeScript is a major version behind** (`^5.6.0` vs `7.x` latest) and Nuxt is a minor behind (`^4.4.8` vs `4.5.1`) — not urgent, TS 7 is a very recent rewrite.
-- **Public API errors can leak raw Postgres text** *(already in TODO.md)* — `server/api/pages/[slug].get.ts` and similar return `error.message` straight from Supabase on failure.
+- **Public API errors can leak raw Postgres text** _(already in TODO.md)_ — `server/api/pages/[slug].get.ts` and similar return `error.message` straight from Supabase on failure.
 
 ---
 
@@ -102,23 +88,27 @@ Strips the native focus ring app-wide on text/email/select/textarea, replacing i
 ## Fixed since this audit
 
 ### 1. ~~Privilege escalation — any logged-in user can make themselves admin~~ — Fixed 2026-07-30
+
 `supabase/migrations/0001_init.sql:47-49` had:
 
 ```sql
 create policy "Users can update own profile" on profiles for update using (auth.uid() = id);
 ```
 
-No `WITH CHECK` clause restricted *which columns* changed. The Supabase anon key + a user's own JWT are both in the browser bundle, so any authenticated non-admin account could call the Supabase REST API directly — bypassing `server/api/admin/users/[id].patch.ts` entirely — and `PATCH` their own `profiles` row to set `role: 'admin'`.
+No `WITH CHECK` clause restricted _which columns_ changed. The Supabase anon key + a user's own JWT are both in the browser bundle, so any authenticated non-admin account could call the Supabase REST API directly — bypassing `server/api/admin/users/[id].patch.ts` entirely — and `PATCH` their own `profiles` row to set `role: 'admin'`.
 
 Checked what actually depends on this policy: nothing. Every profile write in the app (`server/api/admin/profile.patch.ts`, `server/api/admin/users/[id].patch.ts`) already goes through `useSupabase()`, which uses the **service-role key** and always bypasses RLS — matching `0001_init.sql`'s own header comment that the app only ever talks to these tables server-side. So the policy was pure attack surface with zero legitimate use.
 
 **Fix applied:** `supabase/migrations/0002_lock_profiles_rls.sql` drops the policy outright. No app code changes needed. **This migration hasn't been run against your live database yet** — I don't have DB credentials in this environment (no `DATABASE_URL`, only the REST-API service key, which can't execute DDL). Run it the same way `0001_init.sql` was run:
+
 ```
 psql "$DATABASE_URL" -f supabase/migrations/0002_lock_profiles_rls.sql
 ```
+
 or paste its contents into the Supabase SQL editor.
 
 ### 3 & 4. ~~No `robots.txt` / No `sitemap.xml`~~ — Fixed 2026-07-30
+
 Both added as dynamic Nitro routes rather than a static `public/robots.txt`, since `robots.txt` needs to point at the sitemap's absolute URL and the sitemap itself has to reflect the live `pages` table (admin-editable, so a static file would go stale):
 
 - [server/routes/robots.txt.ts](server/routes/robots.txt.ts) — disallows `/admin`, adds a `Sitemap:` line when a site URL is configured.
@@ -127,10 +117,32 @@ Both added as dynamic Nitro routes rather than a static `public/robots.txt`, sin
 - Verified live: `curl localhost:3000/robots.txt` and `/sitemap.xml` both return correctly, homepage still 200.
 
 ### 2. ~~Stored XSS via unsanitized rich text~~ — Fixed 2026-07-30
+
 `content-blocks/{Accordion,SplitHero,StatHero,SplitContent,Text1Col,CtaBlock,VectorHero,CaseStudyHero,ColumnsText,SectionHeading}/*.vue` render Tiptap-authored HTML via `v-html` with no sanitization on write.
 
 **Fix applied:** [server/utils/sanitizeBlocks.ts](server/utils/sanitizeBlocks.ts), wired into `server/api/pages/[slug].put.ts` (the sole write path for block content — confirmed `index.post.ts` always inserts `blocks: []` at creation). Two design notes:
+
 - Sanitizes by **content shape, not field name** — walks every string in a block's `props` (recursing into repeaters) and runs it through `sanitize-html` only if it looks like it contains a tag. A hardcoded list of "which fields are richtext" was considered and rejected: the client-side block registry that would've supplied that list uses Vite's `import.meta.glob`, which doesn't work in Nitro's server build (confirmed by an empirical test — it throws `Cannot access '...' before initialization` at runtime), and a manually-maintained field list would silently stop covering new richtext fields added later.
 - The tag-sniff pre-check also avoids corrupting plain-text fields: running an untagged string like `"Tom & Jerry"` through `sanitize-html` directly would re-encode it to `"Tom &amp; Jerry"` (verified), which Vue's `{{ }}` would then render as literal text — a regression for any title/subtitle containing `&`, `<`, or `"`. Only strings matching `/<[a-z][\s\S]*>/i` pay the sanitize cost.
 - Allowlist (`p, br, strong, b, em, i, s, strike, ul, ol, li, blockquote, code, pre, hr, h1-h6, a[href|target|rel]`, schemes `http/https/mailto/tel`) matches exactly what `RichTextEditor.vue`'s Tiptap config (StarterKit + Link) can produce — verified against `node -e` test cases: `<script>`, `onclick=`, `<img onerror=>`, and `javascript:` hrefs are all stripped; legitimate bold/links/lists pass through unchanged.
 - Installed `sanitize-html` + `@types/sanitize-html` (`yarn add`).
+
+### 7. ~~Zero automated tests~~ — Fixed 2026-08-02
+
+No vitest/jest/playwright/cypress anywhere — confirmed zero `*.test.ts`/`*.spec.ts` files. This is a CMS handling auth, forms, and content mutations with no regression safety net.
+
+**Fix applied:** [vitest.config.ts](vitest.config.ts) + 73 tests across 12 files, exactly the "start small" scope this audit originally recommended — pure functions in `shared/utils/*`, `app/utils/*`, and `server/utils/*` (`formFields`, `pageTree`, `seoScore`, `slug`, `getApiErrorMessage`, `formatBytes`, `link`, `socials`, `rateLimit`, `publicError`, `sanitizeBlocks`, `formEmail`). No component/e2e tests yet — that's a bigger lift (needs `@vue/test-utils` + a DOM environment, plus mocking Supabase/h3) and deliberately left for later. `yarn test` / `yarn test:watch` added as scripts.
+
+Also fixed 6 pre-existing `noUncheckedIndexedAccess` type errors in `app/composables/useUploads.ts` that surfaced along the way (unrelated to tests themselves, but were the only thing left failing `npx nuxi typecheck` — needed a clean typecheck for the new CI below to be meaningful).
+
+### 8. ~~No CI~~ — Fixed 2026-08-02
+
+No `.github/workflows/` or any CI config — lint/typecheck/stylelint are 100% manual, nothing blocks a broken PR from merging.
+
+**Fix applied:** [.github/workflows/ci.yml](.github/workflows/ci.yml) — runs on every push to `main` and every PR: `yarn format:check` (new script — the existing `yarn format` writes in place, not CI-safe), `yarn lint:css`, `npx nuxi typecheck`, `yarn test`. Uses placeholder env values (not secrets) purely so `nuxt prepare` sees every `runtimeConfig` key populated — nothing in this workflow talks to real Supabase/Resend, so no GitHub Secrets are required to get it running.
+
+### 9. ~~Focus ring removed on every form input with no real replacement~~ — Fixed 2026-08-02
+
+`app/components/ui/FormField.vue:257-260` stripped the native focus ring app-wide on text/email/select/textarea via `&:focus { outline: none; }`, replacing it with only a border-color shift — a much weaker signal for low-vision/keyboard users, with no `:focus-visible` fallback. `app/assets/scss/components/_buttons.scss` already did this correctly (`:focus-visible` + visible `outline`), so this was pure inconsistency, not a design decision.
+
+**Fix applied:** matched the button pattern everywhere it was missing — `:focus` keeps just the border-color shift, `:focus-visible` gets an explicit `outline: 2px solid var(--brand-secondary); outline-offset: 2px;`. Turned out `FormField.vue` wasn't the only offender — grepped for `outline: none` and found the same anti-pattern in three more places, fixed identically: `SchemaField.vue` (admin block-prop inputs), `RichTextEditor.vue` (the Tiptap content area), and `pages/[slug].vue` (the page editor's title/slug/parent inputs).

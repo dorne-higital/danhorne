@@ -178,8 +178,9 @@
 				// Element-level styling (headings/lists/links/etc) comes from
 				// the .prose class added via editorProps above, same as the
 				// live output — nothing element-specific needed here.
-				&:focus {
-					outline: none;
+				&:focus-visible {
+					outline: 2px solid var(--brand-secondary);
+					outline-offset: 2px;
 				}
 			}
 		}

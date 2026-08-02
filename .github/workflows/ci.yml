@@ -1,0 +1,44 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        # Placeholder values only — CI never talks to a real Supabase project or
+        # sends real email, it just needs nuxt prepare/typecheck to see every
+        # runtimeConfig key populated with *something* so module setup doesn't
+        # fail on a missing env var. No GitHub Secrets required for this workflow.
+        env:
+            NUXT_SUPABASE_URL: https://placeholder.supabase.co
+            NUXT_SUPABASE_SERVICE_KEY: placeholder
+            NUXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+            NUXT_PUBLIC_SUPABASE_KEY: placeholder
+            NUXT_RESEND_API_KEY: placeholder
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: yarn
+
+            - run: corepack enable
+
+            - name: Install dependencies
+              run: yarn install --immutable
+
+            - name: Check formatting
+              run: yarn format:check
+
+            - name: Lint styles
+              run: yarn lint:css
+
+            - name: Type check
+              run: npx nuxi typecheck
+
+            - name: Run tests
+              run: yarn test

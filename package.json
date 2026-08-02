@@ -13,8 +13,11 @@
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"format": "prettier --write .",
+		"format:check": "prettier --check .",
 		"lint:css": "stylelint \"{app,content-blocks}/**/*.{vue,scss}\"",
 		"lint:css:fix": "stylelint \"{app,content-blocks}/**/*.{vue,scss}\" --fix",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"add-block": "node scripts/add-block.mjs"
 	},
 	"dependencies": {
@@ -45,6 +48,7 @@
 		"stylelint-config-standard-scss": "^17.0.0",
 		"stylelint-config-standard-vue": "^1.0.0",
 		"stylelint-order": "^8.1.1",
-		"typescript": "^5.6.0"
+		"typescript": "^5.6.0",
+		"vitest": "^4.1.10"
 	}
 }

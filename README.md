@@ -76,10 +76,15 @@ yarn build      # production build
 yarn generate   # static generation
 yarn preview    # preview a production build locally
 yarn format     # prettier --write .
+yarn format:check
 yarn lint:css   # stylelint check (app/ and content-blocks/)
 yarn lint:css:fix
+yarn test       # vitest run — unit tests for shared/app/server utils
+yarn test:watch
 yarn add-block  # scaffold a new content block — see below
 ```
+
+CI (`.github/workflows/ci.yml`) runs `format:check`, `lint:css`, `nuxi typecheck`, and `test` on every push to `main` and every PR — no GitHub Secrets required, it doesn't talk to a real Supabase project.
 
 ## How the CMS works
 

@@ -2,3 +2,6 @@ node_modules
 .nuxt
 .output
 dist
+
+# Claude Code's own tool config, not app source
+.claude

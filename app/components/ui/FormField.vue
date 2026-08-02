@@ -256,7 +256,11 @@
 
 			&:focus {
 				border-color: var(--brand-secondary);
-				outline: none;
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--brand-secondary);
+				outline-offset: 2px;
 			}
 		}
 

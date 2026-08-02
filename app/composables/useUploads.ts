@@ -88,15 +88,17 @@ export function useUploads() {
 		async function worker() {
 			while (nextIndex < files.length) {
 				const i = nextIndex++
-				const file = files[i]
-				progress.value[i].status = 'uploading'
+				// nextIndex < files.length just above guarantees both indices are
+				// in bounds — noUncheckedIndexedAccess can't see that, hence the `!`.
+				const file = files[i]!
+				progress.value[i]!.status = 'uploading'
 				try {
 					await uploadOne(file)
-					progress.value[i].status = 'done'
+					progress.value[i]!.status = 'done'
 				} catch (err: any) {
 					const message = describeUploadError(err)
-					progress.value[i].status = 'error'
-					progress.value[i].message = message
+					progress.value[i]!.status = 'error'
+					progress.value[i]!.message = message
 					failures.push(`${file.name}: ${message}`)
 				}
 			}
