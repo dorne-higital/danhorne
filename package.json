@@ -3,6 +3,9 @@
 	"private": true,
 	"type": "module",
 	"packageManager": "yarn@4.5.3",
+	"resolutions": {
+		"htmlparser2": "^8.0.0"
+	},
 	"scripts": {
 		"build": "nuxt build",
 		"dev": "nuxt dev",
