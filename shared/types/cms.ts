@@ -106,6 +106,25 @@ export interface MenuRecord {
 
 export type MenuSummary = Omit<MenuRecord, 'items'>
 
+export interface PageViewRecord {
+	path: string
+	visitor_hash: string
+	created_at: string
+}
+
+export interface AnalyticsSummary {
+	totalViews: number
+	uniqueVisitors: number
+	byDay: { date: string; views: number }[]
+	topPages: { path: string; views: number }[]
+}
+
+export interface RedirectRecord {
+	old_slug: string
+	new_slug: string
+	created_at: string
+}
+
 export type ActivityAction = 'created' | 'updated' | 'deleted'
 
 export interface ActivityLogEntry {

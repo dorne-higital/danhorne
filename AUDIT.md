@@ -16,12 +16,6 @@ Only the six hero blocks (`PageHero`, `MinimalHero`, `SplitHero`, `StatHero`, `V
 
 **Fix:** either warn in the admin page editor when a page has ≠1 hero block, or make the page-level `<h1>` come from the page title itself (visually hidden if a hero block already shows a heading) so it's never dependent on block choice.
 
-### 6. No redirect mechanism for renamed/moved pages
-
-`app/pages/admin/pages/[slug].vue:67-71` only warns that menu links won't auto-update on rename — there's no redirects table or `routeRules`. Now that [error.vue](app/error.vue) renders a proper 404, a renamed page silently 404s instead of 301-redirecting, losing indexed-URL equity and breaking bookmarks/backlinks.
-
-**Fix:** a small `redirects` table (`old_slug`, `new_slug`) written automatically when a slug changes, checked in `[...slug].vue` before falling through to the 404.
-
 ---
 
 ## 🟡 Medium priority
@@ -146,3 +140,15 @@ No `.github/workflows/` or any CI config — lint/typecheck/stylelint are 100% m
 `app/components/ui/FormField.vue:257-260` stripped the native focus ring app-wide on text/email/select/textarea via `&:focus { outline: none; }`, replacing it with only a border-color shift — a much weaker signal for low-vision/keyboard users, with no `:focus-visible` fallback. `app/assets/scss/components/_buttons.scss` already did this correctly (`:focus-visible` + visible `outline`), so this was pure inconsistency, not a design decision.
 
 **Fix applied:** matched the button pattern everywhere it was missing — `:focus` keeps just the border-color shift, `:focus-visible` gets an explicit `outline: 2px solid var(--brand-secondary); outline-offset: 2px;`. Turned out `FormField.vue` wasn't the only offender — grepped for `outline: none` and found the same anti-pattern in three more places, fixed identically: `SchemaField.vue` (admin block-prop inputs), `RichTextEditor.vue` (the Tiptap content area), and `pages/[slug].vue` (the page editor's title/slug/parent inputs).
+
+### 6. ~~No redirect mechanism for renamed/moved pages~~ — Fixed 2026-08-02
+
+`app/pages/admin/pages/[slug].vue:67-71` only warns that menu links won't auto-update on rename — there was no redirects table or `routeRules`. Now that [error.vue](app/error.vue) renders a proper 404, a renamed page silently 404'd instead of 301-redirecting, losing indexed-URL equity and breaking bookmarks/backlinks.
+
+**Fix applied:**
+
+- [supabase/migrations/0003_redirects.sql](supabase/migrations/0003_redirects.sql) — new `redirects (old_slug primary key, new_slug, created_at)` table, RLS enabled with no policies (service-role only, same as every other table). **Not yet applied to the live DB** — run it the same way as `0002_lock_profiles_rls.sql`.
+- [server/utils/redirects.ts](server/utils/redirects.ts)'s `recordRedirect()`, called from `server/api/pages/[slug].put.ts` whenever a page's slug actually changes. Best-effort (same pattern as `activityLog.ts`) — a bookkeeping failure here never blocks the actual page save. Also collapses chains (a redirect that used to point at the slug now being renamed away from gets repointed at the final destination) and clears any stale redirect that shares a slug with the _new_ URL (covers renaming a page back to something it used to be called).
+- [server/api/redirects/[slug].get.ts](server/api/redirects/[slug].get.ts) — public lookup, checked from `app/pages/[...slug].vue` before it falls through to a 404; issues a real `navigateTo(..., { redirectCode: 301 })`.
+- Admin-gated `server/api/redirects/index.{get,post}.ts` and `server/api/redirects/[slug].delete.ts`, plus a new **Redirects** page in the admin sidebar (`app/pages/admin/redirects/index.vue`) — lists every redirect (auto and manual), and lets you add one by hand (e.g. an old marketing URL that was never actually a page slug) or delete one you don't want anymore. Manual creation rejects a URL that's currently a live page's slug, since that redirect could never fire.
+- Verified live: with the migration _not yet applied_, the public lookup endpoint 500s through `publicErrorMessage()` (generic message, not raw Postgres text) rather than crashing, and a genuinely nonexistent page still cleanly 404s — confirmed the feature degrades safely until the migration is run.

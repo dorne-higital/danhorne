@@ -2,17 +2,26 @@
 	<div class="admin-users">
 		<header class="page-header">
 			<h1>Users</h1>
-			<button
-				type="button"
-				class="btn primary"
-				@click="showInvite = true"
-			>
-				Invite user
-			</button>
+			<div class="header-actions">
+				<label class="checkbox">
+					<input
+						v-model="showRemoved"
+						type="checkbox"
+					/>
+					Show removed users
+				</label>
+				<button
+					type="button"
+					class="btn primary"
+					@click="showInvite = true"
+				>
+					Invite user
+				</button>
+			</div>
 		</header>
 
 		<table
-			v-if="users?.length"
+			v-if="visibleUsers.length"
 			class="user-list"
 		>
 			<thead>
@@ -26,7 +35,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="user in users"
+					v-for="user in visibleUsers"
 					:key="user.id"
 				>
 					<td>{{ fullName(user) }}</td>
@@ -63,6 +72,12 @@
 				</tr>
 			</tbody>
 		</table>
+		<p
+			v-else-if="users?.length"
+			class="empty"
+		>
+			All other users are removed — check "Show removed users" above to see them.
+		</p>
 		<p
 			v-else
 			class="empty"
@@ -136,6 +151,9 @@
 
 	const { data: users, refresh } = await useFetch<AdminUser[]>('/api/admin/users')
 
+	const showRemoved = ref(false)
+	const visibleUsers = computed(() => (users.value ?? []).filter((user) => showRemoved.value || !user.banned))
+
 	const showInvite = ref(false)
 	const inviteFirstName = ref('')
 	const inviteLastName = ref('')
@@ -208,6 +226,25 @@
 			display: flex;
 			justify-content: space-between;
 			margin-bottom: var(--padding-lg);
+		}
+
+		.header-actions {
+			align-items: center;
+			display: flex;
+			gap: var(--padding-lg);
+		}
+
+		.checkbox {
+			align-items: center;
+			color: var(--text-secondary);
+			display: flex;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			gap: var(--padding-xs);
+
+			input {
+				width: auto;
+			}
 		}
 
 		h1 {

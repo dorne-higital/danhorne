@@ -15,13 +15,21 @@
 	const { data: page } = await useFetch<PageRecord>(`/api/pages/${encodeURIComponent(slug)}`)
 
 	if (!page.value) {
-		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
+		// Page renamed/moved? Check for a redirect before giving up with a
+		// 404 — see server/api/pages/[slug].put.ts (writes these on rename)
+		// and server/api/redirects/[slug].get.ts.
+		const { data: redirect } = await useFetch<{ new_slug: string }>(`/api/redirects/${encodeURIComponent(slug)}`)
+		if (redirect.value) {
+			await navigateTo(redirect.value.new_slug, { redirectCode: 301 })
+		} else {
+			throw createError({ statusCode: 404, statusMessage: 'Page not found' })
+		}
 	}
 
-	const seoTitle = page.value.seo?.title || page.value.title
-	const seoDescription = page.value.seo?.description
-	const seoKeywords = page.value.seo?.keywords
-	const ogImage = page.value.seo?.ogImage
+	const seoTitle = page.value?.seo?.title || page.value?.title
+	const seoDescription = page.value?.seo?.description
+	const seoKeywords = page.value?.seo?.keywords
+	const ogImage = page.value?.seo?.ogImage
 
 	useHead({
 		title: seoTitle,

@@ -11,15 +11,38 @@
 		</NuxtLink>
 
 		<nav class="nav">
-			<NuxtLink
-				v-for="item in navItems"
-				:key="item.to"
-				:to="item.to"
-				class="nav-item"
-				active-class="active"
+			<div
+				v-for="group in navGroups"
+				:key="group.label ?? 'top'"
+				class="nav-group"
 			>
-				{{ item.label }}
-			</NuxtLink>
+				<p
+					v-if="group.label"
+					class="nav-group-label"
+				>
+					{{ group.label }}
+				</p>
+				<template
+					v-for="item in group.items"
+					:key="item.to"
+				>
+					<NuxtLink
+						v-if="!item.soon"
+						:to="item.to"
+						class="nav-item"
+						active-class="active"
+					>
+						{{ item.label }}
+					</NuxtLink>
+					<div
+						v-else
+						class="nav-item soon"
+					>
+						{{ item.label }}
+						<span class="soon-badge">Soon</span>
+					</div>
+				</template>
+			</div>
 		</nav>
 
 		<div class="account">
@@ -56,21 +79,56 @@
 </template>
 
 <script setup lang="ts">
+	interface NavItem {
+		label: string
+		to: string
+		// Placeholder sections suggested for a future build — rendered
+		// disabled with a "Soon" badge instead of a real NuxtLink, since
+		// there's no page behind them yet.
+		soon?: boolean
+	}
+
+	interface NavGroup {
+		label: string | null
+		items: NavItem[]
+	}
+
 	const { data: me } = useAdminProfile()
 
-	const navItems = computed(() => {
-		const items = [
-			{ label: 'Dashboard', to: '/admin' },
-			{ label: 'Pages', to: '/admin/pages' },
-			{ label: 'SEO', to: '/admin/seo' },
-			{ label: 'Uploads', to: '/admin/uploads' },
-			{ label: 'Menus', to: '/admin/menus' },
-			{ label: 'Forms', to: '/admin/forms' },
+	const navGroups = computed<NavGroup[]>(() => {
+		const groups: NavGroup[] = [
+			{ label: null, items: [{ label: 'Dashboard', to: '/admin' }] },
+			{
+				label: 'Content',
+				items: [
+					{ label: 'Pages', to: '/admin/pages' },
+					{ label: 'Redirects', to: '/admin/redirects' },
+					{ label: 'SEO', to: '/admin/seo' },
+					{ label: 'Analytics', to: '/admin/analytics' },
+				],
+			},
+			{
+				label: 'Site',
+				items: [
+					{ label: 'Uploads', to: '/admin/uploads' },
+					{ label: 'Menus', to: '/admin/menus' },
+					{ label: 'Forms', to: '/admin/forms' },
+				],
+			},
 		]
 		if (me.value?.profile.role === 'admin') {
-			items.push({ label: 'Users', to: '/admin/users' }, { label: 'Settings', to: '/admin/settings' })
+			groups.push({
+				label: 'Admin',
+				items: [
+					{ label: 'Users', to: '/admin/users' },
+					{ label: 'Settings', to: '/admin/settings' },
+					{ label: 'Activity log', to: '/admin/activity', soon: true },
+					{ label: 'Backups', to: '/admin/backups', soon: true },
+					{ label: 'Integrations', to: '/admin/integrations', soon: true },
+				],
+			})
 		}
-		return items
+		return groups
 	})
 
 	const supabase = useSupabaseClient()
@@ -104,7 +162,23 @@
 			display: flex;
 			flex: 1;
 			flex-direction: column;
-			gap: var(--padding-xs);
+			gap: var(--padding-md);
+		}
+
+		.nav-group {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		.nav-group-label {
+			color: var(--text-secondary);
+			font-size: 0.6875rem;
+			font-weight: var(--navigation-font-weight);
+			letter-spacing: 0.08em;
+			margin-bottom: var(--padding-xs);
+			padding-inline: var(--padding-sm);
+			text-transform: uppercase;
 		}
 
 		.nav-item {
@@ -116,7 +190,7 @@
 			font-size: var(--navigation-size);
 			font-weight: var(--navigation-font-weight);
 			justify-content: space-between;
-			padding: var(--padding-sm);
+			padding: var(--padding-xs) var(--padding-sm);
 
 			&:hover {
 				background: var(--bg-secondary);
@@ -127,6 +201,26 @@
 				border-left-color: var(--brand-primary);
 				color: var(--text-primary);
 			}
+
+			&.soon {
+				cursor: default;
+				opacity: 0.55;
+
+				&:hover {
+					background: none;
+				}
+			}
+		}
+
+		.soon-badge {
+			background: var(--bg-primary);
+			border-radius: var(--border-radius-pill);
+			flex-shrink: 0;
+			font-size: 0.625rem;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			padding: 1px 6px;
+			text-transform: uppercase;
 		}
 
 		.account {

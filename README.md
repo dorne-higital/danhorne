@@ -53,6 +53,12 @@ psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 
 This creates every table (`pages`, `uploads`, `menus`, `profiles`, `site_settings`, `activity_log`), the `uploads` Storage bucket, and enables RLS across the board.
 
+Then run the later migrations in order (same `psql`/SQL Editor approach) — each is a small, focused change on top of `0001_init.sql`:
+
+- `0002_lock_profiles_rls.sql` — closes a privilege-escalation gap in the default `profiles` RLS policy.
+- `0003_redirects.sql` — backs the auto-redirect-on-page-rename feature (`redirects` table).
+- `0004_page_views.sql` — backs first-party analytics (`page_views` table, Admin → Analytics).
+
 ### Auth
 
 1. In the Supabase dashboard, go to **Authentication → Providers** and confirm **Email** is enabled.

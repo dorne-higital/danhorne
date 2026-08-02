@@ -107,6 +107,10 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
 	}
 
+	if (body.slug !== undefined && body.slug !== current.slug) {
+		await recordRedirect(current.slug, body.slug)
+	}
+
 	await logActivity({
 		entityType: 'page',
 		entityId: data.id,

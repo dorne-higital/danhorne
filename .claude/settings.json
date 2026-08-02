@@ -20,7 +20,17 @@
       "Bash(yarn test *)",
       "Bash(yarn format:check)",
       "Bash(git check-ignore *)",
-      "Bash(echo \"exit:$?\")"
+      "Bash(echo \"exit:$?\")",
+      "Bash(grep -v \"WARN\\\\|Nuxt Icon\\\\|volar\\\\|ERR_PACKAGE\\\\|^    at \\\\|code: 'ERR'\\\\|^}$\")",
+      "Bash(curl -s \"http://localhost:3000/api/redirects/%2Fold-test\" -w \"\\\\ncode:%{http_code}\\\\n\")",
+      "Bash(curl -s -H \"Accept: text/html\" \"http://localhost:3000/this-page-does-not-exist\" -w \"\\\\ncode:%{http_code}\\\\n\" -o /tmp/404check.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -H \"Accept: text/html\" \"http://localhost:3000/this-page-does-not-exist\")",
+      "Bash(echo \"lint exit:$?\")",
+      "Bash(echo \"typecheck EXIT:$?\")",
+      "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin -o /dev/null -w \"admin: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(curl -s -X POST http://localhost:3000/api/track -H \"Content-Type: application/json\" -d '{\"path\":\"/\",\"referrer\":\"\"}' -w \"\\\\ncode:%{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/api/analytics/summary -w \"\\\\ncode:%{http_code}\\\\n\")",
+      "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin/analytics -o /dev/null -w \"admin/analytics: %{http_code}\\\\n\")"
     ]
   }
 }
