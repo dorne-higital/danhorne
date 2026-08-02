@@ -2,6 +2,7 @@
 	<NuxtLink
 		to="/"
 		class="logo"
+		title="Home"
 	>
 		<NuxtImg
 			v-if="logoUrl"

@@ -13,7 +13,7 @@ export default defineEventHandler(async (): Promise<SiteSettings> => {
 		.single()
 
 	if (error) {
-		throw createError({ statusCode: 500, statusMessage: error.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 
 	return data as SiteSettings

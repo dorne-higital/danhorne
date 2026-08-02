@@ -2,11 +2,6 @@
 
 Running list of known gaps/improvements for the CMS. Not urgent unless marked otherwise — pull from here when picking the next thing to work on.
 
-## Should do soon-ish
-
-- [ ] **Form submissions have no rate limiting.** Honeypot spam protection exists (`server/api/forms/[id]/submit.post.ts`), but nothing stops someone hammering the endpoint and burning through the Resend send quota. Needs a lightweight IP-based throttle.
-- [ ] **Public endpoints can leak raw Postgres error text.** `server/api/pages/[slug].get.ts` (and possibly others) returns `error.message` straight from Supabase to the client on failure. Fine for admin-only endpoints, not fine for public ones — genericize the message on anything unauthenticated.
-
 ## Consistency nits (worth doing before/while building out the component library)
 
 - [ ] **Native `confirm()` dialogs instead of the styled `Modal`.** Used for all deletes and the unsaved-changes guard — the one place the admin UI looks like the browser instead of the app. A `ConfirmModal` wrapper would fix all call sites at once.
@@ -28,6 +23,8 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 
 ## Done
 
+- [x] Public endpoints no longer leak raw Postgres error text — new `server/utils/publicError.ts` helper (`publicErrorMessage()`) logs the real error server-side and returns a generic message to the client instead. Applied to every genuinely public route: `settings/index.get`, `forms/[id].get`, `forms/[id]/submit.post`, `menus/[id].get`, `pages/[slug].get`, and `sitemap.xml`. Admin-gated routes were left as-is since only trusted logged-in users see those.
+- [x] Form submissions rate-limited — `server/utils/rateLimit.ts` is an in-memory sliding-window throttle (5 submissions per 15 min per IP, across all forms), checked in `server/api/forms/[id]/submit.post.ts` before the DB lookup. It's in-memory rather than DB-backed, so it resets on a cold start and isn't shared across concurrent serverless instances — a determined/distributed spammer can get around it, but it stops the actual threat described (a script hammering the endpoint in a loop) without new infra, which fits a low-traffic personal site.
 - [x] Two more dashboard nudges: empty pages (zero content blocks) and broken menu links (pointing at a since-deleted/renamed page slug)
 - [x] Dashboard quick actions row — "New page" / "New menu" (pill links that deep-link straight into the existing New modal, already open, via `?new=1`) / "Upload" (lands on the page, file picker can't be auto-triggered without a direct user gesture)
 - [x] Users stat card on the dashboard (admin-only, counts active/non-banned users)

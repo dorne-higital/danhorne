@@ -24,6 +24,7 @@
 					:href="normalizeHref(ctaHref)"
 					:target="isExternalHref(ctaHref) ? '_blank' : undefined"
 					:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
+					:title="ctaLabel"
 					class="btn outline sm"
 				>
 					{{ ctaLabel }}
@@ -37,6 +38,7 @@
 				:href="featured.href ? normalizeHref(featured.href as string) : undefined"
 				:target="featured.href && isExternalHref(featured.href as string) ? '_blank' : undefined"
 				:rel="featured.href && isExternalHref(featured.href as string) ? 'noopener noreferrer' : undefined"
+				:title="featured.href ? (featured.linkLabel as string) || (featured.title as string) : undefined"
 			>
 				<div class="image">
 					<NuxtImg
@@ -96,6 +98,7 @@
 					:href="item.href ? normalizeHref(item.href as string) : undefined"
 					:target="item.href && isExternalHref(item.href as string) ? '_blank' : undefined"
 					:rel="item.href && isExternalHref(item.href as string) ? 'noopener noreferrer' : undefined"
+					:title="item.href ? (item.linkLabel as string) || (item.title as string) : undefined"
 				>
 					<div class="image">
 						<NuxtImg

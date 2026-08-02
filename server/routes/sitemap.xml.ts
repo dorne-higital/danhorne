@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 	const { data, error } = await supabase.from('pages').select('slug, updated_at').order('slug')
 
 	if (error) {
-		throw createError({ statusCode: 500, statusMessage: error.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 
 	const base = siteUrl.replace(/\/$/, '')

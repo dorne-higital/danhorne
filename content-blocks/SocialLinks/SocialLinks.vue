@@ -31,6 +31,7 @@
 					:rel="isExternalHref(link.href) ? 'noopener noreferrer' : undefined"
 					class="item"
 					:aria-label="link.label"
+					:title="link.label"
 				>
 					<span class="icon">
 						<Icon :name="link.icon" />

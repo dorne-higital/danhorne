@@ -12,6 +12,7 @@
 				<a
 					v-if="backLabel && backHref"
 					:href="normalizeHref(backHref)"
+					:title="backLabel"
 					class="back"
 				>
 					<Icon name="lucide:arrow-left" />
@@ -64,6 +65,7 @@
 						:href="normalizeHref(ctaHref)"
 						:target="isExternalHref(ctaHref) ? '_blank' : undefined"
 						:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
+						:title="ctaLabel"
 						class="btn secondary fit-content"
 					>
 						{{ ctaLabel }}

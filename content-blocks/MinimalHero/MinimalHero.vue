@@ -31,6 +31,7 @@
 					:href="normalizeHref(ctaHref)"
 					:target="isExternalHref(ctaHref) ? '_blank' : undefined"
 					:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
+					:title="ctaLabel"
 					class="btn primary lg"
 				>
 					{{ ctaLabel }}
@@ -49,6 +50,7 @@
 					:href="normalizeHref(secondaryCtaHref)"
 					:target="isExternalHref(secondaryCtaHref) ? '_blank' : undefined"
 					:rel="isExternalHref(secondaryCtaHref) ? 'noopener noreferrer' : undefined"
+					:title="secondaryCtaLabel"
 					class="btn outline lg"
 				>
 					{{ secondaryCtaLabel }}

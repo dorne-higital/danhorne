@@ -13,7 +13,7 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 	const { data, error } = await supabase.from('forms').select('*').eq('id', id).maybeSingle()
 
 	if (error) {
-		throw createError({ statusCode: 500, statusMessage: error.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 	if (!data) {
 		throw createError({ statusCode: 404, statusMessage: 'Form not found' })

@@ -5,7 +5,17 @@
       "Bash(curl -s \"http://localhost:3000/_nuxt/@fs/Users/danielhorne/Desktop/Business/websites/Github/danhorne/content-blocks/SplitContent/SplitContent.vue?vue&type=style&index=0&scoped=1&lang.scss\")",
       "Bash(git credential-osxkeychain *)",
       "Bash(gh auth *)",
-      "Bash(rsync -a --exclude=.git --exclude=node_modules --exclude=.nuxt --exclude=.output --exclude=dist --exclude=.env --exclude=.env.* --exclude=.DS_Store /Users/danielhorne/Desktop/Business/websites/Github/danhorne/ /Users/danielhorne/Desktop/Business/websites/Github/template/ --delete-excluded)"
+      "Bash(rsync -a --exclude=.git --exclude=node_modules --exclude=.nuxt --exclude=.output --exclude=dist --exclude=.env --exclude=.env.* --exclude=.DS_Store /Users/danielhorne/Desktop/Business/websites/Github/danhorne/ /Users/danielhorne/Desktop/Business/websites/Github/template/ --delete-excluded)",
+      "Bash(curl -s http://localhost:3000/ -o /tmp/home2.html -w \"homepage: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(echo \"stylelint exit:$?\")",
+      "Bash(curl -s http://localhost:3000/api/forms)",
+      "Bash(curl -s -H \"Cookie: $\\(cat /dev/null\\)\" http://localhost:3000/ -o /dev/null -w \"home: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(curl -s http://localhost:3000/ -o /dev/null -w \"homepage still healthy: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(grep -v \"useUploads.ts\\\\|WARN\\\\|Nuxt Icon\\\\|volar\\\\|ERR_PACKAGE\\\\|at \\\\|code:\\\\|^}$\\\\|Type 'undefined'\")",
+      "Bash(curl -s http://localhost:3000/api/settings -o /dev/null -w \"settings: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(curl -s http://localhost:3000/sitemap.xml -o /dev/null -w \"sitemap: %{http_code}\\\\n\" --max-time 8)",
+      "Bash(curl -s http://localhost:3000/api/menus/not-a-valid-uuid -w \"\\\\ncode:%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:3000/api/forms/not-a-valid-uuid\" -w \"\\\\ncode:%{http_code}\\\\n\")"
     ]
   }
 }

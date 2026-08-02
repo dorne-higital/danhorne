@@ -5,6 +5,9 @@ import { buildFormEmailHtml } from '../../../utils/formEmail'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000
+
 // Public — any visitor submitting a form on the public site hits this.
 export default defineEventHandler(async (event) => {
 	const id = getRouterParam(event, 'id')
@@ -12,11 +15,18 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: 'Missing id' })
 	}
 
+	// Keyed by IP across all forms, not just this one — a spammer burning
+	// the Resend quota doesn't care which form they hit.
+	const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
+	if (isRateLimited(`form-submit:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+		throw createError({ statusCode: 429, statusMessage: 'Too many submissions — please try again later.' })
+	}
+
 	const supabase = useSupabase()
 	const { data: form, error: formError } = await supabase.from('forms').select('*').eq('id', id).maybeSingle()
 
 	if (formError) {
-		throw createError({ statusCode: 500, statusMessage: formError.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(formError) })
 	}
 	if (!form) {
 		throw createError({ statusCode: 404, statusMessage: 'Form not found' })

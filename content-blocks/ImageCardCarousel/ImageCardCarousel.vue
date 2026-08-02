@@ -22,6 +22,7 @@
 					<a
 						v-if="viewAllHref"
 						:href="viewAllHref"
+						:title="viewAllLabel"
 						class="btn outline sm"
 					>
 						{{ viewAllLabel }}

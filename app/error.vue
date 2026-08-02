@@ -5,11 +5,13 @@
 
 		<div class="sw content">
 			<span class="code">{{ error?.statusCode ?? 500 }}</span>
-			<h1 class="heading">{{ isNotFound ? 'Page not found' : 'Something went wrong' }}</h1>
+			<h1 class="heading">
+				{{ isNotFound ? "Not sure where you're heading, but that page doesn't exist" : 'Something went wrong' }}
+			</h1>
 			<p class="message">
 				{{
 					isNotFound
-						? "Looks like you've entered a wrong link!"
+						? 'Try again, or link below to go back home!'
 						: 'An unexpected error occurred. Please try again.'
 				}}
 			</p>
@@ -71,7 +73,7 @@
 		.content {
 			display: flex;
 			flex-direction: column;
-			max-width: 32rem;
+			max-width: 64rem;
 			text-align: center;
 		}
 

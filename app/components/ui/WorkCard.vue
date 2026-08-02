@@ -5,6 +5,7 @@
 		:href="href"
 		:target="external ? '_blank' : undefined"
 		:rel="external ? 'noopener' : undefined"
+		:title="href ? title : undefined"
 	>
 		<div
 			class="media"

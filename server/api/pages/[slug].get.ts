@@ -17,7 +17,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		.maybeSingle()
 
 	if (error) {
-		throw createError({ statusCode: 500, statusMessage: error.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 	if (!data) {
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })

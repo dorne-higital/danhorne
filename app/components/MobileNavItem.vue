@@ -5,6 +5,7 @@
 				:href="normalizeHref(item.href)"
 				:target="item.newTab ? '_blank' : undefined"
 				:rel="item.newTab ? 'noopener noreferrer' : undefined"
+				:title="item.label"
 				@click="$emit('navigate')"
 			>
 				{{ item.label }}

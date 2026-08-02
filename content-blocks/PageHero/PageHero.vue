@@ -36,6 +36,7 @@
 				<a
 					v-if="ctaLabel && ctaHref"
 					:href="ctaHref"
+					:title="ctaLabel"
 					class="btn primary lg"
 				>
 					{{ ctaLabel }}
@@ -43,6 +44,7 @@
 				<a
 					v-if="secondaryCtaLabel && secondaryCtaHref"
 					:href="secondaryCtaHref"
+					:title="secondaryCtaLabel"
 					class="btn secondary lg"
 				>
 					{{ secondaryCtaLabel }}

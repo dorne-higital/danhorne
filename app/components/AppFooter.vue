@@ -20,6 +20,7 @@
 								target="_blank"
 								rel="noopener noreferrer"
 								:aria-label="social.label"
+								:title="social.label"
 							>
 								<Icon
 									:name="social.icon"
@@ -54,6 +55,8 @@
 								:href="buildWhatsAppHref(company.phone)"
 								target="_blank"
 								rel="noopener noreferrer"
+								:aria-label="`Message ${company.phone} on WhatsApp (opens in a new tab)`"
+								:title="`Message ${company.phone} on WhatsApp`"
 							>
 								<Icon
 									name="lucide:phone"

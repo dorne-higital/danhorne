@@ -37,6 +37,7 @@
 						:href="normalizeHref(ctaHref)"
 						:target="isExternalHref(ctaHref) ? '_blank' : undefined"
 						:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
+						:title="ctaLabel"
 						class="btn primary"
 					>
 						{{ ctaLabel }}

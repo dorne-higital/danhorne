@@ -188,8 +188,9 @@
 			})
 
 			submitted.value = true
-		} catch {
-			submitError.value = 'Something went wrong sending that — please try again in a moment.'
+		} catch (err: any) {
+			submitError.value =
+				err?.data?.statusMessage ?? 'Something went wrong sending that — please try again in a moment.'
 		} finally {
 			sending.value = false
 		}

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event): Promise<MenuRecord> => {
 	const { data, error } = await supabase.from('menus').select('*').eq('id', id).maybeSingle()
 
 	if (error) {
-		throw createError({ statusCode: 500, statusMessage: error.message })
+		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 	if (!data) {
 		throw createError({ statusCode: 404, statusMessage: 'Menu not found' })
