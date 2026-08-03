@@ -30,7 +30,12 @@
       "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin -o /dev/null -w \"admin: %{http_code}\\\\n\" --max-time 8)",
       "Bash(curl -s -X POST http://localhost:3000/api/track -H \"Content-Type: application/json\" -d '{\"path\":\"/\",\"referrer\":\"\"}' -w \"\\\\ncode:%{http_code}\\\\n\")",
       "Bash(curl -s http://localhost:3000/api/analytics/summary -w \"\\\\ncode:%{http_code}\\\\n\")",
-      "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin/analytics -o /dev/null -w \"admin/analytics: %{http_code}\\\\n\")"
+      "Bash(curl -s -H \"Accept: text/html\" http://localhost:3000/admin/analytics -o /dev/null -w \"admin/analytics: %{http_code}\\\\n\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/admin/analytics)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/analytics/summary)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"path\":\"/\"}' http://localhost:3000/api/track)",
+      "Bash(xargs kill)"
     ]
   }
 }

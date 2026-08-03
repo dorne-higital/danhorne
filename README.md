@@ -58,6 +58,7 @@ Then run the later migrations in order (same `psql`/SQL Editor approach) — eac
 - `0002_lock_profiles_rls.sql` — closes a privilege-escalation gap in the default `profiles` RLS policy.
 - `0003_redirects.sql` — backs the auto-redirect-on-page-rename feature (`redirects` table).
 - `0004_page_views.sql` — backs first-party analytics (`page_views` table, Admin → Analytics).
+- `0005_page_view_details.sql` — adds `device_type`/`browser`/`country` columns so Analytics can show those breakdowns too.
 
 ### Auth
 
@@ -99,6 +100,7 @@ CI (`.github/workflows/ci.yml`) runs `format:check`, `lint:css`, `nuxi typecheck
 - **Menus** (`/admin/menus`) build the site's nav — multi-menu, up to 3 levels of nesting.
 - **Forms** (`/admin/forms`) — build arbitrary forms (field list, labels, types), submitted via Resend. Any form can power the "Say hello" modal (pick one in Settings) or be dropped onto a page via the Form content-block.
 - **Uploads** (`/admin/uploads`) is the media library — files go into the Supabase Storage `uploads` bucket.
+- **Analytics** (`/admin/analytics`) — first-party pageview tracking, no cookies, no third-party script. Shows totals, a daily trend, top pages/referrers, and device/browser/country breakdowns over a 7/30/90-day window. Country data comes from a geolocation header some hosts inject on incoming requests (Vercel, Netlify, Cloudflare — see `server/utils/geoCountry.ts`); on a plain Node host without one of those, the country breakdown just stays empty rather than guessing.
 - **Settings** (`/admin/settings`) — business info/address, logo, which form the contact modal uses, and social links.
 - **Users** (`/admin/users`, admin-only) — invite people by email, set their role (`admin`/`user`), or remove them.
 - **Profile** (`/admin/profile`) — any logged-in user can update their own name, email, or password.

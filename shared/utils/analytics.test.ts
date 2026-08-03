@@ -7,6 +7,10 @@ function view(overrides: Partial<PageViewRecord> = {}): PageViewRecord {
 		path: '/',
 		visitor_hash: 'visitor-1',
 		created_at: '2026-08-15T12:00:00.000Z',
+		referrer: null,
+		device_type: null,
+		browser: null,
+		country: null,
 		...overrides,
 	}
 }
@@ -66,5 +70,58 @@ describe('aggregatePageViews', () => {
 		const rows = Array.from({ length: 15 }, (_, i) => view({ path: `/page-${i}` }))
 		const result = aggregatePageViews(rows, 7, NOW)
 		expect(result.topPages).toHaveLength(10)
+	})
+
+	it('groups referrers by hostname and buckets missing referrers as Direct', () => {
+		const result = aggregatePageViews(
+			[
+				view({ referrer: 'https://www.google.com/search?q=dan+horne' }),
+				view({ referrer: 'https://www.google.com/search?q=other' }),
+				view({ referrer: null }),
+			],
+			7,
+			NOW,
+		)
+		expect(result.topReferrers).toEqual([
+			{ referrer: 'www.google.com', views: 2 },
+			{ referrer: 'Direct', views: 1 },
+		])
+	})
+
+	it('falls back to the raw referrer string if it is not a parseable URL', () => {
+		const result = aggregatePageViews([view({ referrer: 'not-a-url' })], 7, NOW)
+		expect(result.topReferrers).toEqual([{ referrer: 'not-a-url', views: 1 }])
+	})
+
+	it('breaks views down by device type and browser, skipping rows with no data', () => {
+		const result = aggregatePageViews(
+			[
+				view({ device_type: 'mobile', browser: 'Safari' }),
+				view({ device_type: 'mobile', browser: 'Chrome' }),
+				view({ device_type: 'desktop', browser: 'Chrome' }),
+				view({ device_type: null, browser: null }),
+			],
+			7,
+			NOW,
+		)
+		expect(result.byDevice).toEqual(
+			expect.arrayContaining([
+				{ deviceType: 'mobile', views: 2 },
+				{ deviceType: 'desktop', views: 1 },
+			]),
+		)
+		expect(result.byDevice).toHaveLength(2)
+		expect(result.byBrowser).toEqual(
+			expect.arrayContaining([
+				{ browser: 'Chrome', views: 2 },
+				{ browser: 'Safari', views: 1 },
+			]),
+		)
+	})
+
+	it('breaks views down by country, capped at 10', () => {
+		const rows = Array.from({ length: 15 }, (_, i) => view({ country: `C${i}` }))
+		const result = aggregatePageViews(rows, 7, NOW)
+		expect(result.byCountry).toHaveLength(10)
 	})
 })

@@ -21,12 +21,16 @@ export default defineEventHandler(async (event) => {
 
 	const userAgent = getHeader(event, 'user-agent') ?? 'unknown'
 	const day = new Date().toISOString().slice(0, 10)
+	const { deviceType, browser } = parseUserAgent(userAgent)
 
 	const supabase = useSupabase()
 	const { error } = await supabase.from('page_views').insert({
 		path,
 		referrer: body?.referrer || null,
 		visitor_hash: hashVisitor(ip, userAgent, day),
+		device_type: deviceType,
+		browser,
+		country: countryFromHeaders(getHeaders(event)),
 	})
 	if (error) {
 		console.error('Failed to record page view:', error)

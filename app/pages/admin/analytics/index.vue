@@ -1,8 +1,21 @@
 <template>
 	<div class="admin-analytics">
 		<header class="page-header">
-			<h1>Analytics</h1>
-			<p class="subtitle">Last 30 days · first-party, no cookies</p>
+			<div>
+				<h1>Analytics</h1>
+				<p class="subtitle">First-party, no cookies</p>
+			</div>
+			<div class="range-picker">
+				<button
+					v-for="option in rangeOptions"
+					:key="option"
+					type="button"
+					:class="{ active: days === option }"
+					@click="days = option"
+				>
+					{{ option }}d
+				</button>
+			</div>
 		</header>
 
 		<div class="stats">
@@ -40,39 +53,101 @@
 			</div>
 		</section>
 
-		<section class="top-pages">
-			<h2>Top pages</h2>
-			<table v-if="summary?.topPages.length">
-				<thead>
-					<tr>
-						<th>Page</th>
-						<th>Views</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr
-						v-for="page in summary.topPages"
-						:key="page.path"
-					>
-						<td>
-							<NuxtLink
-								:to="page.path"
-								target="_blank"
-							>
-								{{ page.path }}
-							</NuxtLink>
-						</td>
-						<td>{{ page.views }}</td>
-					</tr>
-				</tbody>
-			</table>
-			<p
-				v-else
-				class="empty"
+		<div class="row gap-lg">
+			<section class="col-12 col-md-6 top-pages">
+				<h2>Top pages</h2>
+				<table v-if="summary?.topPages.length">
+					<thead>
+						<tr>
+							<th>Page</th>
+							<th>Views</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							v-for="page in summary.topPages"
+							:key="page.path"
+						>
+							<td>
+								<NuxtLink
+									:to="page.path"
+									target="_blank"
+								>
+									{{ page.path }}
+								</NuxtLink>
+							</td>
+							<td>{{ page.views }}</td>
+						</tr>
+					</tbody>
+				</table>
+				<p
+					v-else
+					class="empty"
+				>
+					No page views recorded yet — check back once the site's had some visitors.
+				</p>
+			</section>
+
+			<section class="col-12 col-md-6 top-pages">
+				<h2>Top referrers</h2>
+				<table v-if="summary?.topReferrers.length">
+					<thead>
+						<tr>
+							<th>Source</th>
+							<th>Views</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							v-for="referrer in summary.topReferrers"
+							:key="referrer.referrer"
+						>
+							<td>{{ referrer.referrer }}</td>
+							<td>{{ referrer.views }}</td>
+						</tr>
+					</tbody>
+				</table>
+				<p
+					v-else
+					class="empty"
+				>
+					No referrer data yet.
+				</p>
+			</section>
+		</div>
+
+		<div class="row gap-lg">
+			<section
+				v-for="breakdown in breakdowns"
+				:key="breakdown.title"
+				class="col-12 col-md-4 breakdown"
 			>
-				No page views recorded yet — check back once the site's had some visitors.
-			</p>
-		</section>
+				<h2>{{ breakdown.title }}</h2>
+				<ul v-if="breakdown.rows.length">
+					<li
+						v-for="row in breakdown.rows"
+						:key="row.label"
+					>
+						<div class="row-header">
+							<span class="label">{{ row.label }}</span>
+							<span class="views">{{ row.views }}</span>
+						</div>
+						<div class="bar-track">
+							<div
+								class="bar-fill"
+								:style="{ width: `${(row.views / breakdown.maxViews) * 100}%` }"
+							/>
+						</div>
+					</li>
+				</ul>
+				<p
+					v-else
+					class="empty"
+				>
+					No data yet.
+				</p>
+			</section>
+		</div>
 	</div>
 </template>
 
@@ -81,8 +156,13 @@
 
 	definePageMeta({ layout: 'admin' })
 
+	const rangeOptions = [7, 30, 90] as const
+	const days = ref<(typeof rangeOptions)[number]>(30)
+
 	const { data: summary } = await useFetch<AnalyticsSummary>('/api/analytics/summary', {
 		key: 'admin-analytics-summary',
+		query: { days },
+		watch: [days],
 	})
 
 	const maxDayViews = computed(() => Math.max(1, ...(summary.value?.byDay.map((d) => d.views) ?? [1])))
@@ -97,6 +177,42 @@
 		if (!date) return ''
 		return new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 	}
+
+	const deviceLabels: Record<string, string> = { mobile: 'Mobile', tablet: 'Tablet', desktop: 'Desktop' }
+
+	let regionNames: Intl.DisplayNames | undefined
+	function countryLabel(code: string): string {
+		regionNames ??= new Intl.DisplayNames(['en'], { type: 'region' })
+		try {
+			return regionNames.of(code) ?? code
+		} catch {
+			return code
+		}
+	}
+
+	const breakdowns = computed(() => {
+		const groups = [
+			{
+				title: 'Device',
+				rows: (summary.value?.byDevice ?? []).map((d) => ({
+					label: deviceLabels[d.deviceType] ?? d.deviceType,
+					views: d.views,
+				})),
+			},
+			{
+				title: 'Browser',
+				rows: (summary.value?.byBrowser ?? []).map((b) => ({ label: b.browser, views: b.views })),
+			},
+			{
+				title: 'Country',
+				rows: (summary.value?.byCountry ?? []).map((c) => ({ label: countryLabel(c.country), views: c.views })),
+			},
+		]
+		return groups.map((group) => ({
+			...group,
+			maxViews: Math.max(1, ...group.rows.map((r) => r.views)),
+		}))
+	})
 </script>
 
 <style lang="scss" scoped>
@@ -107,6 +223,10 @@
 		padding-block: var(--padding-xl);
 
 		.page-header {
+			align-items: flex-end;
+			display: flex;
+			justify-content: space-between;
+
 			h1 {
 				font-family: var(--heading-font-family);
 				font-size: var(--h2-size);
@@ -117,6 +237,31 @@
 				color: var(--text-secondary);
 				font-size: var(--eyebrow-size);
 				margin-top: var(--padding-xs);
+			}
+		}
+
+		.range-picker {
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-sm);
+			display: flex;
+			gap: 2px;
+			padding: 2px;
+
+			button {
+				background: none;
+				border: none;
+				border-radius: var(--border-radius-sm);
+				color: var(--text-secondary);
+				cursor: pointer;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+				padding: var(--padding-xs) var(--padding-sm);
+
+				&.active {
+					background: var(--bg-primary);
+					color: var(--text-primary);
+				}
 			}
 		}
 
@@ -219,10 +364,47 @@
 				color: var(--link);
 				font-weight: 600;
 			}
+		}
 
-			.empty {
-				color: var(--text-secondary);
+		.breakdown {
+			ul {
+				display: flex;
+				flex-direction: column;
+				gap: var(--padding-sm);
 			}
+
+			.row-header {
+				display: flex;
+				font-size: var(--eyebrow-size);
+				justify-content: space-between;
+				margin-bottom: 2px;
+
+				.label {
+					color: var(--text-primary);
+					font-weight: 600;
+				}
+
+				.views {
+					color: var(--text-secondary);
+				}
+			}
+
+			.bar-track {
+				background: var(--bg-secondary);
+				border-radius: var(--border-radius-pill);
+				height: 6px;
+				overflow: hidden;
+			}
+
+			.bar-fill {
+				background: var(--brand-primary);
+				border-radius: var(--border-radius-pill);
+				height: 100%;
+			}
+		}
+
+		.empty {
+			color: var(--text-secondary);
 		}
 	}
 </style>

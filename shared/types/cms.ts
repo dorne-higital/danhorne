@@ -110,6 +110,10 @@ export interface PageViewRecord {
 	path: string
 	visitor_hash: string
 	created_at: string
+	referrer: string | null
+	device_type: string | null
+	browser: string | null
+	country: string | null
 }
 
 export interface AnalyticsSummary {
@@ -117,6 +121,10 @@ export interface AnalyticsSummary {
 	uniqueVisitors: number
 	byDay: { date: string; views: number }[]
 	topPages: { path: string; views: number }[]
+	topReferrers: { referrer: string; views: number }[]
+	byDevice: { deviceType: string; views: number }[]
+	byBrowser: { browser: string; views: number }[]
+	byCountry: { country: string; views: number }[]
 }
 
 export interface RedirectRecord {
