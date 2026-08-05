@@ -46,34 +46,35 @@
 		</nav>
 
 		<div class="account">
-			<div class="name">
-				<NuxtLink to="/admin/profile">
-					<Icon
-						name="lucide:circle-user"
-						class="profile"
-						aria-label="Go to your profile"
-						size="1.5rem"
-					/>
-
-					{{ me?.profile.nickname || me?.user.email }}
-				</NuxtLink>
-			</div>
-			<div class="account-links">
-				<button
-					type="button"
-					class="logout"
-					@click="logout"
+			<NuxtLink
+				to="/admin/profile"
+				class="profile-link"
+			>
+				<span
+					class="avatar"
+					aria-hidden="true"
 				>
-					<Icon
-						name="lucide:log-out"
-						class="logout"
-						aria-label="Log out"
-						size="1rem"
-					/>
-
-					Logout
-				</button>
-			</div>
+					{{ displayName }}
+				</span>
+				<span class="details">
+					<span class="name">{{ firstName }}</span>
+					<span
+						v-if="me?.profile.nickname"
+						class="email"
+					>
+						{{ me?.user.email }}
+					</span>
+				</span>
+			</NuxtLink>
+			<button
+				type="button"
+				class="logout-btn"
+				title="Log out"
+				aria-label="Log out"
+				@click="logout"
+			>
+				<Icon name="lucide:log-out" />
+			</button>
 		</div>
 	</aside>
 </template>
@@ -95,6 +96,9 @@
 
 	const { data: me } = useAdminProfile()
 
+	const displayName = computed(() => me.value?.profile.nickname || me.value?.user.email || '')
+	const firstName = computed(() => me.value?.profile.first_name || me.value?.user.email || '')
+
 	const navGroups = computed<NavGroup[]>(() => {
 		const groups: NavGroup[] = [
 			{ label: null, items: [{ label: 'Dashboard', to: '/admin' }] },
@@ -113,6 +117,7 @@
 					{ label: 'Uploads', to: '/admin/uploads' },
 					{ label: 'Menus', to: '/admin/menus' },
 					{ label: 'Forms', to: '/admin/forms' },
+					{ label: 'Layout', to: '/admin/layout' },
 				],
 			},
 		]
@@ -122,9 +127,9 @@
 				items: [
 					{ label: 'Users', to: '/admin/users' },
 					{ label: 'Settings', to: '/admin/settings' },
-					{ label: 'Activity log', to: '/admin/activity', soon: true },
+					{ label: 'Activity log', to: '/admin/activity' },
 					{ label: 'Backups', to: '/admin/backups', soon: true },
-					{ label: 'Integrations', to: '/admin/integrations', soon: true },
+					{ label: 'Integrations', to: '/admin/integrations' },
 				],
 			})
 		}
@@ -224,55 +229,71 @@
 		}
 
 		.account {
+			align-items: center;
 			border-top: 1px solid var(--border);
 			display: flex;
-			flex-direction: column;
-			gap: var(--padding-xs);
+			gap: var(--padding-sm);
 			padding-top: var(--padding-md);
 
-			.name {
+			.profile-link {
 				align-items: center;
-				color: var(--text-primary);
 				display: flex;
-				flex-direction: row;
+				gap: var(--padding-sm);
+				min-width: 0;
+				overflow: hidden;
+			}
+
+			.avatar {
+				align-items: center;
+				border: 1.5px solid var(--error);
+				border-radius: 50%;
+				color: var(--error);
+				display: flex;
+				flex-shrink: 0;
+				font-size: 0.9375rem;
+				font-weight: 700;
+				height: 2.25rem;
+				justify-content: center;
+				width: 2.25rem;
+			}
+
+			.details {
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+			}
+
+			.name {
+				color: var(--text-primary);
 				font-size: var(--navigation-size);
-				font-weight: var(--navigation-font-weight);
-				gap: 0.5rem;
-				line-height: 1.5rem;
+				font-weight: 700;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-
-				a {
-					align-items: center;
-					display: flex;
-					flex-direction: row;
-					gap: 0.5rem;
-				}
 			}
 
-			.account-links {
+			.email {
+				color: var(--text-secondary);
+				font-size: 0.75rem;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.logout-btn {
+				align-items: center;
+				background: none;
+				border: none;
+				color: var(--error);
+				cursor: pointer;
 				display: flex;
-				gap: var(--padding-sm);
-				margin-top: auto;
+				flex-shrink: 0;
+				justify-content: center;
+				margin-left: auto;
+				padding: var(--padding-xs);
 
-				a,
-				button {
-					background: none;
-					border: none;
-					color: var(--link);
-					cursor: pointer;
-					font-size: var(--navigation-size);
-					font-weight: var(--navigation-font-weight);
-					padding: 0;
-				}
-
-				.logout {
-					align-items: center;
-					color: var(--error);
-					display: flex;
-					flex-direction: row;
-					gap: 0.5rem;
+				&:hover {
+					opacity: 0.75;
 				}
 			}
 		}

@@ -12,11 +12,27 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const supabase = useSupabase()
+
+	const { data: profile } = await supabase
+		.from('profiles')
+		.select('first_name, last_name, nickname')
+		.eq('id', id)
+		.maybeSingle()
+
 	const { error } = await supabase.auth.admin.updateUserById(id, { ban_duration: '876000h' })
 
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	const name = profile?.nickname || `${profile?.first_name ?? ''} ${profile?.last_name ?? ''}`.trim() || id
+	await logActivity({
+		entityType: 'user',
+		entityId: id,
+		action: 'deleted',
+		summary: `Removed ${name}`,
+		actorId: user.sub,
+	})
 
 	return { ok: true }
 })

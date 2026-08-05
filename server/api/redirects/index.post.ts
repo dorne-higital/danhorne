@@ -5,7 +5,7 @@ import type { RedirectRecord } from '#shared/types/cms'
 // whatever page now covers it, with no page slug ever having actually been
 // that value.
 export default defineEventHandler(async (event): Promise<RedirectRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const body = await readBody<{ old_slug?: string; new_slug?: string }>(event)
 	const oldSlug = body?.old_slug?.trim()
@@ -37,6 +37,14 @@ export default defineEventHandler(async (event): Promise<RedirectRecord> => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	await logActivity({
+		entityType: 'redirect',
+		entityId: data.old_slug,
+		action: 'created',
+		summary: `Redirected "${data.old_slug}" to "${data.new_slug}"`,
+		actorId: user.sub,
+	})
 
 	return data as RedirectRecord
 })

@@ -3,7 +3,7 @@ import type { Block } from '#shared/types/cms'
 import { sanitizeBlocks } from './sanitizeBlocks'
 
 function block(props: Record<string, unknown>): Block {
-	return { id: 'b1', type: 'Text1Col', props }
+	return { id: 'b1', type: 'TextBlock', props }
 }
 
 describe('sanitizeBlocks', () => {

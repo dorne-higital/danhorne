@@ -109,13 +109,16 @@
 		</div>
 
 		<section
-			v-if="activity?.length"
+			v-if="activity?.entries.length"
 			class="recent"
 		>
-			<h2>Recent activity</h2>
+			<div class="recent-header">
+				<h2>Recent activity</h2>
+				<NuxtLink to="/admin/activity">View all</NuxtLink>
+			</div>
 			<ul>
 				<li
-					v-for="entry in activity"
+					v-for="entry in activity.entries"
 					:key="entry.id"
 				>
 					<span
@@ -138,6 +141,7 @@
 <script setup lang="ts">
 	import type {
 		ActivityAction,
+		ActivityLogPage,
 		AdminUser,
 		FormSummary,
 		MenuItem,
@@ -153,7 +157,7 @@
 	const { data: uploads } = await useFetch<UploadRecord[]>('/api/uploads', { key: 'admin-dashboard-uploads' })
 	const { data: menus } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-dashboard-menus' })
 	const { data: forms } = await useFetch<FormSummary[]>('/api/forms', { key: 'admin-dashboard-forms' })
-	const { data: activity } = await useFetch('/api/activity', { key: 'admin-dashboard-activity' })
+	const { data: activity } = await useFetch<ActivityLogPage>('/api/activity', { key: 'admin-dashboard-activity' })
 
 	const menuDetails = await Promise.all(
 		(menus.value ?? []).map((menu) => $fetch<MenuRecord>(`/api/menus/${menu.id}`)),
@@ -179,10 +183,11 @@
 			})
 		}
 
-		if (menus.value && !menus.value.some((menu) => menu.id === 'main')) {
+		if (menus.value && !menus.value.some((menu) => menu.id === 'header-main')) {
 			items.push({
 				key: 'no-main-menu',
-				message: 'No menu with the key "main" — the site header will show no navigation until one exists.',
+				message:
+					'No menu with the key "header-main" — the site header will show no navigation until one exists.',
 				to: '/admin/menus',
 				actionLabel: 'Create menu',
 			})
@@ -401,11 +406,23 @@
 		}
 
 		.recent {
+			.recent-header {
+				align-items: center;
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: var(--padding-sm);
+
+				a {
+					color: var(--link);
+					font-size: var(--eyebrow-size);
+					font-weight: 600;
+				}
+			}
+
 			h2 {
 				font-family: var(--heading-font-family);
 				font-size: 1.25rem;
 				font-weight: var(--heading-font-weight);
-				margin-bottom: var(--padding-sm);
 			}
 
 			ul {

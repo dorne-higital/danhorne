@@ -55,7 +55,13 @@ export function createRepeaterItem(fields: FieldSchema[]): Record<string, unknow
 }
 
 function defaultForField(field: FieldSchema): unknown {
-	if (field.default !== undefined) return field.default
+	// Schema modules are loaded once and kept alive for the app's lifetime
+	// (import.meta.glob(..., { eager: true }) in this file), so field.default
+	// is a single shared object/array literal — returning it directly would
+	// hand out the SAME reference to every block (or repeater item) created
+	// from this field, meaning pushing into one instance's array silently
+	// mutates every other instance's "default" too. Clone it per call.
+	if (field.default !== undefined) return structuredClone(field.default)
 	return defaultForType(field.type)
 }
 

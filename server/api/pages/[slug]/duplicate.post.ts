@@ -21,7 +21,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 
 	const { data: source, error: sourceError } = await supabase
 		.from('pages')
-		.select('blocks, seo, parent_id')
+		.select('draft_blocks, seo, parent_id')
 		.eq('slug', sourceSlug)
 		.maybeSingle()
 
@@ -42,9 +42,12 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 			id,
 			slug: body.slug,
 			title: body.title,
-			blocks: source.blocks,
+			blocks: source.draft_blocks,
+			draft_blocks: source.draft_blocks,
+			draft_title: body.title,
 			seo: source.seo,
 			parent_id: source.parent_id,
+			status: 'draft',
 			updated_by: user.sub,
 		})
 		.select('*')
@@ -62,6 +65,15 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		entityId: data.id,
 		action: 'created',
 		summary: `Duplicated "${sourceSlug}" as "${data.title}"`,
+		actorId: user.sub,
+	})
+
+	await recordPageRevision({
+		pageId: data.id,
+		title: data.draft_title,
+		slug: data.slug,
+		blocks: data.draft_blocks,
+		seo: data.seo,
 		actorId: user.sub,
 	})
 

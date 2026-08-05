@@ -11,8 +11,17 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const supabase = useSupabase()
 	const { data, error } = await supabase
 		.from('pages')
-		.insert({ id: body.id, slug: body.slug, title: body.title, blocks: [], parent_id: body.parent_id ?? null })
-		.select('id, slug, title, blocks, parent_id, updated_at')
+		.insert({
+			id: body.id,
+			slug: body.slug,
+			title: body.title,
+			blocks: [],
+			draft_title: body.title,
+			draft_blocks: [],
+			parent_id: body.parent_id ?? null,
+			status: 'draft',
+		})
+		.select('id, slug, title, blocks, draft_title, draft_blocks, parent_id, status, preview_token, updated_at')
 		.single()
 
 	if (error) {
@@ -24,6 +33,14 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		entityId: data.id,
 		action: 'created',
 		summary: `Created page "${data.title}"`,
+		actorId: user.sub,
+	})
+
+	await recordPageRevision({
+		pageId: data.id,
+		title: data.draft_title,
+		slug: data.slug,
+		blocks: data.draft_blocks,
 		actorId: user.sub,
 	})
 

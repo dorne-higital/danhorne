@@ -32,11 +32,25 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 404, statusMessage: 'Form not found' })
 	}
 
-	const body = await readBody<{ values?: Record<string, string>; company?: string }>(event)
+	const body = await readBody<{ values?: Record<string, string>; company?: string; recaptchaToken?: string }>(event)
 
 	// Honeypot — real users never fill this field in, bots usually do.
 	if (body.company) {
 		return { ok: true }
+	}
+
+	const { data: settings } = await supabase
+		.from('site_settings')
+		.select('recaptcha_enabled, recaptcha_secret_key')
+		.eq('id', 'default')
+		.maybeSingle()
+
+	if (settings?.recaptcha_enabled && settings.recaptcha_secret_key) {
+		const verified =
+			!!body.recaptchaToken && (await verifyRecaptcha(body.recaptchaToken, settings.recaptcha_secret_key, ip))
+		if (!verified) {
+			throw createError({ statusCode: 400, statusMessage: 'Spam check failed — please try again.' })
+		}
 	}
 
 	const values = body.values ?? {}

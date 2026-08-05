@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Block, PageRecord, PageSeo } from '#shared/types/cms'
+import type { Block, PageRecord, PageSeo, PageStatus } from '#shared/types/cms'
 
 // Walks up newParentId's ancestry to make sure pageId isn't already one of
 // its own ancestors — otherwise the tree would loop and never render.
@@ -19,15 +19,16 @@ async function wouldCreateCycle(supabase: SupabaseClient, pageId: string, newPar
 }
 
 function buildUpdateSummary(
-	before: { title: string; slug: string; parent_id: string | null },
+	before: { draft_title: string; slug: string; parent_id: string | null; status: PageStatus },
 	after: PageRecord,
 ): string {
 	const changes: string[] = []
 	if (before.slug !== after.slug) changes.push(`renamed to "${after.slug}"`)
-	if (before.title !== after.title) changes.push(`retitled to "${after.title}"`)
+	if (before.draft_title !== after.draft_title) changes.push(`retitled to "${after.draft_title}"`)
 	if (before.parent_id !== after.parent_id) changes.push('re-parented')
-	if (changes.length === 0) changes.push('edited content')
-	return `Updated page "${after.title}" (${changes.join(', ')})`
+	if (before.status !== after.status) changes.push(after.status === 'published' ? 'published' : 'unpublished')
+	if (changes.length === 0) changes.push('edited draft')
+	return `Updated page "${after.draft_title}" (${changes.join(', ')})`
 }
 
 export default defineEventHandler(async (event): Promise<PageRecord> => {
@@ -45,7 +46,11 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		blocks?: Block[]
 		seo?: PageSeo
 		parent_id?: string | null
+		status?: PageStatus
 	}>(event)
+	if (body?.status !== undefined && body.status !== 'draft' && body.status !== 'published') {
+		throw createError({ statusCode: 400, statusMessage: 'status must be "draft" or "published"' })
+	}
 	if (body?.blocks !== undefined && !Array.isArray(body.blocks)) {
 		throw createError({ statusCode: 400, statusMessage: 'blocks must be an array' })
 	}
@@ -58,17 +63,20 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	// regardless of whether they actually changed.
 	const { data: current } = await supabase
 		.from('pages')
-		.select('id, title, slug, parent_id')
+		.select('id, draft_title, slug, parent_id, status')
 		.eq('slug', slug)
 		.single()
 	if (!current) {
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
 	}
 
+	// title/blocks are the working draft — saving never touches what's
+	// actually live. Only POST /api/pages/:slug/publish does that.
 	const update: Record<string, unknown> = {}
-	if (body.blocks !== undefined) update.blocks = sanitizeBlocks(body.blocks)
-	if (body.title) update.title = body.title
+	if (body.blocks !== undefined) update.draft_blocks = sanitizeBlocks(body.blocks)
+	if (body.title) update.draft_title = body.title
 	if (body.seo !== undefined) update.seo = body.seo
+	if (body.status !== undefined) update.status = body.status
 
 	if (body.slug !== undefined) {
 		if (!body.slug.startsWith('/')) {
@@ -118,6 +126,20 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		summary: buildUpdateSummary(current, data as PageRecord),
 		actorId: user.sub,
 	})
+
+	// Skip the snapshot for a pure status/slug/parent change (e.g.
+	// Unpublish) — nothing about the draft content actually moved, no point
+	// spending one of the 10 revision slots on it.
+	if (body.blocks !== undefined || body.title) {
+		await recordPageRevision({
+			pageId: data.id,
+			title: data.draft_title,
+			slug: data.slug,
+			blocks: data.draft_blocks,
+			seo: data.seo,
+			actorId: user.sub,
+		})
+	}
 
 	return data as PageRecord
 })

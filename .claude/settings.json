@@ -35,7 +35,15 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/admin/analytics)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/analytics/summary)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"path\":\"/\"}' http://localhost:3000/api/track)",
-      "Bash(xargs kill)"
+      "Bash(xargs kill)",
+      "Bash(dig +short NS danhorne.co.uk)",
+      "Bash(dig +short A danhorne.co.uk)",
+      "Bash(dig +short AAAA danhorne.co.uk)",
+      "Bash(dig +short CNAME www.danhorne.co.uk)",
+      "Bash(dig +short A www.danhorne.co.uk)",
+      "Bash(curl -sv -o /dev/null https://www.danhorne.co.uk)",
+      "Bash(yarn nuxi *)",
+      "Bash(yarn prettier *)"
     ]
   }
 }

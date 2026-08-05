@@ -60,6 +60,29 @@
 				{{ submitError }}
 			</p>
 
+			<p
+				v-if="recaptchaSiteKey && isLastStep"
+				class="recaptcha-notice"
+			>
+				This site is protected by reCAPTCHA and the
+				<a
+					href="https://policies.google.com/privacy"
+					target="_blank"
+					rel="noopener"
+				>
+					Google Privacy Policy
+				</a>
+				and
+				<a
+					href="https://policies.google.com/terms"
+					target="_blank"
+					rel="noopener"
+				>
+					Terms of Service
+				</a>
+				apply.
+			</p>
+
 			<div class="actions">
 				<button
 					v-if="currentStepIndex > 0"
@@ -109,6 +132,17 @@
 <script setup lang="ts">
 	import type { FormRecord } from '#shared/types/cms'
 
+	// Minimal shape of the global the reCAPTCHA v3 script (loaded below)
+	// attaches to window — no official types package for it.
+	declare global {
+		interface Window {
+			grecaptcha?: {
+				ready: (callback: () => void) => void
+				execute: (siteKey: string, options: { action: string }) => Promise<string>
+			}
+		}
+	}
+
 	interface FieldHandle {
 		validate: () => boolean
 	}
@@ -126,6 +160,36 @@
 	const { data: form, pending } = useFetch<FormRecord>(() => `/api/forms/${props.formId}`, {
 		key: () => `dynamic-form-${props.formId}`,
 	})
+
+	// Same 'site-settings' key app.vue fetches with — already resolved from
+	// the SSR payload by the time this runs, no extra request. Not awaited,
+	// same layout/no-Suspense reasoning as the form fetch above.
+	const { data: settings } = useSiteSettings()
+	const recaptchaSiteKey = computed(() =>
+		settings.value?.recaptcha_enabled ? (settings.value?.recaptcha_site_key ?? null) : null,
+	)
+
+	// reCAPTCHA v3 shows a floating badge wherever its script is loaded, so
+	// (unlike GTM) this is injected only here, scoped to wherever a form
+	// actually renders — not globally in app.vue.
+	useHead(() => ({
+		script: recaptchaSiteKey.value
+			? [
+					{
+						key: 'recaptcha',
+						src: `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey.value}`,
+						async: true,
+					},
+				]
+			: [],
+	}))
+
+	async function getRecaptchaToken(): Promise<string | undefined> {
+		const siteKey = recaptchaSiteKey.value
+		if (!siteKey || !window.grecaptcha) return undefined
+		await new Promise<void>((resolve) => window.grecaptcha!.ready(resolve))
+		return window.grecaptcha!.execute(siteKey, { action: 'contact_form_submit' })
+	}
 
 	const values = reactive<Record<string, string>>({})
 	const fieldRefs = ref<Record<string, FieldHandle>>({})
@@ -182,9 +246,16 @@
 		submitError.value = ''
 
 		try {
+			// If reCAPTCHA is enabled, the server requires this token and
+			// rejects the submission without one — so a blocked/failed script
+			// (ad blocker, network hiccup) does cost a genuine visitor their
+			// submission here. That's the standard reCAPTCHA v3 trade-off,
+			// not a bug; see server/api/forms/[id]/submit.post.ts.
+			const recaptchaToken = await getRecaptchaToken().catch(() => undefined)
+
 			await $fetch(`/api/forms/${props.formId}/submit`, {
 				method: 'POST',
-				body: { values: { ...values }, company: company.value },
+				body: { values: { ...values }, company: company.value, recaptchaToken },
 			})
 
 			submitted.value = true
@@ -267,6 +338,21 @@
 			font-size: var(--eyebrow-size);
 			font-weight: 600;
 			margin-bottom: var(--padding-md);
+		}
+
+		.recaptcha-notice {
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
+			margin-bottom: var(--padding-md);
+
+			a {
+				color: var(--text-secondary);
+				text-decoration: underline;
+
+				&:hover {
+					color: var(--text-primary);
+				}
+			}
 		}
 	}
 </style>

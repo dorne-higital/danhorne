@@ -6,10 +6,13 @@
 	font-size: 0.9375rem;
 	gap: var(--padding-sm);
 	justify-content: flex-start;
-	margin: 0 auto;
+	left: 50%;
+	max-width: 32rem;
 	padding: var(--padding-sm) var(--padding-md);
-	position: absolute;
-	width: 100%;
+	position: fixed;
+	top: 1rem;
+	transform: translateX(-50%);
+	width: 50%;
 	z-index: 999;
 
 	&.success {

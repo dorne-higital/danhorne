@@ -8,6 +8,7 @@
 @use 'components/buttons';
 @use 'components/card';
 @use 'components/alerts';
+@use 'components/recaptcha';
 
 .float {
 	animation: float 7s ease-in-out infinite;

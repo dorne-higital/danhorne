@@ -1,7 +1,7 @@
 import type { MenuItem, MenuRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<MenuRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -17,6 +17,11 @@ export default defineEventHandler(async (event): Promise<MenuRecord> => {
 	if (body.name) update.name = body.name
 
 	const supabase = useSupabase()
+
+	// Fetched upfront purely for the activity summary — a rename is worth
+	// calling out specifically, an items-only edit just says "edited".
+	const { data: current } = await supabase.from('menus').select('name').eq('id', id).maybeSingle()
+
 	const { data, error } = await supabase.from('menus').update(update).eq('id', id).select('*').maybeSingle()
 
 	if (error) {
@@ -25,6 +30,17 @@ export default defineEventHandler(async (event): Promise<MenuRecord> => {
 	if (!data) {
 		throw createError({ statusCode: 404, statusMessage: 'Menu not found' })
 	}
+
+	await logActivity({
+		entityType: 'menu',
+		entityId: data.id,
+		action: 'updated',
+		summary:
+			current && current.name !== data.name
+				? `Renamed menu "${current.name}" to "${data.name}"`
+				: `Updated menu "${data.name}"`,
+		actorId: user.sub,
+	})
 
 	return data as MenuRecord
 })

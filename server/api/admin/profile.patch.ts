@@ -23,5 +23,13 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
 
+	await logActivity({
+		entityType: 'user',
+		entityId: data.id,
+		action: 'updated',
+		summary: `${data.nickname || data.first_name} updated their profile`,
+		actorId: user.sub,
+	})
+
 	return data
 })

@@ -1,0 +1,9 @@
+// reCAPTCHA v3's script injects its floating badge directly into <body>,
+// outside any component's scoped styles, so this has to be global. Google's
+// terms require the badge OR equivalent attribution text be shown when
+// reCAPTCHA is active — hiding the badge is only compliant because
+// DynamicForm.vue renders that text near the submit button instead. See
+// server/api/forms/[id]/submit.post.ts / app/components/DynamicForm.vue.
+.grecaptcha-badge {
+	visibility: hidden;
+}

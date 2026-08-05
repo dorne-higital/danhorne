@@ -1,7 +1,7 @@
 import type { FormRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<FormRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const body = await readBody<{ name?: string }>(event)
 	if (!body?.name) {
@@ -14,6 +14,14 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	await logActivity({
+		entityType: 'form',
+		entityId: data.id,
+		action: 'created',
+		summary: `Created form "${data.name}"`,
+		actorId: user.sub,
+	})
 
 	return data as FormRecord
 })

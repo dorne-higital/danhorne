@@ -5,7 +5,11 @@ export default defineEventHandler(async (event) => {
 	const { siteUrl } = useRuntimeConfig().public
 
 	const supabase = useSupabase()
-	const { data, error } = await supabase.from('pages').select('slug, updated_at').order('slug')
+	const { data, error } = await supabase
+		.from('pages')
+		.select('slug, updated_at')
+		.eq('status', 'published')
+		.order('slug')
 
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })

@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-	await requireAdminRole(event)
+	const { user: actor } = await requireAdminRole(event)
 
 	const body = await readBody<{ email?: string; first_name?: string; last_name?: string }>(event)
 	if (!body?.email) {
@@ -17,6 +17,14 @@ export default defineEventHandler(async (event) => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	await logActivity({
+		entityType: 'user',
+		entityId: data.user.id,
+		action: 'created',
+		summary: `Invited ${data.user.email}`,
+		actorId: actor.sub,
+	})
 
 	return { id: data.user.id, email: data.user.email }
 })

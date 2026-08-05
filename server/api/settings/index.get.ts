@@ -7,7 +7,7 @@ export default defineEventHandler(async (): Promise<SiteSettings> => {
 	const { data, error } = await supabase
 		.from('site_settings')
 		.select(
-			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, contact_form_id, company, socials',
+			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, contact_form_id, company, socials, nav_style, footer_style, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
 		)
 		.eq('id', 'default')
 		.single()
@@ -16,5 +16,9 @@ export default defineEventHandler(async (): Promise<SiteSettings> => {
 		throw createError({ statusCode: 500, statusMessage: publicErrorMessage(error) })
 	}
 
-	return data as SiteSettings
+	// recaptcha_secret_key must never leave the server — swap it for a
+	// boolean before this goes out.
+	const { recaptcha_secret_key, ...settings } = data as SiteSettings & { recaptcha_secret_key: string | null }
+
+	return { ...settings, recaptcha_secret_key_set: !!recaptcha_secret_key }
 })

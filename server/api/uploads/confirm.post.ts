@@ -13,7 +13,7 @@ interface Body {
 // whatever the client claims — since this request is the only point where
 // we can enforce size/type limits now that bytes never pass through us.
 export default defineEventHandler(async (event): Promise<UploadRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const body = await readBody<Body>(event)
 	if (!body?.path || !body?.filename) {
@@ -69,6 +69,14 @@ export default defineEventHandler(async (event): Promise<UploadRecord> => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	await logActivity({
+		entityType: 'upload',
+		entityId: data.id,
+		action: 'created',
+		summary: `Uploaded "${data.filename}"`,
+		actorId: user.sub,
+	})
 
 	return data as UploadRecord
 })

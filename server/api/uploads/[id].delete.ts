@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
 	const { data: existing, error: fetchError } = await supabase
 		.from('uploads')
-		.select('path')
+		.select('path, filename')
 		.eq('id', id)
 		.maybeSingle()
 
@@ -30,6 +30,14 @@ export default defineEventHandler(async (event) => {
 	if (deleteError) {
 		throw createError({ statusCode: 500, statusMessage: deleteError.message })
 	}
+
+	await logActivity({
+		entityType: 'upload',
+		entityId: id,
+		action: 'deleted',
+		summary: `Deleted "${existing.filename}"`,
+		actorId: user.sub,
+	})
 
 	return { ok: true }
 })

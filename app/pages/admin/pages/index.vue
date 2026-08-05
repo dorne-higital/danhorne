@@ -16,10 +16,11 @@
 			class="page-list"
 		>
 			<colgroup>
-				<col style="width: 28%" />
-				<col style="width: 20%" />
+				<col style="width: 24%" />
+				<col style="width: 16%" />
 				<col style="width: 10%" />
-				<col style="width: 12%" />
+				<col style="width: 10%" />
+				<col style="width: 10%" />
 				<col style="width: 18%" />
 				<col style="width: 12%" />
 			</colgroup>
@@ -27,6 +28,7 @@
 				<tr>
 					<th>Title</th>
 					<th>Slug</th>
+					<th>Status</th>
 					<th>SEO Title</th>
 					<th>SEO Description</th>
 					<th>Updated</th>
@@ -70,6 +72,18 @@
 						:title="row.page.slug"
 					>
 						{{ row.depth > 0 ? childSlugLabel(row.page.slug) : row.page.slug }}
+					</td>
+					<td>
+						<span :class="['status-badge', row.page.status]">
+							{{ row.page.status === 'published' ? 'Published' : 'Draft' }}
+						</span>
+						<span
+							v-if="row.page.status === 'published' && row.page.has_draft_changes"
+							class="pending-badge"
+							title="Has unpublished changes"
+						>
+							Edited
+						</span>
 					</td>
 					<td class="seo-status">
 						<Icon
@@ -532,6 +546,36 @@
 				.warn {
 					color: var(--error);
 				}
+			}
+
+			.status-badge {
+				border-radius: var(--border-radius-sm);
+				font-size: 0.6875rem;
+				font-weight: 700;
+				letter-spacing: 0.02em;
+				padding: 0.0625rem 0.5rem;
+				text-transform: uppercase;
+
+				&.published {
+					background: var(--success-bg);
+					color: var(--success);
+				}
+
+				&.draft {
+					background: var(--warning-bg);
+					color: var(--warning);
+				}
+			}
+
+			.pending-badge {
+				background: var(--warning-bg);
+				border-radius: var(--border-radius-sm);
+				color: var(--warning);
+				display: inline-block;
+				font-size: 0.6875rem;
+				font-weight: 700;
+				margin-left: 0.375rem;
+				padding: 0.0625rem 0.5rem;
 			}
 
 			.actions {

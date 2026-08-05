@@ -1,6 +1,9 @@
 <template>
 	<header class="header">
-		<nav class="nav-container sw flex-between">
+		<nav
+			class="nav-container sw flex-between"
+			:data-nav-style="navStyle"
+		>
 			<AppLogo
 				:logo-text="'dan'"
 				:highlighted-text="'horne.'"
@@ -17,12 +20,22 @@
 				/>
 			</ul>
 
+			<a
+				v-if="ctaEnabled && ctaAction === 'link'"
+				:href="ctaHref"
+				:target="ctaExternal ? '_blank' : undefined"
+				:rel="ctaExternal ? 'noopener noreferrer' : undefined"
+				class="btn primary sm say-hello"
+			>
+				{{ ctaLabel }}
+			</a>
 			<button
+				v-else-if="ctaEnabled"
 				type="button"
 				class="btn primary sm say-hello"
 				@click="open()"
 			>
-				Say hello
+				{{ ctaLabel }}
 			</button>
 
 			<button
@@ -73,12 +86,23 @@
 							/>
 						</ul>
 
+						<a
+							v-if="ctaEnabled && ctaAction === 'link'"
+							:href="ctaHref"
+							:target="ctaExternal ? '_blank' : undefined"
+							:rel="ctaExternal ? 'noopener noreferrer' : undefined"
+							class="btn primary"
+							@click="mobileNavOpen = false"
+						>
+							{{ ctaLabel }}
+						</a>
 						<button
+							v-else-if="ctaEnabled"
 							type="button"
 							class="btn primary"
 							@click="openContactFromMobileNav"
 						>
-							Say hello
+							{{ ctaLabel }}
 						</button>
 					</div>
 				</div>
@@ -91,7 +115,15 @@
 	import type { MenuRecord } from '#shared/types/cms'
 
 	const { open } = useAppModal()
-	const { data: menu } = await useFetch<MenuRecord>('/api/menus/main')
+	const { data: menu } = await useFetch<MenuRecord>('/api/menus/header-main')
+	const { data: settings } = await useSiteSettings()
+	const navStyle = computed(() => settings.value?.nav_style ?? 'default')
+
+	const ctaEnabled = computed(() => settings.value?.header_cta_enabled ?? true)
+	const ctaLabel = computed(() => settings.value?.header_cta_label || 'Say hello')
+	const ctaAction = computed(() => settings.value?.header_cta_action ?? 'modal')
+	const ctaHref = computed(() => normalizeHref(settings.value?.header_cta_url || '/'))
+	const ctaExternal = computed(() => isExternalHref(settings.value?.header_cta_url || ''))
 
 	const mobileNavOpen = ref(false)
 	const route = useRoute()
@@ -143,6 +175,23 @@
 
 			@media (width >= 900px) {
 				display: flex;
+			}
+		}
+
+		// Centered nav style — takes the nav list out of flow and centers it
+		// on the container itself, so it stays dead-center regardless of how
+		// wide the logo or CTA button are (a plain flex/auto-margin approach
+		// only centers relative to its siblings, not the container).
+		.nav-container[data-nav-style='centered'] {
+			@media (width >= 900px) {
+				position: relative;
+
+				.main-nav {
+					left: 50%;
+					margin: 0;
+					position: absolute;
+					transform: translateX(-50%);
+				}
 			}
 		}
 

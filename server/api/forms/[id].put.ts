@@ -8,7 +8,7 @@ interface Body {
 }
 
 export default defineEventHandler(async (event): Promise<FormRecord> => {
-	await requireAdminSession(event)
+	const user = await requireAdminSession(event)
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -26,6 +26,9 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 	if (body.success_message) update.success_message = body.success_message
 
 	const supabase = useSupabase()
+
+	const { data: current } = await supabase.from('forms').select('name').eq('id', id).maybeSingle()
+
 	const { data, error } = await supabase.from('forms').update(update).eq('id', id).select('*').maybeSingle()
 
 	if (error) {
@@ -34,6 +37,17 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 	if (!data) {
 		throw createError({ statusCode: 404, statusMessage: 'Form not found' })
 	}
+
+	await logActivity({
+		entityType: 'form',
+		entityId: data.id,
+		action: 'updated',
+		summary:
+			current && current.name !== data.name
+				? `Renamed form "${current.name}" to "${data.name}"`
+				: `Updated form "${data.name}"`,
+		actorId: user.sub,
+	})
 
 	return data as FormRecord
 })

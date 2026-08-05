@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-	await requireAdminRole(event)
+	const { user: actor } = await requireAdminRole(event)
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -22,6 +22,15 @@ export default defineEventHandler(async (event) => {
 	if (error) {
 		throw createError({ statusCode: 500, statusMessage: error.message })
 	}
+
+	const name = data.nickname || `${data.first_name ?? ''} ${data.last_name ?? ''}`.trim() || id
+	await logActivity({
+		entityType: 'user',
+		entityId: data.id,
+		action: 'updated',
+		summary: `Changed ${name}'s role to ${data.role}`,
+		actorId: actor.sub,
+	})
 
 	return data
 })

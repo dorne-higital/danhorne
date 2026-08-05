@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody<{ path?: string; referrer?: string }>(event)
 	const path = body?.path?.trim()
 
-	// Never track admin usage as site "traffic".
-	if (!path || path.startsWith('/admin')) {
+	// Never track admin usage, or draft-preview visits, as site "traffic".
+	if (!path || path.startsWith('/admin') || /[?&]preview=/.test(path)) {
 		return { ok: true }
 	}
 

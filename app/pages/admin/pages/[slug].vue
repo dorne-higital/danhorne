@@ -53,15 +53,74 @@
 					</select>
 				</div>
 			</div>
-			<button
-				type="button"
-				class="btn primary"
-				:disabled="saving"
-				@click="save"
-			>
-				{{ saving ? 'Saving…' : 'Save' }}
-			</button>
+			<div class="actions">
+				<div class="status-group">
+					<span :class="['status-badge', status]">
+						{{ status === 'published' ? 'Published' : 'Draft' }}
+					</span>
+					<span
+						v-if="status === 'published' && hasDraftChanges"
+						class="pending-badge"
+					>
+						Unpublished changes
+					</span>
+					<button
+						v-if="status === 'published'"
+						type="button"
+						class="icon-btn"
+						title="Unpublish"
+						aria-label="Unpublish this page"
+						:disabled="unpublishing"
+						@click="unpublish"
+					>
+						<Icon name="lucide:eye-off" />
+					</button>
+				</div>
+
+				<a
+					:href="previewUrl"
+					target="_blank"
+					rel="noopener"
+					class="icon-btn"
+					title="Preview"
+					aria-label="Preview draft in a new tab"
+				>
+					<Icon name="lucide:external-link" />
+				</a>
+				<button
+					type="button"
+					class="icon-btn"
+					title="Version history"
+					aria-label="Version history"
+					@click="historyOpen = true"
+				>
+					<Icon name="lucide:history" />
+				</button>
+				<button
+					type="button"
+					class="btn outline"
+					:disabled="saving"
+					@click="save"
+				>
+					{{ saving ? 'Saving…' : 'Save draft' }}
+				</button>
+				<button
+					type="button"
+					class="btn primary"
+					:disabled="publishing || (status === 'published' && !hasDraftChanges)"
+					@click="publish"
+				>
+					{{ publishing ? 'Publishing…' : status === 'draft' ? 'Publish' : 'Publish changes' }}
+				</button>
+			</div>
 		</header>
+
+		<PageHistoryModal
+			:open="historyOpen"
+			:slug="originalSlug"
+			@update:open="(value) => (historyOpen = value)"
+			@restored="onRestored"
+		/>
 
 		<p
 			v-if="slugChanged"
@@ -93,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-	import type { PageRecord, PageSummary } from '#shared/types/cms'
+	import type { PageRecord, PageStatus, PageSummary } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
@@ -114,16 +173,39 @@
 		return flattenPageTree(topLevel, childrenByParent, { excludeId: page.value!.id })
 	})
 
+	// title/blocks are the working draft, not what's live — Save persists
+	// them here, Publish is what actually pushes them out.
 	const { blocks, selectedBlockId, selectedBlock, removeBlock, updateBlockProp, updateBlockDarkTheme, selectBlock } =
-		usePageBlocks(page.value.blocks)
-	const title = ref(page.value.title)
+		usePageBlocks(page.value.draft_blocks!)
+	const title = ref(page.value.draft_title!)
 	const originalSlug = page.value.slug
 	const slug = ref(page.value.slug)
 	const slugChanged = computed(() => slug.value !== originalSlug)
 	const parentId = ref(page.value.parent_id ?? '')
+	const status = ref<PageStatus>(page.value.status)
+	const previewToken = page.value.preview_token
+
+	// What's actually live right now — compared against title/blocks below
+	// to know whether there's anything worth publishing. Updated after a
+	// successful Publish so the comparison stays accurate going forward.
+	const publishedTitle = ref(page.value.title)
+	const publishedBlocks = ref(structuredClone(page.value.blocks))
+	const hasDraftChanges = computed(
+		() =>
+			title.value !== publishedTitle.value ||
+			JSON.stringify(blocks.value) !== JSON.stringify(publishedBlocks.value),
+	)
+
+	// Always includes the preview token — for a published page this is what
+	// shows pending draft changes rather than what's already live.
+	const previewUrl = computed(() => `${originalSlug}?preview=${previewToken}`)
 
 	const saving = ref(false)
+	const publishing = ref(false)
+	const unpublishing = ref(false)
+	const historyOpen = ref(false)
 	const toast = useToast()
+	const { confirm } = useConfirm()
 
 	const dirty = ref(false)
 	watch(blocks, () => (dirty.value = true), { deep: true })
@@ -137,9 +219,14 @@
 		try {
 			const updated = await $fetch<PageRecord>(`/api/pages/${encodedSlug}`, {
 				method: 'PUT',
-				body: { title: title.value, slug: slug.value, blocks: blocks.value, parent_id: parentId.value || null },
+				body: {
+					title: title.value,
+					slug: slug.value,
+					blocks: blocks.value,
+					parent_id: parentId.value || null,
+				},
 			})
-			toast.show('Saved.')
+			toast.show('Draft saved.')
 			dirty.value = false
 			if (updated.slug !== route.params.slug) {
 				await navigateTo(`/admin/pages/${encodeURIComponent(updated.slug)}`, { replace: true })
@@ -149,6 +236,54 @@
 		} finally {
 			saving.value = false
 		}
+	}
+
+	async function publish() {
+		publishing.value = true
+		try {
+			const updated = await $fetch<PageRecord>(`/api/pages/${encodedSlug}/publish`, { method: 'POST' })
+			status.value = updated.status
+			publishedTitle.value = updated.title
+			publishedBlocks.value = structuredClone(updated.blocks)
+			toast.show('Published.')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not publish'), 'error')
+		} finally {
+			publishing.value = false
+		}
+	}
+
+	async function unpublish() {
+		if (
+			!(await confirm('Unpublish this page? It will stop being visible to visitors until you publish it again.', {
+				title: 'Unpublish page',
+				confirmLabel: 'Unpublish',
+				danger: true,
+			}))
+		)
+			return
+		unpublishing.value = true
+		try {
+			const updated = await $fetch<PageRecord>(`/api/pages/${encodedSlug}`, {
+				method: 'PUT',
+				body: { status: 'draft' },
+			})
+			status.value = updated.status
+			toast.show('Unpublished.')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not unpublish'), 'error')
+		} finally {
+			unpublishing.value = false
+		}
+	}
+
+	// The restore endpoint writes straight into the draft (unlike normal
+	// edits, which only land on the next Save) — sync local state to match
+	// and clear dirty, since there's nothing left to save.
+	function onRestored(restored: PageRecord) {
+		title.value = restored.draft_title!
+		blocks.value = structuredClone(restored.draft_blocks!)
+		dirty.value = false
 	}
 </script>
 
@@ -177,18 +312,30 @@
 				flex-direction: row;
 				gap: var(--padding-md);
 				margin-left: 3rem;
-				width: 100%;
+				min-width: 0;
 
 				.input-field {
 					display: flex;
 					flex-direction: column;
 					gap: 0;
+					min-width: 0;
 
 					label {
 						color: var(--text-primary);
 						font-size: var(--eyebrow-size);
 						font-weight: 600;
 					}
+				}
+			}
+
+			.actions {
+				align-items: center;
+				display: flex;
+				flex-shrink: 0;
+				gap: var(--padding-sm);
+
+				.btn {
+					white-space: nowrap;
 				}
 			}
 
@@ -263,6 +410,69 @@
 			&.inspector {
 				border-left: 1px solid var(--border);
 			}
+		}
+	}
+
+	.status-group {
+		align-items: center;
+		display: flex;
+		gap: var(--padding-xs);
+	}
+
+	.status-badge {
+		border-radius: var(--border-radius-sm);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.02em;
+		padding: 0.0625rem 0.5rem;
+		text-transform: uppercase;
+
+		&.published {
+			background: var(--success-bg);
+			color: var(--success);
+		}
+
+		&.draft {
+			background: var(--warning-bg);
+			color: var(--warning);
+		}
+	}
+
+	.pending-badge {
+		background: var(--warning-bg);
+		border-radius: var(--border-radius-sm);
+		color: var(--warning);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		padding: 0.0625rem 0.5rem;
+	}
+
+	.icon-btn {
+		align-items: center;
+		background: none;
+		border: 1px solid var(--border);
+		border-radius: var(--border-radius-sm);
+		color: var(--text-secondary);
+		cursor: pointer;
+		display: inline-flex;
+		flex-shrink: 0;
+		height: 2.25rem;
+		justify-content: center;
+		width: 2.25rem;
+
+		svg {
+			height: 1.125rem;
+			width: 1.125rem;
+		}
+
+		&:hover {
+			background: var(--bg-secondary);
+			color: var(--text-primary);
+		}
+
+		&:disabled {
+			cursor: default;
+			opacity: 0.5;
 		}
 	}
 </style>

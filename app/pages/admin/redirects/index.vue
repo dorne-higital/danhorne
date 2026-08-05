@@ -17,6 +17,55 @@
 			actually a page slug.
 		</p>
 
+		<section
+			v-if="suggestions?.length"
+			class="suggestions"
+		>
+			<h2>Suggested redirects</h2>
+			<p class="intro">
+				Real 404s visitors have hit, after checking for an existing redirect first. Turn one into a redirect, or
+				dismiss it if it's not worth fixing.
+			</p>
+			<table class="suggestion-list">
+				<thead>
+					<tr>
+						<th>URL</th>
+						<th>Hits</th>
+						<th>Last seen</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="hit in suggestions"
+						:key="hit.id"
+					>
+						<td>
+							<code>{{ hit.path }}</code>
+						</td>
+						<td>{{ hit.hit_count }}</td>
+						<td>{{ new Date(hit.last_seen_at).toLocaleString() }}</td>
+						<td class="actions">
+							<button
+								type="button"
+								class="link-btn"
+								@click="createFromSuggestion(hit)"
+							>
+								Create redirect
+							</button>
+							<button
+								type="button"
+								class="link-btn danger"
+								@click="dismissSuggestion(hit)"
+							>
+								Dismiss
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
 		<table
 			v-if="redirects?.length"
 			class="redirect-list"
@@ -113,12 +162,15 @@
 </template>
 
 <script setup lang="ts">
-	import type { RedirectRecord } from '#shared/types/cms'
+	import type { NotFoundHit, RedirectRecord } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
 	const { data: redirects, refresh } = await useFetch<RedirectRecord[]>('/api/redirects', {
 		key: 'admin-redirects-list',
+	})
+	const { data: suggestions, refresh: refreshSuggestions } = await useFetch<NotFoundHit[]>('/api/not-found-hits', {
+		key: 'admin-redirect-suggestions',
 	})
 	const { confirm } = useConfirm()
 	const toast = useToast()
@@ -128,6 +180,22 @@
 	const newNewSlug = ref('')
 	const creating = ref(false)
 	const createError = ref('')
+
+	function createFromSuggestion(hit: NotFoundHit) {
+		newOldSlug.value = hit.path
+		newNewSlug.value = ''
+		createError.value = ''
+		showCreate.value = true
+	}
+
+	async function dismissSuggestion(hit: NotFoundHit) {
+		try {
+			await $fetch(`/api/not-found-hits/${encodeURIComponent(hit.path)}`, { method: 'DELETE' })
+			await refreshSuggestions()
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not dismiss suggestion'), 'error')
+		}
+	}
 
 	async function createRedirect() {
 		creating.value = true
@@ -141,6 +209,7 @@
 			newOldSlug.value = ''
 			newNewSlug.value = ''
 			await refresh()
+			await refreshSuggestions()
 			toast.show('Redirect added.')
 		} catch (err) {
 			createError.value = getApiErrorMessage(err, 'Could not add redirect')
@@ -190,6 +259,66 @@
 			color: var(--text-secondary);
 			margin-bottom: var(--padding-lg);
 			max-width: 65ch;
+		}
+
+		.suggestions {
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-md);
+			margin-bottom: var(--padding-lg);
+			padding: var(--padding-lg);
+
+			h2 {
+				font-family: var(--heading-font-family);
+				font-size: 1.25rem;
+				font-weight: var(--heading-font-weight);
+			}
+
+			.intro {
+				margin-bottom: var(--padding-md);
+			}
+		}
+
+		.suggestion-list {
+			border-collapse: collapse;
+			width: 100%;
+
+			th,
+			td {
+				border-bottom: 1px solid var(--border);
+				padding: var(--padding-sm);
+				text-align: left;
+			}
+
+			th {
+				color: var(--text-secondary);
+				font-size: var(--eyebrow-size);
+				text-transform: uppercase;
+			}
+
+			code {
+				background: var(--bg-primary);
+				border-radius: var(--border-radius-sm);
+				padding: 2px var(--padding-xs);
+			}
+
+			.actions {
+				display: flex;
+				gap: var(--padding-md);
+			}
+
+			.link-btn {
+				background: none;
+				border: none;
+				color: var(--link);
+				cursor: pointer;
+				font-size: var(--eyebrow-size);
+				font-weight: 600;
+
+				&.danger {
+					color: var(--error);
+				}
+			}
 		}
 
 		.redirect-list {
