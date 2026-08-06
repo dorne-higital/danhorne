@@ -9,6 +9,19 @@ export async function requireAdminSession(event: H3Event): Promise<JwtPayload> {
 	if (!user) {
 		throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
 	}
+
+	// Temporary accounts (profiles.expires_at set, see /admin/users' "temp
+	// access" flow) lose access the instant their expiry passes — checked on
+	// every authenticated request, not just at login, so a still-open
+	// browser tab can't keep working past expiry. Runs for every caller of
+	// this function, not just requireAdminRole, since a temp account is
+	// ordinarily role 'user' and hits plenty of non-admin-only endpoints.
+	const supabase = useSupabase()
+	const { data: profile } = await supabase.from('profiles').select('expires_at').eq('id', user.sub).maybeSingle()
+	if (profile?.expires_at && new Date(profile.expires_at) < new Date()) {
+		throw createError({ statusCode: 401, statusMessage: 'This temporary account has expired' })
+	}
+
 	return user
 }
 

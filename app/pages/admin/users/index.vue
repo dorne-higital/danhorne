@@ -12,6 +12,13 @@
 				</label>
 				<button
 					type="button"
+					class="btn outline"
+					@click="showTempAccess = true"
+				>
+					Create temp access
+				</button>
+				<button
+					type="button"
 					class="btn primary"
 					@click="showInvite = true"
 				>
@@ -30,6 +37,7 @@
 					<th>Nickname</th>
 					<th>Email</th>
 					<th>Role</th>
+					<th>Access</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -59,7 +67,24 @@
 							<option value="user">User</option>
 						</select>
 					</td>
+					<td>
+						<span
+							v-if="user.expires_at"
+							class="badge expiry"
+						>
+							{{ formatExpiry(user.expires_at) }}
+						</span>
+						<span v-else>—</span>
+					</td>
 					<td class="actions">
+						<button
+							v-if="user.expires_at && !user.banned"
+							type="button"
+							class="link-btn"
+							@click="makePermanent(user)"
+						>
+							Make permanent
+						</button>
 						<button
 							v-if="!user.banned && user.id !== me?.user.id"
 							type="button"
@@ -130,6 +155,107 @@
 					:disabled="inviting"
 				>
 					{{ inviting ? 'Sending…' : 'Send invite' }}
+				</button>
+			</form>
+		</Modal>
+
+		<Modal
+			:open="showTempAccess"
+			title="Create temporary access"
+			@update:open="(value) => (showTempAccess = value)"
+		>
+			<form
+				class="invite-form"
+				@submit.prevent="createTempAccess"
+			>
+				<p class="hint">
+					Works immediately, no email needed — access is cut off automatically once it expires.
+				</p>
+
+				<label for="temp-first-name">First name</label>
+				<input
+					id="temp-first-name"
+					v-model="tempFirstName"
+					type="text"
+				/>
+
+				<label for="temp-last-name">Last name</label>
+				<input
+					id="temp-last-name"
+					v-model="tempLastName"
+					type="text"
+				/>
+
+				<label for="temp-email">Email</label>
+				<input
+					id="temp-email"
+					v-model="tempEmail"
+					type="email"
+					required
+				/>
+
+				<label for="temp-password">Password</label>
+				<input
+					id="temp-password"
+					v-model="tempPassword"
+					type="text"
+					autocomplete="off"
+					minlength="8"
+					required
+				/>
+
+				<label for="temp-expires">Expires</label>
+				<input
+					id="temp-expires"
+					v-model="tempExpiresAt"
+					type="datetime-local"
+					required
+				/>
+				<div class="expiry-presets">
+					<button
+						type="button"
+						class="btn outline sm"
+						@click="setTempExpiry(1)"
+					>
+						1 hour
+					</button>
+					<button
+						type="button"
+						class="btn outline sm"
+						@click="setTempExpiry(24)"
+					>
+						1 day
+					</button>
+					<button
+						type="button"
+						class="btn outline sm"
+						@click="setTempExpiry(72)"
+					>
+						3 days
+					</button>
+					<button
+						type="button"
+						class="btn outline sm"
+						@click="setTempExpiry(168)"
+					>
+						7 days
+					</button>
+				</div>
+
+				<p
+					v-if="tempError"
+					class="error"
+					role="alert"
+				>
+					{{ tempError }}
+				</p>
+
+				<button
+					type="submit"
+					class="btn primary"
+					:disabled="tempCreating"
+				>
+					{{ tempCreating ? 'Creating…' : 'Create access' }}
 				</button>
 			</form>
 		</Modal>
@@ -215,6 +341,75 @@
 			toast.show(getApiErrorMessage(err, 'Could not remove user'), 'error')
 		}
 	}
+
+	// datetime-local inputs want local time with no timezone suffix
+	// (YYYY-MM-DDTHH:mm) — Date's own toISOString() is always UTC, so the
+	// browser's own offset has to be subtracted out first.
+	function toDatetimeLocalValue(date: Date): string {
+		const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+		return local.toISOString().slice(0, 16)
+	}
+
+	const showTempAccess = ref(false)
+	const tempFirstName = ref('')
+	const tempLastName = ref('')
+	const tempEmail = ref('')
+	const tempPassword = ref('')
+	const tempExpiresAt = ref(toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000)))
+	const tempCreating = ref(false)
+	const tempError = ref('')
+
+	function setTempExpiry(hours: number) {
+		tempExpiresAt.value = toDatetimeLocalValue(new Date(Date.now() + hours * 60 * 60 * 1000))
+	}
+
+	async function createTempAccess() {
+		tempCreating.value = true
+		tempError.value = ''
+		try {
+			await $fetch('/api/admin/users/temp', {
+				method: 'POST',
+				body: {
+					email: tempEmail.value,
+					password: tempPassword.value,
+					first_name: tempFirstName.value || undefined,
+					last_name: tempLastName.value || undefined,
+					expiresAt: new Date(tempExpiresAt.value).toISOString(),
+				},
+			})
+			showTempAccess.value = false
+			tempFirstName.value = ''
+			tempLastName.value = ''
+			tempEmail.value = ''
+			tempPassword.value = ''
+			tempExpiresAt.value = toDatetimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000))
+			await refresh()
+			toast.show('Temporary access created.')
+		} catch (err) {
+			tempError.value = getApiErrorMessage(err, 'Could not create temporary access')
+		} finally {
+			tempCreating.value = false
+		}
+	}
+
+	function formatExpiry(expiresAt: string): string {
+		const diffMinutes = Math.round((new Date(expiresAt).getTime() - Date.now()) / 60000)
+		if (diffMinutes <= 0) return 'Expired'
+		if (diffMinutes < 60) return `Expires in ${diffMinutes}m`
+		const diffHours = Math.round(diffMinutes / 60)
+		if (diffHours < 48) return `Expires in ${diffHours}h`
+		return `Expires in ${Math.round(diffHours / 24)}d`
+	}
+
+	async function makePermanent(user: AdminUser) {
+		try {
+			await $fetch(`/api/admin/users/${user.id}`, { method: 'PATCH', body: { expires_at: null } })
+			await refresh()
+			toast.show('Made permanent.')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not update'), 'error')
+		}
+	}
 </script>
 
 <style lang="scss" scoped>
@@ -289,6 +484,12 @@
 				font-weight: 600;
 				margin-left: var(--padding-xs);
 				padding: 2px var(--padding-xs);
+
+				&.expiry {
+					background: var(--warning-bg);
+					color: var(--warning);
+					margin-left: 0;
+				}
 			}
 
 			.actions {
@@ -331,6 +532,18 @@
 			border-radius: var(--border-radius-sm);
 			font-size: var(--body-size);
 			padding: var(--padding-sm);
+		}
+
+		.hint {
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
+		}
+
+		.expiry-presets {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-xs);
+			margin-top: calc(var(--padding-xs) * -1);
 		}
 
 		.error {

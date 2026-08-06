@@ -109,6 +109,10 @@ export interface AdminUser {
 	role: UserRole
 	banned: boolean
 	createdAt: string
+	// Set only for temporary accounts (created via the "temp access" flow,
+	// not a regular invite) — access is blocked server-side the instant this
+	// passes, see requireAdminSession in server/utils/adminAuth.ts.
+	expires_at: string | null
 }
 
 export interface UploadRecord {
