@@ -52,6 +52,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const supabase = useSupabaseClient()
+	const config = useRuntimeConfig()
 
 	const email = ref('')
 	const error = ref('')
@@ -62,8 +63,12 @@
 		loading.value = true
 		error.value = ''
 		try {
+			// Prefer the fixed public site URL over the browser's own origin —
+			// otherwise requesting a reset while browsing the admin locally
+			// generates a localhost link, useless to whoever gets the email.
+			const siteUrl = config.public.siteUrl || window.location.origin
 			const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.value, {
-				redirectTo: `${window.location.origin}/admin/reset-password`,
+				redirectTo: `${siteUrl}/admin/reset-password`,
 			})
 			if (resetError) throw resetError
 			sent.value = true
