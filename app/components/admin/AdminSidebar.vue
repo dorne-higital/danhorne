@@ -10,71 +10,73 @@
 			/>
 		</NuxtLink>
 
-		<nav class="nav">
-			<div
-				v-for="group in navGroups"
-				:key="group.label ?? 'top'"
-				class="nav-group"
-			>
-				<p
-					v-if="group.label"
-					class="nav-group-label"
+		<div class="scroll-area">
+			<nav class="nav">
+				<div
+					v-for="group in navGroups"
+					:key="group.label ?? 'top'"
+					class="nav-group"
 				>
-					{{ group.label }}
-				</p>
-				<template
-					v-for="item in group.items"
-					:key="item.to"
-				>
-					<NuxtLink
-						v-if="!item.soon"
-						:to="item.to"
-						class="nav-item"
-						active-class="active"
+					<p
+						v-if="group.label"
+						class="nav-group-label"
 					>
-						{{ item.label }}
-					</NuxtLink>
-					<div
-						v-else
-						class="nav-item soon"
+						{{ group.label }}
+					</p>
+					<template
+						v-for="item in group.items"
+						:key="item.to"
 					>
-						{{ item.label }}
-						<span class="soon-badge">Soon</span>
-					</div>
-				</template>
-			</div>
-		</nav>
+						<NuxtLink
+							v-if="!item.soon"
+							:to="item.to"
+							class="nav-item"
+							active-class="active"
+						>
+							{{ item.label }}
+						</NuxtLink>
+						<div
+							v-else
+							class="nav-item soon"
+						>
+							{{ item.label }}
+							<span class="soon-badge">Soon</span>
+						</div>
+					</template>
+				</div>
+			</nav>
 
-		<div class="account">
-			<NuxtLink
-				to="/admin/profile"
-				class="profile-link"
-			>
-				<span
-					class="avatar"
-					aria-hidden="true"
+			<div class="account">
+				<NuxtLink
+					to="/admin/profile"
+					class="profile-link"
 				>
-					{{ displayName }}
-				</span>
-				<span class="details">
-					<span class="name">{{ firstName }}</span>
 					<span
-						v-if="me?.profile.nickname"
-						class="email"
+						class="avatar"
+						aria-hidden="true"
 					>
-						{{ me?.user.email }}
+						{{ displayName }}
 					</span>
-				</span>
-			</NuxtLink>
-			<button
-				type="button"
-				class="logout-btn"
-				title="Log out"
-				aria-label="Log out"
-				@click="logout"
-			>
-				<Icon name="lucide:log-out" />
-			</button>
+					<span class="details">
+						<span class="name">{{ firstName }}</span>
+						<span
+							v-if="me?.profile.nickname"
+							class="email"
+						>
+							{{ me?.user.email }}
+						</span>
+					</span>
+				</NuxtLink>
+				<button
+					type="button"
+					class="logout-btn"
+					title="Log out"
+					aria-label="Log out"
+					@click="logout"
+				>
+					<Icon name="lucide:log-out" />
+				</button>
+			</div>
 		</div>
 	</aside>
 </template>
@@ -150,10 +152,10 @@
 		border-right: 1px solid var(--border);
 		display: flex;
 		flex-direction: column;
-		gap: var(--padding-lg);
+		gap: var(--padding-md);
 		max-height: 100dvh;
 		min-height: 100dvh;
-		padding: var(--padding-lg) var(--padding-md);
+		padding: var(--padding-md);
 		position: fixed;
 		width: 220px;
 
@@ -163,11 +165,31 @@
 			font-weight: var(--heading-font-weight);
 		}
 
-		.nav {
+		// Holds both .nav and .account so they scroll together as one list —
+		// reaching the profile/logout row is then just "scroll to the
+		// bottom", no separate scroll region with its own affordance needed.
+		.scroll-area {
 			display: flex;
 			flex: 1;
 			flex-direction: column;
-			gap: var(--padding-md);
+
+			// .account already gets its own border-top + padding-top below to
+			// separate it from the nav — a smaller gap here is enough on top
+			// of that, and frees up real vertical space for nav items.
+			gap: var(--padding-sm);
+
+			// min-height: 0 overrides flex's default min-height: auto, which
+			// would otherwise size this to fit all its content and push
+			// .account below the sidebar's fixed max-height instead of
+			// scrolling — the classic "flex child won't shrink" gotcha.
+			min-height: 0;
+			overflow-y: auto;
+		}
+
+		.nav {
+			display: flex;
+			flex-direction: column;
+			gap: var(--padding-sm);
 		}
 
 		.nav-group {
