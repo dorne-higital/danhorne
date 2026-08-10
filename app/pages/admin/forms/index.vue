@@ -11,8 +11,21 @@
 			</button>
 		</header>
 
-		<table
+		<div
 			v-if="forms?.length"
+			class="filters"
+		>
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search forms…"
+				class="search-input"
+				aria-label="Search forms"
+			/>
+		</div>
+
+		<table
+			v-if="paginated.length"
 			class="form-list"
 		>
 			<thead>
@@ -24,7 +37,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="form in forms"
+					v-for="form in paginated"
 					:key="form.id"
 				>
 					<td>
@@ -50,6 +63,12 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="forms?.length"
+			class="empty"
+		>
+			No forms match your search.
+		</p>
+		<p
 			v-else
 			class="empty"
 		>
@@ -57,6 +76,13 @@
 			<NuxtLink to="/admin/settings">Settings</NuxtLink>
 			) or drop it onto any page as a Form block.
 		</p>
+
+		<PaginationControls
+			v-model:page="page"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 
 		<Modal
 			:open="showCreate"
@@ -103,6 +129,14 @@
 
 	const { data: forms, refresh } = await useFetch<FormSummary[]>('/api/forms', { key: 'admin-forms-list' })
 	const { confirm } = useConfirm()
+
+	const search = ref('')
+	const filteredForms = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		if (!query) return forms.value ?? []
+		return (forms.value ?? []).filter((form) => form.name.toLowerCase().includes(query))
+	})
+	const { page, pageSize, total, totalPages, paginated } = usePagination(filteredForms)
 
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
@@ -151,6 +185,21 @@
 			font-family: var(--heading-font-family);
 			font-size: var(--h2-size);
 			font-weight: var(--heading-font-weight);
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.form-list {

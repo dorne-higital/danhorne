@@ -11,8 +11,26 @@
 			</button>
 		</header>
 
+		<div class="filters">
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search by title or slug…"
+				class="search-input"
+				aria-label="Search pages"
+			/>
+			<select
+				v-model="statusFilter"
+				aria-label="Filter by status"
+			>
+				<option value="">All statuses</option>
+				<option value="published">Published</option>
+				<option value="draft">Draft</option>
+			</select>
+		</div>
+
 		<table
-			v-if="topLevelSorted.length"
+			v-if="visibleRows.length"
 			class="page-list"
 		>
 			<colgroup>
@@ -152,49 +170,24 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="pages?.length"
+			class="empty"
+		>
+			No pages match your search.
+		</p>
+		<p
 			v-else
 			class="empty"
 		>
 			No pages yet — create one to get started.
 		</p>
 
-		<div
-			v-if="topLevelSorted.length"
-			class="pagination"
-		>
-			<label class="page-size">
-				Show
-				<select v-model.number="pageSize">
-					<option
-						v-for="size in [10, 20, 50]"
-						:key="size"
-						:value="size"
-					>
-						{{ size }}
-					</option>
-				</select>
-			</label>
-
-			<div class="page-nav">
-				<button
-					type="button"
-					class="link-btn"
-					:disabled="currentPage <= 1"
-					@click="currentPage--"
-				>
-					Prev
-				</button>
-				<span>Page {{ currentPage }} of {{ totalPages }}</span>
-				<button
-					type="button"
-					class="link-btn"
-					:disabled="currentPage >= totalPages"
-					@click="currentPage++"
-				>
-					Next
-				</button>
-			</div>
-		</div>
+		<PaginationControls
+			v-model:page="currentPage"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 
 		<PageSeoModal
 			:open="showSeo"
@@ -320,15 +313,33 @@
 	const childrenByParent = computed(() => groupPagesByParent(pages.value ?? []))
 	const topLevelSorted = computed(() => sortPageSiblings(childrenByParent.value.get(null) ?? []))
 
-	const pageSize = ref(10)
-	const currentPage = ref(1)
+	const search = ref('')
+	const statusFilter = ref<'' | 'draft' | 'published'>('')
+	const isFiltering = computed(() => search.value.trim() !== '' || statusFilter.value !== '')
 
-	const totalPages = computed(() => Math.max(1, Math.ceil(topLevelSorted.value.length / pageSize.value)))
-
-	const paginatedTopLevel = computed(() => {
-		const start = (currentPage.value - 1) * pageSize.value
-		return topLevelSorted.value.slice(start, start + pageSize.value)
+	// Search/status filters ignore the parent/child tree entirely — matching
+	// on a nested page shouldn't require expanding its ancestors to find it,
+	// so filtered results render flat and alphabetical, like any other admin
+	// list, while the unfiltered view keeps the tree.
+	const filteredFlatPages = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		return [...(pages.value ?? [])]
+			.filter((page) => !statusFilter.value || page.status === statusFilter.value)
+			.filter(
+				(page) =>
+					!query || page.title.toLowerCase().includes(query) || page.slug.toLowerCase().includes(query),
+			)
+			.sort((a, b) => a.title.localeCompare(b.title))
 	})
+
+	const paginationSource = computed(() => (isFiltering.value ? filteredFlatPages.value : topLevelSorted.value))
+	const {
+		page: currentPage,
+		pageSize,
+		total,
+		totalPages,
+		paginated: paginatedItems,
+	} = usePagination(paginationSource)
 
 	const collapsedIds = ref(new Set<string>())
 	function toggleCollapse(id: string) {
@@ -337,9 +348,12 @@
 		else next.add(id)
 		collapsedIds.value = next
 	}
-	const visibleRows = computed(() =>
-		flattenPageTree(paginatedTopLevel.value, childrenByParent.value, { collapsedIds: collapsedIds.value }),
-	)
+	const visibleRows = computed(() => {
+		if (isFiltering.value) {
+			return paginatedItems.value.map((page) => ({ page, depth: 0, hasChildren: false }))
+		}
+		return flattenPageTree(paginatedItems.value, childrenByParent.value, { collapsedIds: collapsedIds.value })
+	})
 
 	const parentOptions = computed(() => flattenPageTree(topLevelSorted.value, childrenByParent.value))
 
@@ -347,14 +361,6 @@
 		const segments = slug.split('/').filter(Boolean)
 		return `../${segments[segments.length - 1]}`
 	}
-
-	watch(pageSize, () => {
-		currentPage.value = 1
-	})
-
-	watch(totalPages, (total) => {
-		if (currentPage.value > total) currentPage.value = total
-	})
 
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newTitle = ref('')
@@ -470,6 +476,26 @@
 			font-family: var(--heading-font-family);
 			font-size: var(--h2-size);
 			font-weight: var(--heading-font-weight);
+		}
+
+		.filters {
+			display: flex;
+			gap: var(--padding-sm);
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input,
+		.filters select {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			padding: var(--padding-xs) var(--padding-sm);
+		}
+
+		.search-input {
+			flex: 1;
+			max-width: 20rem;
 		}
 
 		.page-list {
@@ -599,54 +625,6 @@
 
 		.empty {
 			color: var(--text-secondary);
-		}
-
-		.pagination {
-			align-items: center;
-			display: flex;
-			justify-content: space-between;
-			margin-top: var(--padding-md);
-		}
-
-		.page-size {
-			align-items: center;
-			color: var(--text-secondary);
-			display: flex;
-			font-size: var(--eyebrow-size);
-			gap: var(--padding-xs);
-
-			select {
-				background: var(--bg-secondary);
-				border: 1px solid var(--text-primary);
-				border-radius: var(--border-radius-sm);
-				font-size: var(--eyebrow-size);
-				padding: var(--padding-xs) var(--padding-sm);
-			}
-		}
-
-		.page-nav {
-			align-items: center;
-			display: flex;
-			gap: var(--padding-sm);
-
-			span {
-				color: var(--text-secondary);
-				font-size: var(--eyebrow-size);
-			}
-
-			.link-btn {
-				background: none;
-				border: none;
-				color: var(--link);
-				cursor: pointer;
-				font-size: var(--eyebrow-size);
-				font-weight: 600;
-
-				&:disabled {
-					color: var(--text-secondary);
-					cursor: default;
-				}
-			}
 		}
 	}
 

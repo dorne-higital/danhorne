@@ -16,8 +16,21 @@
 			</div>
 		</header>
 
-		<table
+		<div
 			v-if="sortedRows.length"
+			class="filters"
+		>
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search by title or slug…"
+				class="search-input"
+				aria-label="Search pages"
+			/>
+		</div>
+
+		<table
+			v-if="paginated.length"
 			class="seo-list"
 		>
 			<colgroup>
@@ -51,7 +64,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="row in sortedRows"
+					v-for="row in paginated"
 					:key="row.page.id"
 				>
 					<td>
@@ -105,11 +118,24 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="sortedRows.length"
+			class="empty"
+		>
+			No pages match your search.
+		</p>
+		<p
 			v-else
 			class="empty"
 		>
 			No pages yet.
 		</p>
+
+		<PaginationControls
+			v-model:page="page"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 
 		<PageSeoModal
 			:open="showSeo"
@@ -140,6 +166,17 @@
 			sortAsc.value ? a.result.score - b.result.score : b.result.score - a.result.score,
 		),
 	)
+
+	const search = ref('')
+	const filteredRows = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		if (!query) return sortedRows.value
+		return sortedRows.value.filter(
+			(row) =>
+				row.page.title.toLowerCase().includes(query) || row.page.slug.toLowerCase().includes(query),
+		)
+	})
+	const { page, pageSize, total, totalPages, paginated } = usePagination(filteredRows)
 
 	const averageScore = computed(() => {
 		if (!rows.value.length) return 0
@@ -196,6 +233,21 @@
 		.summary-label {
 			color: var(--text-secondary);
 			font-size: 0.9375rem;
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.score-badge {

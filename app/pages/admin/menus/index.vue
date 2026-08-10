@@ -11,8 +11,21 @@
 			</button>
 		</header>
 
-		<table
+		<div
 			v-if="menus?.length"
+			class="filters"
+		>
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search menus…"
+				class="search-input"
+				aria-label="Search menus"
+			/>
+		</div>
+
+		<table
+			v-if="paginated.length"
 			class="menu-list"
 		>
 			<thead>
@@ -25,7 +38,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="menu in menus"
+					v-for="menu in paginated"
 					:key="menu.id"
 				>
 					<td>
@@ -48,6 +61,12 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="menus?.length"
+			class="empty"
+		>
+			No menus match your search.
+		</p>
+		<p
 			v-else
 			class="empty"
 		>
@@ -55,6 +74,13 @@
 			<code>main</code>
 			for the one rendered in the site header.
 		</p>
+
+		<PaginationControls
+			v-model:page="page"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 
 		<Modal
 			:open="showCreate"
@@ -112,6 +138,16 @@
 
 	const { data: menus, refresh } = await useFetch<MenuSummary[]>('/api/menus', { key: 'admin-menus-list' })
 	const { confirm } = useConfirm()
+
+	const search = ref('')
+	const filteredMenus = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		if (!query) return menus.value ?? []
+		return (menus.value ?? []).filter(
+			(menu) => menu.name.toLowerCase().includes(query) || menu.id.toLowerCase().includes(query),
+		)
+	})
+	const { page, pageSize, total, totalPages, paginated } = usePagination(filteredMenus)
 
 	const showCreate = ref(useRoute().query.new !== undefined)
 	const newName = ref('')
@@ -175,6 +211,21 @@
 			font-family: var(--heading-font-family);
 			font-size: var(--h2-size);
 			font-weight: var(--heading-font-weight);
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.menu-list {

@@ -27,8 +27,21 @@
 			</div>
 		</header>
 
-		<table
+		<div
 			v-if="visibleUsers.length"
+			class="filters"
+		>
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search by name or email…"
+				class="search-input"
+				aria-label="Search users"
+			/>
+		</div>
+
+		<table
+			v-if="paginated.length"
 			class="user-list"
 		>
 			<thead>
@@ -43,7 +56,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="user in visibleUsers"
+					v-for="user in paginated"
 					:key="user.id"
 				>
 					<td>{{ fullName(user) }}</td>
@@ -98,6 +111,12 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="visibleUsers.length"
+			class="empty"
+		>
+			No users match your search.
+		</p>
+		<p
 			v-else-if="users?.length"
 			class="empty"
 		>
@@ -109,6 +128,13 @@
 		>
 			No other users yet.
 		</p>
+
+		<PaginationControls
+			v-model:page="page"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 
 		<Modal
 			:open="showInvite"
@@ -280,6 +306,16 @@
 	const showRemoved = ref(false)
 	const visibleUsers = computed(() => (users.value ?? []).filter((user) => showRemoved.value || !user.banned))
 
+	const search = ref('')
+	const filteredUsers = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		if (!query) return visibleUsers.value
+		return visibleUsers.value.filter(
+			(user) => fullName(user).toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
+		)
+	})
+	const { page, pageSize, total, totalPages, paginated } = usePagination(filteredUsers)
+
 	const showInvite = ref(false)
 	const inviteFirstName = ref('')
 	const inviteLastName = ref('')
@@ -446,6 +482,21 @@
 			font-family: var(--heading-font-family);
 			font-size: var(--h2-size);
 			font-weight: var(--heading-font-weight);
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.user-list {

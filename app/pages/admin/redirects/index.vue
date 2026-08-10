@@ -17,57 +17,21 @@
 			actually a page slug.
 		</p>
 
-		<section
-			v-if="suggestions?.length"
-			class="suggestions"
+		<div
+			v-if="redirects?.length"
+			class="filters"
 		>
-			<h2>Suggested redirects</h2>
-			<p class="intro">
-				Real 404s visitors have hit, after checking for an existing redirect first. Turn one into a redirect, or
-				dismiss it if it's not worth fixing.
-			</p>
-			<table class="suggestion-list">
-				<thead>
-					<tr>
-						<th>URL</th>
-						<th>Hits</th>
-						<th>Last seen</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr
-						v-for="hit in suggestions"
-						:key="hit.id"
-					>
-						<td>
-							<code>{{ hit.path }}</code>
-						</td>
-						<td>{{ hit.hit_count }}</td>
-						<td>{{ new Date(hit.last_seen_at).toLocaleString() }}</td>
-						<td class="actions">
-							<button
-								type="button"
-								class="link-btn"
-								@click="createFromSuggestion(hit)"
-							>
-								Create redirect
-							</button>
-							<button
-								type="button"
-								class="link-btn danger"
-								@click="dismissSuggestion(hit)"
-							>
-								Dismiss
-							</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</section>
+			<input
+				v-model="redirectSearch"
+				type="search"
+				placeholder="Search redirects…"
+				class="search-input"
+				aria-label="Search redirects"
+			/>
+		</div>
 
 		<table
-			v-if="redirects?.length"
+			v-if="paginatedRedirects.length"
 			class="redirect-list"
 		>
 			<thead>
@@ -80,7 +44,7 @@
 			</thead>
 			<tbody>
 				<tr
-					v-for="redirect in redirects"
+					v-for="redirect in paginatedRedirects"
 					:key="redirect.old_slug"
 				>
 					<td>
@@ -108,11 +72,100 @@
 			</tbody>
 		</table>
 		<p
+			v-else-if="redirects?.length"
+			class="empty"
+		>
+			No redirects match your search.
+		</p>
+		<p
 			v-else
 			class="empty"
 		>
 			No redirects yet — rename a page's slug and one will show up here.
 		</p>
+
+		<PaginationControls
+			v-model:page="redirectsPage"
+			v-model:page-size="redirectsPageSize"
+			:total="redirectsTotal"
+			:total-pages="redirectsTotalPages"
+		/>
+
+		<section
+			v-if="suggestions?.length"
+			class="suggestions"
+		>
+			<h2>Suggested redirects</h2>
+			<p class="intro">
+				Real 404s visitors have hit, after checking for an existing redirect first. Turn one into a redirect, or
+				dismiss it if it's not worth fixing.
+			</p>
+
+			<div class="filters">
+				<input
+					v-model="suggestionSearch"
+					type="search"
+					placeholder="Search suggested URLs…"
+					class="search-input"
+					aria-label="Search suggested redirects"
+				/>
+			</div>
+
+			<table
+				v-if="paginatedSuggestions.length"
+				class="suggestion-list"
+			>
+				<thead>
+					<tr>
+						<th>URL</th>
+						<th>Hits</th>
+						<th>Last seen</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="hit in paginatedSuggestions"
+						:key="hit.id"
+					>
+						<td>
+							<code>{{ hit.path }}</code>
+						</td>
+						<td>{{ hit.hit_count }}</td>
+						<td>{{ new Date(hit.last_seen_at).toLocaleString() }}</td>
+						<td class="actions">
+							<button
+								type="button"
+								class="link-btn"
+								@click="createFromSuggestion(hit)"
+							>
+								Create redirect
+							</button>
+							<button
+								type="button"
+								class="link-btn danger"
+								@click="dismissSuggestion(hit)"
+							>
+								Dismiss
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p
+				v-else
+				class="empty"
+			>
+				No suggestions match your search.
+			</p>
+
+			<PaginationControls
+				v-model:page="suggestionsPage"
+				v-model:page-size="suggestionsPageSize"
+				:total="suggestionsTotal"
+				:total-pages="suggestionsTotalPages"
+			/>
+		</section>
 
 		<Modal
 			:open="showCreate"
@@ -174,6 +227,37 @@
 	})
 	const { confirm } = useConfirm()
 	const toast = useToast()
+
+	const suggestionSearch = ref('')
+	const filteredSuggestions = computed(() => {
+		const query = suggestionSearch.value.trim().toLowerCase()
+		if (!query) return suggestions.value ?? []
+		return (suggestions.value ?? []).filter((hit) => hit.path.toLowerCase().includes(query))
+	})
+	const {
+		page: suggestionsPage,
+		pageSize: suggestionsPageSize,
+		total: suggestionsTotal,
+		totalPages: suggestionsTotalPages,
+		paginated: paginatedSuggestions,
+	} = usePagination(filteredSuggestions)
+
+	const redirectSearch = ref('')
+	const filteredRedirects = computed(() => {
+		const query = redirectSearch.value.trim().toLowerCase()
+		if (!query) return redirects.value ?? []
+		return (redirects.value ?? []).filter(
+			(redirect) =>
+				redirect.old_slug.toLowerCase().includes(query) || redirect.new_slug.toLowerCase().includes(query),
+		)
+	})
+	const {
+		page: redirectsPage,
+		pageSize: redirectsPageSize,
+		total: redirectsTotal,
+		totalPages: redirectsTotalPages,
+		paginated: paginatedRedirects,
+	} = usePagination(filteredRedirects)
 
 	const showCreate = ref(false)
 	const newOldSlug = ref('')
@@ -265,7 +349,7 @@
 			background: var(--bg-secondary);
 			border: 1px solid var(--border);
 			border-radius: var(--border-radius-md);
-			margin-bottom: var(--padding-lg);
+			margin-top: var(--padding-lg);
 			padding: var(--padding-lg);
 
 			h2 {
@@ -277,6 +361,21 @@
 			.intro {
 				margin-bottom: var(--padding-md);
 			}
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-md);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.suggestion-list {

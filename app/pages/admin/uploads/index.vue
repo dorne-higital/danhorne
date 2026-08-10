@@ -84,11 +84,30 @@
 			{{ uploadError }}
 		</p>
 
+		<div
+			v-if="uploads?.length"
+			class="filters"
+		>
+			<input
+				v-model="search"
+				type="search"
+				placeholder="Search by filename…"
+				class="search-input"
+				aria-label="Search uploads"
+			/>
+		</div>
+
 		<p
 			v-if="!uploads?.length"
 			class="empty"
 		>
 			No uploads yet — upload a file to get started.
+		</p>
+		<p
+			v-else-if="!paginated.length"
+			class="empty"
+		>
+			No uploads match your search.
 		</p>
 
 		<template v-else>
@@ -130,6 +149,13 @@
 				</div>
 			</section>
 		</template>
+
+		<PaginationControls
+			v-model:page="page"
+			v-model:page-size="pageSize"
+			:total="total"
+			:total-pages="totalPages"
+		/>
 	</div>
 </template>
 
@@ -141,8 +167,16 @@
 	const { uploads, uploading, error: uploadError, progress, uploadMany, remove, removeMany } = useUploads()
 	const { confirm } = useConfirm()
 
-	const imageUploads = computed(() => (uploads.value ?? []).filter((item) => !item.mime_type?.startsWith('video/')))
-	const videoUploads = computed(() => (uploads.value ?? []).filter((item) => item.mime_type?.startsWith('video/')))
+	const search = ref('')
+	const filteredUploads = computed(() => {
+		const query = search.value.trim().toLowerCase()
+		if (!query) return uploads.value ?? []
+		return (uploads.value ?? []).filter((item) => item.filename.toLowerCase().includes(query))
+	})
+	const { page, pageSize, total, totalPages, paginated } = usePagination(filteredUploads)
+
+	const imageUploads = computed(() => paginated.value.filter((item) => !item.mime_type?.startsWith('video/')))
+	const videoUploads = computed(() => paginated.value.filter((item) => item.mime_type?.startsWith('video/')))
 	const uploadedCount = computed(
 		() => progress.value.filter((item) => item.status === 'done' || item.status === 'error').length,
 	)
@@ -232,6 +266,21 @@
 
 		.file-input {
 			display: none;
+		}
+
+		.filters {
+			display: flex;
+			margin-bottom: var(--padding-lg);
+		}
+
+		.search-input {
+			background: var(--bg-primary);
+			border: 1px solid var(--text-primary);
+			border-radius: var(--border-radius-sm);
+			font-size: var(--body-size);
+			max-width: 20rem;
+			padding: var(--padding-xs) var(--padding-sm);
+			width: 100%;
 		}
 
 		.error {
