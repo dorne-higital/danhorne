@@ -1,5 +1,8 @@
 <template>
-	<header class="header">
+	<header
+		class="header"
+		:data-theme="headerTheme === 'light' ? undefined : headerTheme"
+	>
 		<nav
 			class="nav-container sw flex-between"
 			:data-nav-style="navStyle"
@@ -61,6 +64,7 @@
 						role="dialog"
 						aria-modal="true"
 						aria-label="Site menu"
+						:data-theme="headerTheme === 'light' ? undefined : headerTheme"
 					>
 						<div class="panel-head">
 							<AppLogo @click="mobileNavOpen = false" />
@@ -118,6 +122,7 @@
 	const { data: menu } = await useFetch<MenuRecord>('/api/menus/header-main')
 	const { data: settings } = await useSiteSettings()
 	const navStyle = computed(() => settings.value?.nav_style ?? 'default')
+	const headerTheme = computed(() => settings.value?.header_theme ?? 'light')
 
 	const ctaEnabled = computed(() => settings.value?.header_cta_enabled ?? true)
 	const ctaLabel = computed(() => settings.value?.header_cta_label || 'Say hello')
@@ -162,6 +167,16 @@
 		right: 0;
 		top: 0;
 		z-index: 10;
+
+		// The logo's highlighted word is always --brand-primary, which
+		// disappears when the header's own background becomes that same
+		// color under the brand theme — swap it for the accent tone instead,
+		// which stays legible against a solid brand-primary field.
+		&[data-theme='brand'] {
+			:deep(.logo .highlight) {
+				color: var(--brand-accent);
+			}
+		}
 
 		.nav-container {
 			height: 72px;
@@ -236,6 +251,16 @@
 		overflow-y: auto;
 		padding: var(--padding-lg);
 		width: 100%;
+
+		// Teleported to <body>, so it falls outside the .header element's own
+		// [data-theme='brand'] rule above (that selector needs real DOM
+		// descendance, which the teleport breaks) — repeated here so the
+		// mobile panel's own logo gets the same fix.
+		&[data-theme='brand'] {
+			:deep(.logo .highlight) {
+				color: var(--brand-accent);
+			}
+		}
 
 		.panel-head {
 			align-items: center;

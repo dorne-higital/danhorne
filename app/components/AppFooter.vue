@@ -1,5 +1,8 @@
 <template>
-	<footer class="footer">
+	<footer
+		class="footer"
+		:data-theme="footerTheme === 'light' ? undefined : footerTheme"
+	>
 		<div
 			v-if="footerStyle === 'simple'"
 			class="sw simple-row"
@@ -192,6 +195,7 @@
 	const { data: footerLegalMenu } = await useFetch<MenuRecord>('/api/menus/footer-legal')
 
 	const footerStyle = computed(() => settings.value?.footer_style ?? 'default')
+	const footerTheme = computed(() => settings.value?.footer_theme ?? 'light')
 	const company = computed(() => settings.value?.company)
 
 	const address = computed(() => {
@@ -212,6 +216,15 @@
 		margin-top: auto;
 		padding-bottom: var(--padding-lg);
 		padding-top: calc(var(--padding-xl) * 1.5);
+
+		// Same reasoning as AppHeader — the logo's highlighted word is fixed
+		// to --brand-primary, which vanishes once the footer's own background
+		// becomes that color under the brand theme.
+		&[data-theme='brand'] {
+			:deep(.logo .highlight) {
+				color: var(--brand-accent);
+			}
+		}
 
 		.footer-top {
 			display: flex;

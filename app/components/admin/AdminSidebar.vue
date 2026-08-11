@@ -17,31 +17,42 @@
 					:key="group.label ?? 'top'"
 					class="nav-group"
 				>
-					<p
+					<button
 						v-if="group.label"
+						type="button"
 						class="nav-group-label"
+						:aria-expanded="isOpen(group.label)"
+						@click="toggleGroup(group.label)"
 					>
 						{{ group.label }}
-					</p>
-					<template
-						v-for="item in group.items"
-						:key="item.to"
-					>
-						<NuxtLink
-							v-if="!item.soon"
-							:to="item.to"
-							class="nav-item"
-							active-class="active"
+						<Icon
+							name="lucide:chevron-right"
+							class="chevron"
+							:class="{ open: isOpen(group.label) }"
+							aria-hidden="true"
+						/>
+					</button>
+					<template v-if="!group.label || isOpen(group.label)">
+						<template
+							v-for="item in group.items"
+							:key="item.to"
 						>
-							{{ item.label }}
-						</NuxtLink>
-						<div
-							v-else
-							class="nav-item soon"
-						>
-							{{ item.label }}
-							<span class="soon-badge">Soon</span>
-						</div>
+							<NuxtLink
+								v-if="!item.soon"
+								:to="item.to"
+								class="nav-item"
+								active-class="active"
+							>
+								{{ item.label }}
+							</NuxtLink>
+							<div
+								v-else
+								class="nav-item soon"
+							>
+								{{ item.label }}
+								<span class="soon-badge">Soon</span>
+							</div>
+						</template>
 					</template>
 				</div>
 			</nav>
@@ -130,7 +141,6 @@
 					{ label: 'Users', to: '/admin/users' },
 					{ label: 'Settings', to: '/admin/settings' },
 					{ label: 'Activity log', to: '/admin/activity' },
-					{ label: 'Backups', to: '/admin/backups', soon: true },
 					{ label: 'Integrations', to: '/admin/integrations' },
 				],
 			})
@@ -144,6 +154,39 @@
 		await supabase.auth.signOut()
 		await navigateTo('/admin/login')
 	}
+
+	// Closed by default except Content, the section someone lands in most —
+	// see openGroups below for the one exception (whichever group holds the
+	// page you're currently on always stays open, so navigating somewhere in
+	// a collapsed section doesn't hide its own highlighted nav item).
+	const openGroups = ref(new Set<string>(['Content']))
+
+	function isOpen(label: string) {
+		return openGroups.value.has(label)
+	}
+
+	function toggleGroup(label: string) {
+		const next = new Set(openGroups.value)
+		if (next.has(label)) next.delete(label)
+		else next.add(label)
+		openGroups.value = next
+	}
+
+	const route = useRoute()
+	watch(
+		() => route.path,
+		(path) => {
+			const activeGroup = navGroups.value.find((group) =>
+				group.items.some((item) => (item.to === '/admin' ? path === '/admin' : path.startsWith(item.to))),
+			)
+			if (activeGroup?.label && !openGroups.value.has(activeGroup.label)) {
+				const next = new Set(openGroups.value)
+				next.add(activeGroup.label)
+				openGroups.value = next
+			}
+		},
+		{ immediate: true },
+	)
 </script>
 
 <style lang="scss" scoped>
@@ -165,23 +208,11 @@
 			font-weight: var(--heading-font-weight);
 		}
 
-		// Holds both .nav and .account so they scroll together as one list —
-		// reaching the profile/logout row is then just "scroll to the
-		// bottom", no separate scroll region with its own affordance needed.
 		.scroll-area {
 			display: flex;
 			flex: 1;
 			flex-direction: column;
-
-			// .account already gets its own border-top + padding-top below to
-			// separate it from the nav — a smaller gap here is enough on top
-			// of that, and frees up real vertical space for nav items.
 			gap: var(--padding-sm);
-
-			// min-height: 0 overrides flex's default min-height: auto, which
-			// would otherwise size this to fit all its content and push
-			// .account below the sidebar's fixed max-height instead of
-			// scrolling — the classic "flex child won't shrink" gotcha.
 			min-height: 0;
 			overflow-y: auto;
 		}
@@ -199,13 +230,40 @@
 		}
 
 		.nav-group-label {
+			align-items: center;
+			background: none;
+			border: none;
+			border-radius: var(--border-radius-sm);
 			color: var(--text-secondary);
+			cursor: pointer;
+			display: flex;
+			font-family: inherit;
 			font-size: 0.6875rem;
-			font-weight: var(--navigation-font-weight);
-			letter-spacing: 0.08em;
+			font-weight: 700;
+			justify-content: space-between;
+			letter-spacing: 0.06em;
 			margin-bottom: var(--padding-xs);
-			padding-inline: var(--padding-sm);
+			padding: var(--padding-xs) var(--padding-sm);
 			text-transform: uppercase;
+			transition:
+				background var(--transition-base),
+				color var(--transition-base);
+			width: 100%;
+
+			&:hover {
+				background: var(--bg-primary);
+				color: var(--text-primary);
+			}
+
+			.chevron {
+				height: 12px;
+				transition: transform var(--transition-base);
+				width: 12px;
+
+				&.open {
+					transform: rotate(90deg);
+				}
+			}
 		}
 
 		.nav-item {
@@ -255,6 +313,7 @@
 			border-top: 1px solid var(--border);
 			display: flex;
 			gap: var(--padding-sm);
+			margin-top: auto;
 			padding-top: var(--padding-md);
 
 			.profile-link {

@@ -241,6 +241,12 @@ export interface SocialLinks {
 // AppFooter.vue for what each one actually looks like.
 export type NavStyle = 'default' | 'centered'
 export type FooterStyle = 'default' | 'simple'
+// Color theme for the header/footer section itself — 'light'/'dark' apply
+// the same --bg-*/--text-* swap as a block's darkTheme flag; 'brand' is a
+// solid --brand-primary background with white text, matching the "Brand
+// primary" background already offered on hero/CTA blocks. Set independently
+// per section — see _themes.scss for the [data-theme='...'] variants.
+export type SectionTheme = 'light' | 'dark' | 'brand'
 // 'modal' opens the existing contact form modal (useAppModal); 'link' sends
 // the visitor to header_cta_url instead — a plain page link, no form.
 export type HeaderCtaAction = 'modal' | 'link'
@@ -258,6 +264,8 @@ export interface SiteSettings {
 	socials: SocialLinks | null
 	nav_style: NavStyle
 	footer_style: FooterStyle
+	header_theme: SectionTheme
+	footer_theme: SectionTheme
 	header_cta_enabled: boolean
 	header_cta_label: string
 	header_cta_action: HeaderCtaAction

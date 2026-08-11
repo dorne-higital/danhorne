@@ -116,6 +116,29 @@
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%);
 }
 
+/* BRAND THEME — opt in per section with data-theme="brand". Solid
+   --brand-primary background with white text, matching the "Brand primary"
+   background already offered on hero/CTA blocks (see DecorativeHero's
+   .bg-primary) — same look, now selectable for the header/footer chrome
+   too, from /admin/layout. */
+[data-theme='brand'] {
+	--bg-primary: var(--brand-primary);
+	--bg-secondary: var(--brand-secondary);
+	--text-primary: #fff;
+	--text-secondary: rgb(255 255 255 / 75%);
+	--text-inverse: var(--brand-primary);
+
+	--link: #fff;
+	--link-hover: var(--brand-accent);
+
+	--border: rgb(255 255 255 / 20%);
+	--border-strong: rgb(255 255 255 / 35%);
+
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 15%);
+	--shadow-md: 0 4px 10px rgb(0 0 0 / 20%);
+	--shadow-lg: 0 10px 24px rgb(0 0 0 / 25%);
+}
+
 body.is-admin {
 	--bg-primary: #fafafa !important;
 	--bg-secondary: #fff !important;

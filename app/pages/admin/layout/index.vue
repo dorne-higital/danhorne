@@ -8,7 +8,28 @@
 		</p>
 
 		<section class="panel">
-			<h2>Header nav</h2>
+			<div class="panel-header">
+				<h2>Header nav</h2>
+				<div
+					class="theme-tabs"
+					role="tablist"
+					aria-label="Header theme"
+				>
+					<button
+						v-for="option in themeOptions"
+						:key="option.value"
+						type="button"
+						class="theme-tab"
+						:class="{ active: headerTheme === option.value }"
+						role="tab"
+						:aria-selected="headerTheme === option.value"
+						:title="option.description"
+						@click="headerTheme = option.value"
+					>
+						{{ option.label }}
+					</button>
+				</div>
+			</div>
 			<div class="options">
 				<button
 					v-for="option in navOptions"
@@ -33,7 +54,28 @@
 		</section>
 
 		<section class="panel">
-			<h2>Footer</h2>
+			<div class="panel-header">
+				<h2>Footer</h2>
+				<div
+					class="theme-tabs"
+					role="tablist"
+					aria-label="Footer theme"
+				>
+					<button
+						v-for="option in themeOptions"
+						:key="option.value"
+						type="button"
+						class="theme-tab"
+						:class="{ active: footerTheme === option.value }"
+						role="tab"
+						:aria-selected="footerTheme === option.value"
+						:title="option.description"
+						@click="footerTheme = option.value"
+					>
+						{{ option.label }}
+					</button>
+				</div>
+			</div>
 			<div class="options">
 				<button
 					v-for="option in footerOptions"
@@ -136,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-	import type { FooterStyle, HeaderCtaAction, NavStyle } from '#shared/types/cms'
+	import type { FooterStyle, HeaderCtaAction, NavStyle, SectionTheme } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
@@ -151,9 +193,16 @@
 		{ value: 'default', label: 'Default', description: 'Logo/socials, contact + menu columns, legal bar.' },
 		{ value: 'simple', label: 'Simple', description: 'One condensed row — logo, links, socials.' },
 	]
+	const themeOptions: { value: SectionTheme; label: string; description: string }[] = [
+		{ value: 'light', label: 'Light', description: 'Default site colors.' },
+		{ value: 'dark', label: 'Dark', description: 'Near-black background, light text.' },
+		{ value: 'brand', label: 'Brand', description: 'Solid brand-color background, white text.' },
+	]
 
 	const navStyle = ref<NavStyle>(settings.value?.nav_style ?? 'default')
 	const footerStyle = ref<FooterStyle>(settings.value?.footer_style ?? 'default')
+	const headerTheme = ref<SectionTheme>(settings.value?.header_theme ?? 'light')
+	const footerTheme = ref<SectionTheme>(settings.value?.footer_theme ?? 'light')
 	const ctaEnabled = ref(settings.value?.header_cta_enabled ?? true)
 	const ctaLabel = ref(settings.value?.header_cta_label ?? 'Say hello')
 	const ctaAction = ref<HeaderCtaAction>(settings.value?.header_cta_action ?? 'modal')
@@ -165,6 +214,8 @@
 		if (!value) return
 		navStyle.value = value.nav_style
 		footerStyle.value = value.footer_style
+		headerTheme.value = value.header_theme
+		footerTheme.value = value.footer_theme
 		ctaEnabled.value = value.header_cta_enabled
 		ctaLabel.value = value.header_cta_label
 		ctaAction.value = value.header_cta_action
@@ -175,6 +226,8 @@
 		() =>
 			navStyle.value !== settings.value?.nav_style ||
 			footerStyle.value !== settings.value?.footer_style ||
+			headerTheme.value !== settings.value?.header_theme ||
+			footerTheme.value !== settings.value?.footer_theme ||
 			ctaEnabled.value !== settings.value?.header_cta_enabled ||
 			ctaLabel.value !== settings.value?.header_cta_label ||
 			ctaAction.value !== settings.value?.header_cta_action ||
@@ -190,6 +243,8 @@
 				body: {
 					nav_style: navStyle.value,
 					footer_style: footerStyle.value,
+					header_theme: headerTheme.value,
+					footer_theme: footerTheme.value,
 					header_cta_enabled: ctaEnabled.value,
 					header_cta_label: ctaLabel.value,
 					header_cta_action: ctaAction.value,
@@ -244,7 +299,51 @@
 				font-family: var(--heading-font-family);
 				font-size: 1.125rem;
 				font-weight: var(--heading-font-weight);
-				margin-bottom: var(--padding-sm);
+			}
+		}
+
+		.panel-header {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-sm);
+			justify-content: space-between;
+			margin-bottom: var(--padding-sm);
+
+			h2 {
+				margin-bottom: 0;
+			}
+		}
+
+		.theme-tabs {
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-pill);
+			display: flex;
+			gap: 2px;
+			padding: 2px;
+		}
+
+		.theme-tab {
+			background: none;
+			border: none;
+			border-radius: var(--border-radius-pill);
+			color: var(--text-secondary);
+			cursor: pointer;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			padding: 0.375rem 0.875rem;
+			transition:
+				background var(--transition-base),
+				color var(--transition-base);
+
+			&:hover:not(.active) {
+				color: var(--text-primary);
+			}
+
+			&.active {
+				background: var(--brand-primary);
+				color: var(--text-inverse);
 			}
 		}
 

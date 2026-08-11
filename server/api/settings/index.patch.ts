@@ -1,9 +1,18 @@
-import type { CompanyInfo, FooterStyle, HeaderCtaAction, NavStyle, SiteSettings, SocialLinks } from '#shared/types/cms'
+import type {
+	CompanyInfo,
+	FooterStyle,
+	HeaderCtaAction,
+	NavStyle,
+	SectionTheme,
+	SiteSettings,
+	SocialLinks,
+} from '#shared/types/cms'
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 const GTM_ID = /^GTM-[A-Z0-9]+$/i
 const NAV_STYLES: NavStyle[] = ['default', 'centered']
 const FOOTER_STYLES: FooterStyle[] = ['default', 'simple']
+const SECTION_THEMES: SectionTheme[] = ['light', 'dark', 'brand']
 const HEADER_CTA_ACTIONS: HeaderCtaAction[] = ['modal', 'link']
 
 // Maps an `update` key to a human-readable label for the activity summary —
@@ -21,6 +30,8 @@ const FIELD_LABELS: Record<string, string> = {
 	socials: 'socials',
 	nav_style: 'layout',
 	footer_style: 'layout',
+	header_theme: 'layout',
+	footer_theme: 'layout',
 	header_cta_enabled: 'header CTA',
 	header_cta_label: 'header CTA',
 	header_cta_action: 'header CTA',
@@ -44,6 +55,8 @@ interface Body {
 	socials?: SocialLinks | null
 	nav_style?: NavStyle
 	footer_style?: FooterStyle
+	header_theme?: SectionTheme
+	footer_theme?: SectionTheme
 	header_cta_enabled?: boolean
 	header_cta_label?: string
 	header_cta_action?: HeaderCtaAction
@@ -99,6 +112,25 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 			})
 		}
 		update.footer_style = body.footer_style
+	}
+
+	if (body.header_theme !== undefined) {
+		if (!SECTION_THEMES.includes(body.header_theme)) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: `header_theme must be one of ${SECTION_THEMES.join(', ')}`,
+			})
+		}
+		update.header_theme = body.header_theme
+	}
+	if (body.footer_theme !== undefined) {
+		if (!SECTION_THEMES.includes(body.footer_theme)) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: `footer_theme must be one of ${SECTION_THEMES.join(', ')}`,
+			})
+		}
+		update.footer_theme = body.footer_theme
 	}
 
 	if (body.header_cta_enabled !== undefined) update.header_cta_enabled = body.header_cta_enabled
@@ -200,7 +232,7 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 		.update(update)
 		.eq('id', 'default')
 		.select(
-			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, contact_form_id, company, socials, nav_style, footer_style, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
+			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, contact_form_id, company, socials, nav_style, footer_style, header_theme, footer_theme, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
 		)
 		.single()
 
