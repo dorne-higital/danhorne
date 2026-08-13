@@ -69,10 +69,10 @@ interface Body {
 	// "leave whatever's already saved alone", not "clear it".
 	recaptcha_secret_key?: string
 	recaptcha_enabled?: boolean
-	// submissions_enabled is deliberately not settable here — it's a paid
-	// add-on switched on per site directly in the DB, not something a
-	// client's own admin login can self-serve. See
-	// supabase/migrations/0019_submissions_enabled.sql.
+	// enabled_features is deliberately not settable here — paid add-ons
+	// (submissions, analytics) are switched on per site directly in the DB,
+	// not something a client's own admin login can self-serve. See
+	// shared/utils/features.ts.
 }
 
 export default defineEventHandler(async (event): Promise<SiteSettings> => {

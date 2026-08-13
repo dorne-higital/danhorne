@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import type { JwtPayload } from '@supabase/supabase-js'
+import type { FeatureKey } from '#shared/utils/features'
 // #supabase/server exports these as named exports, not ambient auto-imports
 // (unlike our own server/utils/*, which Nitro does auto-import project-wide).
 import { serverSupabaseUser } from '#supabase/server'
@@ -47,16 +48,20 @@ export async function requireAdminRole(event: H3Event): Promise<{ user: JwtPaylo
 	return { user, profile: profile as AdminProfile }
 }
 
-// Guards every /api/submissions* and /api/forms/[id]/submissions* route —
-// the submissions inbox is a paid add-on (site_settings.submissions_enabled,
-// see supabase/migrations/0019_submissions_enabled.sql), so this enforces
-// the gate server-side even if someone hits the URL directly, not just in
-// the admin nav/UI.
-export async function requireSubmissionsEnabled(event: H3Event): Promise<void> {
+// Guards any endpoint behind a site_settings.enabled_features flag (see
+// shared/utils/features.ts) — enforces the gate server-side even if someone
+// hits the URL directly, not just in the admin nav/UI.
+export async function requireFeatureEnabled(event: H3Event, key: FeatureKey, label: string): Promise<void> {
 	const supabase = useSupabase()
-	const { data } = await supabase.from('site_settings').select('submissions_enabled').eq('id', 'default').single()
+	const { data } = await supabase.from('site_settings').select('enabled_features').eq('id', 'default').single()
 
-	if (!data?.submissions_enabled) {
-		throw createError({ statusCode: 403, statusMessage: 'The submissions inbox is not enabled on this site' })
+	if (!isFeatureEnabled(key, data?.enabled_features)) {
+		throw createError({ statusCode: 403, statusMessage: `${label} is not enabled on this site` })
 	}
+}
+
+// Guards every /api/submissions* and /api/forms/[id]/submissions* route —
+// the submissions inbox is a paid add-on.
+export function requireSubmissionsEnabled(event: H3Event): Promise<void> {
+	return requireFeatureEnabled(event, 'submissions', 'The submissions inbox')
 }

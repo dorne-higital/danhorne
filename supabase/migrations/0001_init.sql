@@ -247,10 +247,13 @@ create table if not exists site_settings (
 	recaptcha_site_key text,
 	recaptcha_secret_key text,
 	recaptcha_enabled boolean not null default false,
-	-- Paid add-on gate for the /admin/submissions inbox — off by default,
-	-- switched on per site directly in the DB (not via PATCH /api/settings),
-	-- so a client can't just enable it themselves for free.
-	submissions_enabled boolean not null default false,
+	-- Per-feature overrides for every item in the admin sidebar (see
+	-- shared/utils/features.ts for the full key list and defaults). A key
+	-- absent here just falls back to its default there, so this only ever
+	-- needs to hold exceptions — in practice the paid add-ons (submissions,
+	-- analytics), switched on per site directly in the DB (not via PATCH
+	-- /api/settings), so a client can't just enable them themselves for free.
+	enabled_features jsonb not null default '{}'::jsonb,
 	updated_at timestamptz not null default now()
 );
 
@@ -363,8 +366,8 @@ alter table not_found_hits enable row level security;
 -- ─── Form submissions ────────────────────────────────────────────────────────
 -- Every form submission (Newsletter Signup, Contact, or any FormBlock)
 -- always emails out via Resend AND is always logged here, regardless of
--- whether the submissions inbox (site_settings.submissions_enabled) is
--- switched on for this site — nothing is lost if a site upgrades later.
+-- whether the submissions inbox (site_settings.enabled_features.submissions)
+-- is switched on for this site — nothing is lost if a site upgrades later.
 
 create table if not exists form_submissions (
 	id uuid primary key default gen_random_uuid(),

@@ -191,12 +191,47 @@
 				</div>
 				<p class="panel-note">
 					<template v-if="submissionsActive">
-						Enabled on this site — find it under Site → Submissions in the sidebar.
+						Enabled on this site — find it under Forms → Submissions in the sidebar.
 					</template>
 					<template v-else>
 						Not enabled on this site. Forms still email every submission out as normal; this adds a
 						searchable inbox with read/replied tracking on top. Get in touch if you'd like it switched on.
 					</template>
+				</p>
+			</section>
+
+			<section class="panel">
+				<div class="panel-header">
+					<div class="title-with-info">
+						<h2>Analytics</h2>
+						<span
+							class="info-tooltip"
+							tabindex="0"
+							aria-describedby="analytics-info"
+						>
+							<Icon
+								name="lucide:info"
+								aria-hidden="true"
+							/>
+							<span
+								id="analytics-info"
+								class="tooltip-bubble"
+								role="tooltip"
+							>
+								First-party, cookieless page view tracking with a dashboard right here in the admin —
+								top pages, top referrers, trends over time. Paid add-on. Get in touch to switch it on.
+							</span>
+						</span>
+					</div>
+					<span :class="['status-badge', analyticsActive ? 'on' : 'off']">
+						{{ analyticsActive ? 'Active' : 'Off' }}
+					</span>
+				</div>
+				<p class="panel-note">
+					<template v-if="analyticsActive">
+						Enabled on this site — find it under SEO & Insights → Analytics in the sidebar.
+					</template>
+					<template v-else> Not enabled on this site. Get in touch if you'd like it switched on. </template>
 				</p>
 			</section>
 		</div>
@@ -231,11 +266,12 @@
 	const savingRecaptcha = ref(false)
 	const recaptchaError = ref('')
 
-	// Read-only — unlike GTM/reCAPTCHA above, there's no form here. This one
-	// is a paid add-on switched on per site directly in the DB, not
+	// Read-only — unlike GTM/reCAPTCHA above, there's no form for these two.
+	// Both are paid add-ons switched on per site directly in the DB, not
 	// something a client's own admin login can self-serve (see
-	// supabase/migrations/0019_submissions_enabled.sql).
-	const submissionsActive = computed(() => !!settings.value?.submissions_enabled)
+	// shared/utils/features.ts).
+	const submissionsActive = computed(() => isFeatureEnabled('submissions', settings.value?.enabled_features))
+	const analyticsActive = computed(() => isFeatureEnabled('analytics', settings.value?.enabled_features))
 
 	watch(settings, (value) => {
 		if (!value) return

@@ -1,3 +1,5 @@
+import type { FeatureKey } from '#shared/utils/features'
+
 export type FieldType = 'text' | 'richtext' | 'image' | 'number' | 'select' | 'boolean' | 'repeater' | 'form'
 
 export interface SelectOption {
@@ -282,11 +284,10 @@ export interface SiteSettings {
 	recaptcha_site_key: string | null
 	recaptcha_enabled: boolean
 	recaptcha_secret_key_set: boolean
-	// Paid add-on gate for the /admin/submissions inbox — off by default,
-	// switched on per site directly in the DB (not via PATCH /api/settings,
-	// see supabase/migrations/0019_submissions_enabled.sql), so a client
-	// can't just enable it themselves for free.
-	submissions_enabled: boolean
+	// Per-feature overrides for the admin sidebar — see
+	// shared/utils/features.ts (FEATURE_DEFAULTS, isFeatureEnabled) for the
+	// full key list and which ones default off.
+	enabled_features: Partial<Record<FeatureKey, boolean>>
 }
 
 export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox'

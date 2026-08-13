@@ -6,6 +6,7 @@ const ALLOWED_WINDOW_DAYS = [7, 30, 90]
 
 export default defineEventHandler(async (event): Promise<AnalyticsSummary> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'analytics', 'Analytics')
 
 	const query = getQuery(event)
 	const requestedDays = Number(query.days)

@@ -53,7 +53,7 @@ psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 
 This creates every table (`pages`, `uploads`, `menus`, `forms`, `profiles`, `site_settings`, `activity_log`, `redirects`, `page_views`, `page_revisions`, `not_found_hits`, `form_submissions`), the `uploads` Storage bucket, and enables RLS across the board — the full current schema, not an incremental history. `0001_init.sql` is periodically re-squashed like this as the schema settles, so a fresh clone never has to run a long chain of small migrations — if you're picking this repo back up after a while, check `supabase/migrations/` for the current file(s) rather than assuming this list is still accurate.
 
-The submissions inbox this creates a `form_submissions` table for is a **paid add-on**, off by default (`site_settings.submissions_enabled`) — see below for how to switch it on per client.
+The submissions inbox this creates a `form_submissions` table for, along with Analytics, are **paid add-ons**, off by default (`site_settings.enabled_features`) — see below for how to switch them on per client.
 
 ### Auth
 
@@ -94,13 +94,14 @@ CI (`.github/workflows/ci.yml`) runs `format:check`, `lint:css`, `nuxi typecheck
 - Content is edited at `/admin/pages`: create a page, open it, drag blocks in from the picker, edit their fields, save.
 - **Menus** (`/admin/menus`) build the site's nav — multi-menu, up to 3 levels of nesting.
 - **Forms** (`/admin/forms`) — build arbitrary forms (field list, labels, types), submitted via Resend. Any form can power the "Say hello" modal (pick one in Settings) or be dropped onto a page via the Form content-block. Every submission always emails out (this is the standard/default behavior on every client site) **and** is always written to `form_submissions` in the DB, regardless of whether the inbox below is switched on — so nothing is lost if a site upgrades later.
-- **Submissions inbox** (`/admin/submissions`) — a searchable CRM-style inbox on top of the plain email notifications: read/replied status, reply straight from the admin panel, CSV export. **This is a paid add-on, off by default on every fresh clone of this template.** It's gated by `site_settings.submissions_enabled`, which is deliberately **not** editable from `/admin/integrations` or any self-service endpoint — a client's own admin login can't switch it on themselves. To turn it on for a client who's paid for it, run this directly against their Supabase project (SQL editor or `psql`):
+- **Submissions inbox** (`/admin/submissions`) and **Analytics** (`/admin/analytics`) are **paid add-ons**, off by default on every fresh clone of this template. Every item in the admin sidebar maps to a key in `shared/utils/features.ts` (`FEATURE_DEFAULTS`); `submissions` and `analytics` are the only two that default off, overridden per site via `site_settings.enabled_features` (a jsonb map, `{}` by default). That column is deliberately **not** editable from `/admin/integrations` or any self-service endpoint — a client's own admin login can't switch a paid feature on themselves. To turn one on for a client who's paid for it, run this directly against their Supabase project (SQL editor or `psql`):
 
     ```sql
-    update site_settings set submissions_enabled = true where id = 'default';
+    update site_settings set enabled_features = enabled_features || '{"submissions": true}'::jsonb where id = 'default';
+    -- or: '{"analytics": true}'
     ```
 
-    When it's off: the nav shows a locked "Submissions" entry linking to `/admin/integrations` (which shows a short upsell blurb), and every submissions API route 403s server-side even if hit directly — not just a hidden nav item. See `server/utils/adminAuth.ts`'s `requireSubmissionsEnabled` for the mechanism. A reply sent from the inbox goes out as a normal email — if the customer replies back, it lands in `NUXT_CONTACT_EMAIL_TO` like any other email, not back in the app (threading customer replies back into the inbox was tried and rolled back — needs a paid Resend plan to add a dedicated receiving domain, see `TODO.md`).
+    When a feature's off: the nav shows it as a locked entry linking to `/admin/integrations` (which shows a short upsell blurb per add-on), and its API routes 403 server-side even if hit directly — not just a hidden nav item. See `server/utils/adminAuth.ts`'s `requireFeatureEnabled` for the mechanism. The submissions inbox specifically: a reply sent from it goes out as a normal email — if the customer replies back, it lands in `NUXT_CONTACT_EMAIL_TO` like any other email, not back in the app (threading customer replies back into the inbox was tried and rolled back — needs a paid Resend plan to add a dedicated receiving domain, see `TODO.md`).
 
 - **Uploads** (`/admin/uploads`) is the media library — files go into the Supabase Storage `uploads` bucket.
 - **Analytics** (`/admin/analytics`) — first-party pageview tracking, no cookies, no third-party script. Shows totals, a daily trend, top pages/referrers, and device/browser/country breakdowns over a 7/30/90-day window. Country data comes from a geolocation header some hosts inject on incoming requests (Vercel, Netlify, Cloudflare — see `server/utils/geoCountry.ts`); on a plain Node host without one of those, the country breakdown just stays empty rather than guessing.

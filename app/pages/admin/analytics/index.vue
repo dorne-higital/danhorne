@@ -156,6 +156,11 @@
 
 	definePageMeta({ layout: 'admin' })
 
+	const { data: settings } = await useSiteSettings()
+	if (!isFeatureEnabled('analytics', settings.value?.enabled_features)) {
+		await navigateTo('/admin/integrations')
+	}
+
 	const rangeOptions = [7, 30, 90] as const
 	const days = ref<(typeof rangeOptions)[number]>(30)
 

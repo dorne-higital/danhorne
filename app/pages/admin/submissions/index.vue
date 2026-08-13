@@ -104,7 +104,7 @@
 	definePageMeta({ layout: 'admin' })
 
 	const { data: settings } = await useSiteSettings()
-	if (!settings.value?.submissions_enabled) {
+	if (!isFeatureEnabled('submissions', settings.value?.enabled_features)) {
 		await navigateTo('/admin/integrations')
 	}
 

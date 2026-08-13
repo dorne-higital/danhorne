@@ -38,7 +38,7 @@
 							:key="item.to"
 						>
 							<NuxtLink
-								v-if="!item.soon && !item.locked"
+								v-if="!item.soon && !isLocked(item)"
 								:to="item.to"
 								class="nav-item"
 								active-class="active"
@@ -52,7 +52,7 @@
 								</span>
 							</NuxtLink>
 							<NuxtLink
-								v-else-if="item.locked"
+								v-else-if="isLocked(item)"
 								to="/admin/integrations"
 								class="nav-item locked"
 								title="Paid add-on — enable it on the Integrations page"
@@ -112,6 +112,8 @@
 </template>
 
 <script setup lang="ts">
+	import type { FeatureKey } from '#shared/utils/features'
+
 	interface NavItem {
 		label: string
 		to: string
@@ -119,11 +121,12 @@
 		// disabled with a "Soon" badge instead of a real NuxtLink, since
 		// there's no page behind them yet.
 		soon?: boolean
-		// Built and working, but gated behind a paid add-on this site hasn't
-		// got switched on (site_settings.submissions_enabled) — rendered as a
-		// locked link to /admin/integrations instead of the real page, so it
-		// still advertises the feature rather than disappearing outright.
-		locked?: boolean
+		// Every real item maps to a site_settings.enabled_features key (see
+		// shared/utils/features.ts) — unset only for Dashboard, which every
+		// site always has. Locked items render as a link to
+		// /admin/integrations instead of the real page, so a disabled paid
+		// add-on still advertises itself rather than disappearing outright.
+		feature?: FeatureKey
 	}
 
 	interface NavGroup {
@@ -133,7 +136,7 @@
 
 	const { data: me } = useAdminProfile()
 	const { data: settings } = useSiteSettings()
-	const submissionsEnabled = computed(() => !!settings.value?.submissions_enabled)
+	const submissionsEnabled = computed(() => isFeatureEnabled('submissions', settings.value?.enabled_features))
 
 	const { data: unreadCountData, refresh: refreshUnreadCount } = useFetch<{ count: number }>(
 		'/api/submissions/unread-count',
@@ -158,44 +161,48 @@
 			{
 				label: 'Content',
 				items: [
-					{ label: 'Pages', to: '/admin/pages' },
-					{ label: 'Menus', to: '/admin/menus' },
-					{ label: 'Uploads', to: '/admin/uploads' },
+					{ label: 'Pages', to: '/admin/pages', feature: 'pages' },
+					{ label: 'Menus', to: '/admin/menus', feature: 'menus' },
+					{ label: 'Uploads', to: '/admin/uploads', feature: 'uploads' },
 				],
 			},
 			{
 				label: 'Forms',
 				items: [
-					{ label: 'Forms', to: '/admin/forms' },
-					{ label: 'Submissions', to: '/admin/submissions', locked: !submissionsEnabled.value },
+					{ label: 'Forms', to: '/admin/forms', feature: 'forms' },
+					{ label: 'Submissions', to: '/admin/submissions', feature: 'submissions' },
 				],
 			},
 			{
 				label: 'SEO & Insights',
 				items: [
-					{ label: 'SEO', to: '/admin/seo' },
-					{ label: 'Redirects', to: '/admin/redirects' },
-					{ label: 'Analytics', to: '/admin/analytics' },
+					{ label: 'SEO', to: '/admin/seo', feature: 'seo' },
+					{ label: 'Redirects', to: '/admin/redirects', feature: 'redirects' },
+					{ label: 'Analytics', to: '/admin/analytics', feature: 'analytics' },
 				],
 			},
 			{
 				label: 'Appearance',
-				items: [{ label: 'Layout', to: '/admin/layout' }],
+				items: [{ label: 'Layout', to: '/admin/layout', feature: 'layout' }],
 			},
 		]
 		if (me.value?.profile.role === 'admin') {
 			groups.push({
 				label: 'Admin',
 				items: [
-					{ label: 'Users', to: '/admin/users' },
-					{ label: 'Settings', to: '/admin/settings' },
-					{ label: 'Activity log', to: '/admin/activity' },
-					{ label: 'Integrations', to: '/admin/integrations' },
+					{ label: 'Users', to: '/admin/users', feature: 'users' },
+					{ label: 'Settings', to: '/admin/settings', feature: 'settings' },
+					{ label: 'Activity log', to: '/admin/activity', feature: 'activity' },
+					{ label: 'Integrations', to: '/admin/integrations', feature: 'integrations' },
 				],
 			})
 		}
 		return groups
 	})
+
+	function isLocked(item: NavItem): boolean {
+		return !!item.feature && !isFeatureEnabled(item.feature, settings.value?.enabled_features)
+	}
 
 	const supabase = useSupabaseClient()
 
