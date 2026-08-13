@@ -24,7 +24,7 @@
 						:aria-expanded="isOpen(group.label)"
 						@click="toggleGroup(group.label)"
 					>
-						{{ group.label }}
+						<span class="label-text">{{ group.label }}</span>
 						<Icon
 							name="lucide:chevron-right"
 							class="chevron"
@@ -159,20 +159,28 @@
 				label: 'Content',
 				items: [
 					{ label: 'Pages', to: '/admin/pages' },
-					{ label: 'Redirects', to: '/admin/redirects' },
+					{ label: 'Menus', to: '/admin/menus' },
+					{ label: 'Uploads', to: '/admin/uploads' },
+				],
+			},
+			{
+				label: 'Forms',
+				items: [
+					{ label: 'Forms', to: '/admin/forms' },
+					{ label: 'Submissions', to: '/admin/submissions', locked: !submissionsEnabled.value },
+				],
+			},
+			{
+				label: 'SEO & Insights',
+				items: [
 					{ label: 'SEO', to: '/admin/seo' },
+					{ label: 'Redirects', to: '/admin/redirects' },
 					{ label: 'Analytics', to: '/admin/analytics' },
 				],
 			},
 			{
-				label: 'Site',
-				items: [
-					{ label: 'Uploads', to: '/admin/uploads' },
-					{ label: 'Menus', to: '/admin/menus' },
-					{ label: 'Forms', to: '/admin/forms' },
-					{ label: 'Submissions', to: '/admin/submissions', locked: !submissionsEnabled.value },
-					{ label: 'Layout', to: '/admin/layout' },
-				],
+				label: 'Appearance',
+				items: [{ label: 'Layout', to: '/admin/layout' }],
 			},
 		]
 		if (me.value?.profile.role === 'admin') {
@@ -299,6 +307,11 @@
 			&:hover {
 				background: var(--bg-primary);
 				color: var(--text-primary);
+			}
+
+			.label-text {
+				border-bottom: 1px solid var(--border);
+				padding-bottom: 2px;
 			}
 
 			.chevron {
