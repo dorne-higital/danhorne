@@ -45,3 +45,31 @@ export function getStorageTiers(): StorageTier[] {
 export function findStorageTierByPriceId(priceId: string): StorageTier | undefined {
 	return getStorageTiers().find((tier) => tier.priceId === priceId)
 }
+
+// Shared by the webhook (server/api/webhooks/stripe.post.ts, the ongoing
+// source of truth for upgrades/downgrades/cancellations made later via the
+// billing portal) and the sync endpoint (server/api/billing/sync.post.ts,
+// which applies this immediately on return from checkout rather than
+// waiting on webhook delivery — the two are deliberately redundant so a
+// slow or briefly-failed webhook never leaves a site stuck on the old
+// limit).
+export async function applySubscriptionToSettings(
+	supabase: ReturnType<typeof useSupabase>,
+	customerId: string,
+	subscription: Stripe.Subscription,
+): Promise<void> {
+	if (subscription.status !== 'active' && subscription.status !== 'trialing') return
+
+	const priceId = subscription.items.data[0]?.price.id
+	const tier = priceId ? findStorageTierByPriceId(priceId) : undefined
+	if (!tier) return
+
+	await supabase
+		.from('site_settings')
+		.update({
+			storage_limit_mb: tier.mb,
+			stripe_customer_id: customerId,
+			stripe_subscription_id: subscription.id,
+		})
+		.eq('id', 'default')
+}

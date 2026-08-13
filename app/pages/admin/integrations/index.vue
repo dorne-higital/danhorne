@@ -369,9 +369,12 @@
 
 	const route = useRoute()
 	if (route.query.billing === 'success') {
-		toast.show('Storage upgraded — this can take a few seconds to show as active.')
+		// Applies immediately from Stripe's live state rather than waiting on
+		// the webhook to have already landed — see server/api/billing/sync.post.ts.
+		await $fetch('/api/billing/sync', { method: 'POST' }).catch(() => {})
 		await refreshBillingStatus()
 		await refresh()
+		toast.show('Storage upgraded.')
 	} else if (route.query.billing === 'cancelled') {
 		toast.show('Checkout cancelled — no changes made.')
 	}

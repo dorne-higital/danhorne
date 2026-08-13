@@ -39,6 +39,19 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 		})
 		customerId = customer.id
 		await supabase.from('site_settings').update({ stripe_customer_id: customerId }).eq('id', 'default')
+	} else {
+		// Already-subscribed sites switch tiers through the billing portal
+		// (proration handled by Stripe) rather than starting a second
+		// subscription here — nothing stops the same customer checking out
+		// twice otherwise, which just stacks charges.
+		const existing = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 })
+		if (existing.data.length > 0) {
+			throw createError({
+				statusCode: 400,
+				statusMessage:
+					'This site already has an active storage subscription — use Manage billing to switch plans.',
+			})
+		}
 	}
 
 	const config = useRuntimeConfig()

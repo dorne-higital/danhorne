@@ -36,13 +36,13 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 		const session = stripeEvent.data.object as Stripe.Checkout.Session
 		if (session.mode === 'subscription' && session.subscription && session.customer) {
 			const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
-			await applySubscription(supabase, session.customer as string, subscription)
+			await applySubscriptionToSettings(supabase, session.customer as string, subscription)
 		}
 	}
 
 	if (stripeEvent.type === 'customer.subscription.updated') {
 		const subscription = stripeEvent.data.object as Stripe.Subscription
-		await applySubscription(supabase, subscription.customer as string, subscription)
+		await applySubscriptionToSettings(supabase, subscription.customer as string, subscription)
 	}
 
 	if (stripeEvent.type === 'customer.subscription.deleted') {
@@ -58,24 +58,3 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 
 	return { received: true }
 })
-
-async function applySubscription(
-	supabase: ReturnType<typeof useSupabase>,
-	customerId: string,
-	subscription: Stripe.Subscription,
-): Promise<void> {
-	if (subscription.status !== 'active' && subscription.status !== 'trialing') return
-
-	const priceId = subscription.items.data[0]?.price.id
-	const tier = priceId ? findStorageTierByPriceId(priceId) : undefined
-	if (!tier) return
-
-	await supabase
-		.from('site_settings')
-		.update({
-			storage_limit_mb: tier.mb,
-			stripe_customer_id: customerId,
-			stripe_subscription_id: subscription.id,
-		})
-		.eq('id', 'default')
-}
