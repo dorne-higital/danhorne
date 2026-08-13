@@ -90,11 +90,12 @@
 				<button
 					type="button"
 					class="icon-btn"
-					title="Version history"
-					aria-label="Version history"
-					@click="historyOpen = true"
+					:class="{ locked: !pageHistoryEnabled }"
+					:title="pageHistoryEnabled ? 'Version history' : 'Version history — premium feature'"
+					:aria-label="pageHistoryEnabled ? 'Version history' : 'Version history — premium feature'"
+					@click="openHistory"
 				>
-					<Icon name="lucide:history" />
+					<Icon :name="pageHistoryEnabled ? 'lucide:history' : 'lucide:lock'" />
 				</button>
 				<button
 					type="button"
@@ -206,6 +207,17 @@
 	const historyOpen = ref(false)
 	const toast = useToast()
 	const { confirm } = useConfirm()
+
+	const { data: settings } = await useSiteSettings()
+	const pageHistoryEnabled = computed(() => isFeatureEnabled('pageHistory', settings.value?.enabled_features))
+
+	function openHistory() {
+		if (!pageHistoryEnabled.value) {
+			navigateTo('/admin/integrations')
+			return
+		}
+		historyOpen.value = true
+	}
 
 	const dirty = ref(false)
 	watch(blocks, () => (dirty.value = true), { deep: true })
@@ -473,6 +485,10 @@
 		&:disabled {
 			cursor: default;
 			opacity: 0.5;
+		}
+
+		&.locked {
+			opacity: 0.7;
 		}
 	}
 </style>

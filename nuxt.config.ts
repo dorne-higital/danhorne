@@ -53,10 +53,18 @@ export default defineNuxtConfig({
 		contactEmailFrom: 'Your Name <onboarding@resend.dev>',
 		supabaseUrl: '',
 		supabaseServiceKey: '',
+		// Storage-upgrade checkout (see server/utils/stripe.ts) — all optional,
+		// self-serve upgrades just stay unavailable if these are blank.
+		stripeSecretKey: '',
+		stripeWebhookSecret: '',
+		stripePrice2gb: '',
+		stripePrice10gb: '',
+		stripePriceUnlimited: '',
 		public: {
 			// Site's real deployed URL, no trailing slash — used to build the
 			// absolute URLs robots.txt/sitemap.xml require.
 			siteUrl: '',
+			stripePublishableKey: '',
 		},
 	},
 

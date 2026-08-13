@@ -9,6 +9,7 @@ import type { PageRecord } from '#shared/types/cms'
 // re-parent it.
 export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pageHistory', 'Version history')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	const revisionId = getRouterParam(event, 'id')

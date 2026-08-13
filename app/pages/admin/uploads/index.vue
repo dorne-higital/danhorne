@@ -31,6 +31,20 @@
 		</header>
 
 		<div
+			v-if="limitBytes"
+			class="storage-usage"
+		>
+			<div class="usage-bar">
+				<div
+					class="usage-fill"
+					:class="{ near: usageNearLimit }"
+					:style="{ width: `${usagePercent}%` }"
+				/>
+			</div>
+			<span class="usage-label">{{ formatMb(usageBytes) }} of {{ formatMb(limitBytes) }} used</span>
+		</div>
+
+		<div
 			v-if="progress.length"
 			class="upload-progress"
 		>
@@ -166,6 +180,20 @@
 
 	const { uploads, uploading, error: uploadError, progress, uploadMany, remove, removeMany } = useUploads()
 	const { confirm } = useConfirm()
+	const { data: settings } = await useSiteSettings()
+
+	const usageBytes = computed(() => (uploads.value ?? []).reduce((total, item) => total + (item.size ?? 0), 0))
+	const limitBytes = computed(() =>
+		settings.value?.storage_limit_mb ? settings.value.storage_limit_mb * 1024 * 1024 : null,
+	)
+	const usagePercent = computed(() =>
+		limitBytes.value ? Math.min(100, Math.round((usageBytes.value / limitBytes.value) * 100)) : 0,
+	)
+	const usageNearLimit = computed(() => usagePercent.value >= 90)
+
+	function formatMb(bytes: number): string {
+		return `${Math.round((bytes / (1024 * 1024)) * 10) / 10}MB`
+	}
 
 	const search = ref('')
 	const filteredUploads = computed(() => {
@@ -266,6 +294,40 @@
 
 		.file-input {
 			display: none;
+		}
+
+		.storage-usage {
+			align-items: center;
+			display: flex;
+			gap: var(--padding-sm);
+			margin-bottom: var(--padding-lg);
+		}
+
+		.usage-bar {
+			background: var(--bg-secondary);
+			border-radius: var(--border-radius-pill);
+			height: 6px;
+			max-width: 16rem;
+			overflow: hidden;
+			width: 100%;
+		}
+
+		.usage-fill {
+			background: var(--brand-primary);
+			border-radius: var(--border-radius-pill);
+			height: 100%;
+			transition: width var(--transition-base);
+
+			&.near {
+				background: var(--error);
+			}
+		}
+
+		.usage-label {
+			color: var(--text-secondary);
+			flex-shrink: 0;
+			font-size: var(--eyebrow-size);
+			white-space: nowrap;
 		}
 
 		.filters {

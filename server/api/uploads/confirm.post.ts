@@ -50,6 +50,22 @@ export default defineEventHandler(async (event): Promise<UploadRecord> => {
 		})
 	}
 
+	// Authoritative storage-budget check, against the size Storage actually
+	// reports rather than whatever sign.post.ts's pre-check saw — closes the
+	// gap if two uploads landed at the same time and both passed that
+	// earlier, friendlier check.
+	const limitBytes = await getStorageLimitBytes()
+	if (limitBytes !== null) {
+		const usageBytes = await getStorageUsageBytes()
+		if (usageBytes + size > limitBytes) {
+			await supabase.storage.from('uploads').remove([body.path])
+			throw createError({
+				statusCode: 400,
+				statusMessage: `This site's storage budget (${Math.round(limitBytes / (1024 * 1024))}MB) doesn't have room for this file — delete something first, or ask about raising the limit`,
+			})
+		}
+	}
+
 	const {
 		data: { publicUrl },
 	} = supabase.storage.from('uploads').getPublicUrl(body.path)

@@ -4,6 +4,7 @@ import type { PageRevision } from '#shared/types/cms'
 // PageSummary-style reasoning (fetched full on restore instead).
 export default defineEventHandler(async (event): Promise<PageRevision[]> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pageHistory', 'Version history')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	if (!rawSlug) {

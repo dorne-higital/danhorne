@@ -48,7 +48,7 @@ export function useUploads() {
 	async function uploadOne(file: File): Promise<UploadRecord> {
 		const { path, token } = await $fetch<{ path: string; token: string }>('/api/uploads/sign', {
 			method: 'POST',
-			body: { filename: file.name, contentType: file.type },
+			body: { filename: file.name, contentType: file.type, size: file.size },
 		})
 
 		const supabase = useSupabaseClient()

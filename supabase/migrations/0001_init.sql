@@ -247,6 +247,19 @@ create table if not exists site_settings (
 	recaptcha_site_key text,
 	recaptcha_secret_key text,
 	recaptcha_enabled boolean not null default false,
+	-- Total Storage budget for this site's uploads bucket, in MB — null means
+	-- unlimited. Enforced in server/api/uploads/{sign,confirm}.post.ts against
+	-- the actual sum of uploads.size, not a row count (a handful of large
+	-- videos costs far more than hundreds of small icons). Not settable via
+	-- PATCH /api/settings — raised (or set to null) per site directly in the
+	-- DB, same as the paid add-ons below.
+	storage_limit_mb integer default 500,
+	-- Self-serve storage upgrades (see server/utils/stripe.ts and
+	-- server/api/billing/*) — null until a checkout completes. Server-only:
+	-- never selected by the public GET /api/settings, just like
+	-- recaptcha_secret_key above.
+	stripe_customer_id text,
+	stripe_subscription_id text,
 	-- Per-feature overrides for every item in the admin sidebar (see
 	-- shared/utils/features.ts for the full key list and defaults). A key
 	-- absent here just falls back to its default there, so this only ever

@@ -50,7 +50,20 @@
 		</section>
 
 		<section class="panel">
-			<h2>Fields</h2>
+			<div class="panel-header">
+				<h2>Fields</h2>
+				<NuxtLink
+					v-if="!multiStepEnabled"
+					to="/admin/integrations"
+					class="premium-note"
+				>
+					<Icon
+						name="lucide:lock"
+						aria-hidden="true"
+					/>
+					Multi-step &amp; conditional fields are a premium feature
+				</NuxtLink>
+			</div>
 
 			<draggable
 				:list="fields"
@@ -157,7 +170,10 @@
 								</div>
 							</div>
 
-							<div class="row">
+							<div
+								v-if="multiStepEnabled"
+								class="row"
+							>
 								<div class="field">
 									<label>Step</label>
 									<input
@@ -177,7 +193,10 @@
 								Required
 							</label>
 
-							<div class="conditional-editor">
+							<div
+								v-if="multiStepEnabled"
+								class="conditional-editor"
+							>
 								<label class="checkbox">
 									<input
 										type="checkbox"
@@ -315,6 +334,9 @@
 	if (!form.value) {
 		throw createError({ statusCode: 404, statusMessage: 'Form not found' })
 	}
+
+	const { data: settings } = await useSiteSettings()
+	const multiStepEnabled = computed(() => isFeatureEnabled('multiStepForms', settings.value?.enabled_features))
 
 	const name = ref(form.value.name)
 	const submitLabel = ref(form.value.submit_label)
@@ -488,6 +510,36 @@
 				font-size: 1.25rem;
 				font-weight: var(--heading-font-weight);
 				margin-bottom: var(--padding-sm);
+			}
+		}
+
+		.panel-header {
+			align-items: center;
+			display: flex;
+			gap: var(--padding-md);
+			justify-content: space-between;
+
+			h2 {
+				margin-bottom: 0;
+			}
+		}
+
+		.premium-note {
+			align-items: center;
+			color: var(--text-secondary);
+			display: flex;
+			flex-shrink: 0;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			gap: var(--padding-xs);
+
+			svg {
+				height: 0.875rem;
+				width: 0.875rem;
+			}
+
+			&:hover {
+				color: var(--text-primary);
 			}
 		}
 

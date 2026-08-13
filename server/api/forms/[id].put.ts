@@ -20,6 +20,14 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 		throw createError({ statusCode: 400, statusMessage: 'fields must be an array' })
 	}
 
+	// Only gated when a field actually tries to use the paid capability —
+	// plain single-step forms with no conditional fields save regardless of
+	// this flag, same as before it existed.
+	const usesMultiStep = body.fields.some((field) => (field.step ?? 1) > 1 || !!field.showIf)
+	if (usesMultiStep) {
+		await requireFeatureEnabled(event, 'multiStepForms', 'Multi-step forms')
+	}
+
 	const update: Record<string, unknown> = { fields: body.fields }
 	if (body.name) update.name = body.name
 	if (body.submit_label) update.submit_label = body.submit_label
