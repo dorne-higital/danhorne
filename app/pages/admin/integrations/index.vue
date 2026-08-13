@@ -484,10 +484,20 @@
 	if (route.query.billing === 'success') {
 		// Applies immediately from Stripe's live state rather than waiting on
 		// the webhook to have already landed — see server/api/billing/sync.post.ts.
-		await $fetch('/api/billing/sync', { method: 'POST' }).catch(() => {})
-		await refreshBillingStatus()
-		await refresh()
-		toast.show('Upgraded.')
+		// A failure here is worth surfacing loudly: it means the purchase went
+		// through on Stripe's side but didn't apply, same as it silently didn't
+		// for anyone until this toast existed.
+		try {
+			await $fetch('/api/billing/sync', { method: 'POST' })
+			await refreshBillingStatus()
+			await refresh()
+			toast.show('Upgraded.')
+		} catch (err) {
+			toast.show(
+				getApiErrorMessage(err, "Payment went through, but we couldn't apply it automatically — refresh in a moment, or get in touch if it's still wrong."),
+				'error',
+			)
+		}
 	} else if (route.query.billing === 'cancelled') {
 		toast.show('Checkout cancelled — no changes made.')
 	}

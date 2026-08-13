@@ -109,7 +109,7 @@ export async function applySubscriptionToSettings(
 
 	const storageTier = findStorageTierByPriceId(priceId)
 	if (storageTier) {
-		await supabase
+		const { error } = await supabase
 			.from('site_settings')
 			.update({
 				storage_limit_mb: storageTier.mb,
@@ -117,6 +117,9 @@ export async function applySubscriptionToSettings(
 				stripe_subscription_id: subscription.id,
 			})
 			.eq('id', 'default')
+		if (error) {
+			throw createError({ statusCode: 500, statusMessage: error.message })
+		}
 		return
 	}
 
@@ -130,7 +133,7 @@ export async function applySubscriptionToSettings(
 		const merged: Record<string, boolean> = { ...(current?.enabled_features ?? {}) }
 		for (const key of planTier.features) merged[key] = true
 
-		await supabase
+		const { error } = await supabase
 			.from('site_settings')
 			.update({
 				enabled_features: merged,
@@ -140,6 +143,9 @@ export async function applySubscriptionToSettings(
 				stripe_plan_subscription_id: subscription.id,
 			})
 			.eq('id', 'default')
+		if (error) {
+			throw createError({ statusCode: 500, statusMessage: error.message })
+		}
 	}
 }
 
@@ -157,10 +163,13 @@ export async function revertSubscriptionInSettings(
 	if (!priceId) return
 
 	if (findStorageTierByPriceId(priceId)) {
-		await supabase
+		const { error } = await supabase
 			.from('site_settings')
 			.update({ storage_limit_mb: BASE_STORAGE_MB, stripe_subscription_id: null })
 			.eq('id', 'default')
+		if (error) {
+			throw createError({ statusCode: 500, statusMessage: error.message })
+		}
 		return
 	}
 
@@ -174,7 +183,7 @@ export async function revertSubscriptionInSettings(
 		const merged: Record<string, boolean> = { ...(current?.enabled_features ?? {}) }
 		for (const key of planTier.features) merged[key] = false
 
-		await supabase
+		const { error } = await supabase
 			.from('site_settings')
 			.update({
 				enabled_features: merged,
@@ -183,5 +192,8 @@ export async function revertSubscriptionInSettings(
 				stripe_plan_subscription_id: null,
 			})
 			.eq('id', 'default')
+		if (error) {
+			throw createError({ statusCode: 500, statusMessage: error.message })
+		}
 	}
 }
