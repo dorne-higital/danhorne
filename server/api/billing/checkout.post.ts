@@ -26,6 +26,8 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 
 	const stripe = useStripe()
 	const supabase = useSupabase()
+	const config = useRuntimeConfig()
+	const origin = config.public.siteUrl || getRequestURL(event).origin
 
 	const { data: settings } = await supabase
 		.from('site_settings')
@@ -38,8 +40,12 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 	// history) every time someone upgrades or switches tiers.
 	let customerId = settings?.stripe_customer_id
 	if (!customerId) {
+		// Tagged with the site's URL — this account holds every client's
+		// customers, so without this a customer is just an email address with
+		// no way to tell which site it belongs to from the Stripe dashboard.
 		const customer = await stripe.customers.create({
 			email: typeof user.email === 'string' ? user.email : undefined,
+			metadata: { site: origin },
 		})
 		customerId = customer.id
 		await supabase.from('site_settings').update({ stripe_customer_id: customerId }).eq('id', 'default')
@@ -60,9 +66,6 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 			})
 		}
 	}
-
-	const config = useRuntimeConfig()
-	const origin = config.public.siteUrl || getRequestURL(event).origin
 
 	const session = await stripe.checkout.sessions.create({
 		mode: 'subscription',

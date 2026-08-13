@@ -22,6 +22,22 @@ export function useStripe(): Stripe {
 const BASE_STORAGE_MB = 500
 const BASE_SEAT_LIMIT = 2
 
+// Multiple client sites share one Stripe account, so Stripe fans every
+// webhook event out to every site's registered endpoint — not just the site
+// whose customer triggered it. Each site only ever creates one Stripe
+// customer for itself (see checkout.post.ts) and stores that id up front,
+// before the checkout session that could ever produce a webhook exists, so
+// this is always safe to check by the time an event arrives. Only the
+// webhook needs this: checkout/portal/sync all key off this site's own
+// stored customer id already, never off an event's payload.
+export async function customerBelongsToThisSite(
+	supabase: ReturnType<typeof useSupabase>,
+	customerId: string,
+): Promise<boolean> {
+	const { data } = await supabase.from('site_settings').select('stripe_customer_id').eq('id', 'default').single()
+	return data?.stripe_customer_id === customerId
+}
+
 export type StorageTierKey = '2gb' | '10gb' | 'unlimited'
 
 export interface StorageTier {

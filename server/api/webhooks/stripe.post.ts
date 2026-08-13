@@ -30,17 +30,29 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 
 	const supabase = useSupabase()
 
+	// Multiple client sites share one Stripe account, so this endpoint
+	// receives every event on that account — not just events for customers
+	// that belong to this site. Every branch below gates on
+	// customerBelongsToThisSite before touching site_settings; an event for
+	// someone else's customer just falls through and returns 200 untouched,
+	// same as an event type this handler doesn't care about.
 	if (stripeEvent.type === 'checkout.session.completed') {
 		const session = stripeEvent.data.object as Stripe.Checkout.Session
-		if (session.mode === 'subscription' && session.subscription && session.customer) {
-			const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
-			await applySubscriptionToSettings(supabase, session.customer as string, subscription)
+		const customerId = session.customer as string | null
+		if (session.mode === 'subscription' && session.subscription && customerId) {
+			if (await customerBelongsToThisSite(supabase, customerId)) {
+				const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+				await applySubscriptionToSettings(supabase, customerId, subscription)
+			}
 		}
 	}
 
 	if (stripeEvent.type === 'customer.subscription.updated') {
 		const subscription = stripeEvent.data.object as Stripe.Subscription
-		await applySubscriptionToSettings(supabase, subscription.customer as string, subscription)
+		const customerId = subscription.customer as string
+		if (await customerBelongsToThisSite(supabase, customerId)) {
+			await applySubscriptionToSettings(supabase, customerId, subscription)
+		}
 	}
 
 	if (stripeEvent.type === 'customer.subscription.deleted') {
@@ -48,11 +60,12 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 		// cancelled subscription had granted — a lapsed subscription shouldn't
 		// keep the perk. revertSubscriptionInSettings figures out whether this
 		// was a storage or plan subscription from its Price and reverts only
-		// that. This app is single-tenant per Supabase project — one
-		// site_settings row, always 'default' — so there's no need to match by
-		// customer id.
+		// that.
 		const subscription = stripeEvent.data.object as Stripe.Subscription
-		await revertSubscriptionInSettings(supabase, subscription)
+		const customerId = subscription.customer as string
+		if (await customerBelongsToThisSite(supabase, customerId)) {
+			await revertSubscriptionInSettings(supabase, subscription)
+		}
 	}
 
 	return { received: true }
