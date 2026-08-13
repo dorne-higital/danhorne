@@ -1,7 +1,5 @@
 import type Stripe from 'stripe'
 
-const BASE_STORAGE_MB = 500
-
 // No admin-session check here — Stripe's servers call this, not a logged-in
 // admin, so signature verification (below) *is* the auth, same reasoning as
 // the Resend inbound-email webhook design. Every branch returns 200 quickly
@@ -46,14 +44,15 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 	}
 
 	if (stripeEvent.type === 'customer.subscription.deleted') {
-		// Falls back to the base tier rather than leaving whatever limit the
-		// cancelled plan had — a lapsed subscription shouldn't keep the perk.
-		// This app is single-tenant per Supabase project — one site_settings
-		// row, always 'default' — so there's no need to match by customer id.
-		await supabase
-			.from('site_settings')
-			.update({ storage_limit_mb: BASE_STORAGE_MB, stripe_subscription_id: null })
-			.eq('id', 'default')
+		// Falls back to the base tier rather than leaving whatever the
+		// cancelled subscription had granted — a lapsed subscription shouldn't
+		// keep the perk. revertSubscriptionInSettings figures out whether this
+		// was a storage or plan subscription from its Price and reverts only
+		// that. This app is single-tenant per Supabase project — one
+		// site_settings row, always 'default' — so there's no need to match by
+		// customer id.
+		const subscription = stripeEvent.data.object as Stripe.Subscription
+		await revertSubscriptionInSettings(supabase, subscription)
 	}
 
 	return { received: true }

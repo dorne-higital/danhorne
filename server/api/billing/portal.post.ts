@@ -13,7 +13,7 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 		.single()
 
 	if (!settings?.stripe_customer_id) {
-		throw createError({ statusCode: 400, statusMessage: 'No storage subscription to manage yet' })
+		throw createError({ statusCode: 400, statusMessage: 'No subscription to manage yet' })
 	}
 
 	const stripe = useStripe()

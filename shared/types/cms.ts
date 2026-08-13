@@ -291,6 +291,11 @@ export interface SiteSettings {
 	// Total Storage budget for uploads, in MB — null means unlimited. See
 	// server/utils/storageUsage.ts.
 	storage_limit_mb: number | null
+	// Admin seat limit — null means unlimited. See server/utils/seats.ts.
+	seat_limit: number | null
+	// Cosmetic bundle label only ('starter' | 'growth' | 'pro' | null for
+	// "Custom") — see supabase/migrations/0001_init.sql.
+	plan: string | null
 }
 
 export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox'

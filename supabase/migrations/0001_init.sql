@@ -254,12 +254,26 @@ create table if not exists site_settings (
 	-- PATCH /api/settings — raised (or set to null) per site directly in the
 	-- DB, same as the paid add-ons below.
 	storage_limit_mb integer default 500,
-	-- Self-serve storage upgrades (see server/utils/stripe.ts and
-	-- server/api/billing/*) — null until a checkout completes. Server-only:
-	-- never selected by the public GET /api/settings, just like
-	-- recaptcha_secret_key above.
+	-- Self-serve checkout (see server/utils/stripe.ts and server/api/billing/*)
+	-- — a site can hold a storage subscription and a plan subscription at the
+	-- same time, independently, hence two separate subscription-id columns
+	-- sharing one customer. Both null until their respective checkout
+	-- completes. Server-only: never selected by the public GET /api/settings,
+	-- just like recaptcha_secret_key above.
 	stripe_customer_id text,
 	stripe_subscription_id text,
+	stripe_plan_subscription_id text,
+	-- Admin seat limit — null means unlimited. Enforced in
+	-- server/api/admin/users/{invite,temp}.post.ts against the count of
+	-- non-banned, non-expired profiles (see server/utils/seats.ts). Not
+	-- settable via PATCH /api/settings, same as everything else here.
+	seat_limit integer default 2,
+	-- Cosmetic label only — 'starter' | 'growth' | 'pro' | null ("Custom").
+	-- Set alongside enabled_features/seat_limit/storage_limit_mb when a site's
+	-- moved onto a named bundle (see the plans & pricing doc); nothing in the
+	-- app enforces that the flags actually match the label, so /admin/integrations'
+	-- plan card always shows what's really enabled underneath it, not just this name.
+	plan text,
 	-- Per-feature overrides for every item in the admin sidebar (see
 	-- shared/utils/features.ts for the full key list and defaults). A key
 	-- absent here just falls back to its default there, so this only ever

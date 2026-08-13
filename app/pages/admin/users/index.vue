@@ -3,6 +3,13 @@
 		<header class="page-header">
 			<h1>Users</h1>
 			<div class="header-actions">
+				<span
+					v-if="seatLimit !== null"
+					class="seat-count"
+					:class="{ full: seatsFull }"
+				>
+					{{ activeSeatCount }} of {{ seatLimit }} seats used
+				</span>
 				<label class="checkbox">
 					<input
 						v-model="showRemoved"
@@ -13,6 +20,8 @@
 				<button
 					type="button"
 					class="btn outline"
+					:disabled="seatsFull"
+					:title="seatsFull ? 'Seat limit reached — remove someone first' : undefined"
 					@click="showTempAccess = true"
 				>
 					Create temp access
@@ -20,6 +29,8 @@
 				<button
 					type="button"
 					class="btn primary"
+					:disabled="seatsFull"
+					:title="seatsFull ? 'Seat limit reached — remove someone first' : undefined"
 					@click="showInvite = true"
 				>
 					Invite user
@@ -302,6 +313,19 @@
 	}
 
 	const { data: users, refresh } = await useFetch<AdminUser[]>('/api/admin/users')
+	const { data: settings } = await useSiteSettings()
+
+	// Same "active" definition as server/utils/seats.ts — not banned, and not
+	// an expired temp account — computed from the list already fetched above
+	// rather than a second round trip.
+	const activeSeatCount = computed(
+		() =>
+			(users.value ?? []).filter(
+				(user) => !user.banned && (!user.expires_at || new Date(user.expires_at) > new Date()),
+			).length,
+	)
+	const seatLimit = computed(() => settings.value?.seat_limit ?? null)
+	const seatsFull = computed(() => seatLimit.value !== null && activeSeatCount.value >= seatLimit.value)
 
 	const showRemoved = ref(false)
 	const visibleUsers = computed(() => (users.value ?? []).filter((user) => showRemoved.value || !user.banned))
@@ -463,6 +487,17 @@
 			align-items: center;
 			display: flex;
 			gap: var(--padding-lg);
+		}
+
+		.seat-count {
+			color: var(--text-secondary);
+			font-size: var(--eyebrow-size);
+			font-variant-numeric: tabular-nums;
+
+			&.full {
+				color: var(--error);
+				font-weight: 600;
+			}
 		}
 
 		.checkbox {

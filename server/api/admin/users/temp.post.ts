@@ -30,6 +30,15 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: 'expiresAt must be a valid time in the future' })
 	}
 
+	// Occupies a seat for as long as it's valid, same as a real invite.
+	const seatLimit = await getSeatLimit()
+	if (seatLimit !== null && (await getActiveSeatCount()) >= seatLimit) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: `This site's seat limit (${seatLimit}) is full — remove someone first, or ask about more seats.`,
+		})
+	}
+
 	const supabase = useSupabase()
 	const { data, error } = await supabase.auth.admin.createUser({
 		email: body.email,

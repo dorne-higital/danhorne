@@ -1,22 +1,26 @@
 interface Body {
+	kind?: 'storage' | 'plan'
 	tier?: string
 }
 
-// Starts a Stripe Checkout session for a storage-tier subscription. Redirects
+// Starts a Stripe Checkout session for a storage tier or a plan tier — the
+// two are independent subscriptions on the same customer (see
+// server/utils/stripe.ts), so a site can hold one of each at once. Redirects
 // to a Stripe-hosted page — the browser never sees a card field here, so
 // this endpoint only ever needs the secret key, not the publishable one.
 export default defineEventHandler(async (event): Promise<{ url: string }> => {
 	const { user } = await requireAdminRole(event)
 
 	const body = await readBody<Body>(event)
-	const tier = getStorageTiers().find((t) => t.key === body?.tier)
+	const tiers = body?.kind === 'plan' ? getPlanTiers() : getStorageTiers()
+	const tier = tiers.find((t) => t.key === body?.tier)
 	if (!tier) {
-		throw createError({ statusCode: 400, statusMessage: 'Unknown storage tier' })
+		throw createError({ statusCode: 400, statusMessage: 'Unknown tier' })
 	}
 	if (!tier.priceId) {
 		throw createError({
 			statusCode: 500,
-			statusMessage: `Storage tier "${tier.key}" has no Price configured — set its NUXT_STRIPE_PRICE_* env var.`,
+			statusMessage: `Tier "${tier.key}" has no Price configured — set its NUXT_STRIPE_PRICE_* env var.`,
 		})
 	}
 
@@ -40,16 +44,19 @@ export default defineEventHandler(async (event): Promise<{ url: string }> => {
 		customerId = customer.id
 		await supabase.from('site_settings').update({ stripe_customer_id: customerId }).eq('id', 'default')
 	} else {
-		// Already-subscribed sites switch tiers through the billing portal
-		// (proration handled by Stripe) rather than starting a second
-		// subscription here — nothing stops the same customer checking out
-		// twice otherwise, which just stacks charges.
-		const existing = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 })
-		if (existing.data.length > 0) {
+		// A site can hold a storage subscription and a plan subscription at
+		// once, so this only blocks a second subscription of the *same* kind
+		// (checking live against Stripe, not the possibly-stale columns here)
+		// — switching tiers within a kind goes through the billing portal
+		// instead, where Stripe handles proration.
+		const sameKindPriceIds = new Set(tiers.map((t) => t.priceId).filter(Boolean))
+		const existing = await stripe.subscriptions.list({ customer: customerId, status: 'active' })
+		const hasSameKind = existing.data.some((sub) => sameKindPriceIds.has(sub.items.data[0]?.price.id ?? ''))
+		if (hasSameKind) {
 			throw createError({
 				statusCode: 400,
 				statusMessage:
-					'This site already has an active storage subscription — use Manage billing to switch plans.',
+					'This site already has an active subscription of this kind — use Manage billing to switch tiers.',
 			})
 		}
 	}

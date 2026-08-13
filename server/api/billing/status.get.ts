@@ -1,29 +1,36 @@
-import type { StorageTierKey } from '../../utils/stripe'
+import type { PlanTierKey, StorageTierKey } from '../../utils/stripe'
 
 interface BillingStatus {
-	// True once a subscription exists, regardless of its current tier —
-	// drives whether /admin/integrations shows "Manage billing" or the
-	// upgrade tiles.
-	subscribed: boolean
-	tier: StorageTierKey | null
+	storage: { subscribed: boolean; tier: StorageTierKey | null }
+	plan: { subscribed: boolean; tier: PlanTierKey | null }
+	// True if either subscription exists — drives whether the "Manage
+	// billing" button shows at all, since one portal session covers both.
+	hasAnySubscription: boolean
 }
 
 // Admin-only — reads columns that public GET /api/settings deliberately
-// never selects (stripe_customer_id, stripe_subscription_id).
+// never selects (stripe_customer_id, stripe_subscription_id, stripe_plan_subscription_id).
 export default defineEventHandler(async (event): Promise<BillingStatus> => {
 	await requireAdminRole(event)
 
 	const supabase = useSupabase()
 	const { data } = await supabase
 		.from('site_settings')
-		.select('stripe_subscription_id, storage_limit_mb')
+		.select('stripe_subscription_id, stripe_plan_subscription_id, storage_limit_mb, plan')
 		.eq('id', 'default')
 		.single()
 
-	if (!data?.stripe_subscription_id) {
-		return { subscribed: false, tier: null }
-	}
+	const storageTier = data?.stripe_subscription_id
+		? (getStorageTiers().find((t) => t.mb === data.storage_limit_mb)?.key ?? null)
+		: null
 
-	const tier = getStorageTiers().find((t) => t.mb === data.storage_limit_mb)
-	return { subscribed: true, tier: tier?.key ?? null }
+	const planTier = data?.stripe_plan_subscription_id
+		? (getPlanTiers().find((t) => t.key === data.plan)?.key ?? null)
+		: null
+
+	return {
+		storage: { subscribed: !!data?.stripe_subscription_id, tier: storageTier },
+		plan: { subscribed: !!data?.stripe_plan_subscription_id, tier: planTier },
+		hasAnySubscription: !!data?.stripe_subscription_id || !!data?.stripe_plan_subscription_id,
+	}
 })

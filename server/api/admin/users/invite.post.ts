@@ -6,6 +6,14 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: 'email is required' })
 	}
 
+	const seatLimit = await getSeatLimit()
+	if (seatLimit !== null && (await getActiveSeatCount()) >= seatLimit) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: `This site's seat limit (${seatLimit}) is full — remove someone first, or ask about more seats.`,
+		})
+	}
+
 	// Prefer the fixed public site URL over the inviting request's own origin
 	// — otherwise an invite sent while browsing the admin locally generates a
 	// localhost link, which is useless to whoever actually receives it. Falls

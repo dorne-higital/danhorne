@@ -18,18 +18,21 @@ export default defineEventHandler(async (event): Promise<{ synced: boolean }> =>
 		return { synced: false }
 	}
 
+	// A site can hold a storage subscription and a plan subscription at the
+	// same time — apply every active one, not just the first, so returning
+	// from either checkout picks up both if both happen to be active.
 	const stripe = useStripe()
 	const subscriptions = await stripe.subscriptions.list({
 		customer: settings.stripe_customer_id,
 		status: 'active',
-		limit: 1,
 	})
 
-	const subscription = subscriptions.data[0]
-	if (!subscription) {
+	if (!subscriptions.data.length) {
 		return { synced: false }
 	}
 
-	await applySubscriptionToSettings(supabase, settings.stripe_customer_id, subscription)
+	for (const subscription of subscriptions.data) {
+		await applySubscriptionToSettings(supabase, settings.stripe_customer_id, subscription)
+	}
 	return { synced: true }
 })

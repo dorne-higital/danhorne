@@ -2,6 +2,61 @@
 	<div class="admin-integrations">
 		<h1>Integrations</h1>
 
+		<section class="plan-section">
+			<div class="plan-tiers">
+				<div
+					v-for="tier in planTierCards"
+					:key="tier.key"
+					class="plan-tier"
+					:class="{ current: tier.key === currentPlanKey }"
+				>
+					<span
+						v-if="tier.key === currentPlanKey"
+						class="current-badge"
+					>
+						Current plan
+					</span>
+					<span class="plan-tier-name">{{ tier.name }}</span>
+					<span class="plan-tier-price">{{ tier.priceLabel }}</span>
+					<ul class="plan-tier-features">
+						<li
+							v-for="feature in tier.features"
+							:key="feature"
+						>
+							{{ feature }}
+						</li>
+					</ul>
+					<button
+						v-if="planCardAction(tier).show"
+						type="button"
+						class="btn primary plan-tier-cta"
+						:disabled="billingLoading"
+						@click="planCardAction(tier).action"
+					>
+						{{ planCardAction(tier).label }}
+					</button>
+				</div>
+			</div>
+
+			<button
+				v-if="billingStatus?.hasAnySubscription"
+				type="button"
+				class="btn outline sm"
+				:disabled="billingLoading"
+				@click="openBillingPortal"
+			>
+				Manage billing
+			</button>
+
+			<p
+				v-if="billingError"
+				class="error"
+				role="alert"
+			>
+				{{ billingError }}
+			</p>
+		</section>
+
 		<table class="integrations-table">
 			<thead>
 				<tr>
@@ -183,27 +238,17 @@
 					</p>
 
 					<p
-						v-if="billingStatus?.subscribed"
+						v-if="billingStatus?.storage.subscribed"
 						class="addon-status on"
 					>
 						<Icon
 							name="lucide:check"
 							aria-hidden="true"
 						/>
-						On the {{ tierLabel(billingStatus.tier) }} plan.
+						On the {{ tierLabel(billingStatus.storage.tier) }} storage tier.
 					</p>
-					<button
-						v-if="billingStatus?.subscribed"
-						type="button"
-						class="btn outline sm"
-						:disabled="billingLoading"
-						@click="openBillingPortal"
-					>
-						Manage billing
-					</button>
-
 					<template v-else>
-						<p class="upgrade-intro">Pick a plan to raise this site's storage budget:</p>
+						<p class="upgrade-intro">Pick a tier to raise this site's storage budget:</p>
 						<div class="tier-grid">
 							<button
 								v-for="tier in storageTiers"
@@ -211,13 +256,23 @@
 								type="button"
 								class="tier-card"
 								:disabled="billingLoading"
-								@click="startCheckout(tier.key)"
+								@click="startCheckout('storage', tier.key)"
 							>
 								<span class="tier-label">{{ tier.label }}</span>
 								<span class="tier-price">{{ tier.price }}<span class="per">/mo</span></span>
 							</button>
 						</div>
 					</template>
+
+					<button
+						v-if="billingStatus?.hasAnySubscription"
+						type="button"
+						class="btn outline sm"
+						:disabled="billingLoading"
+						@click="openBillingPortal"
+					>
+						Manage billing
+					</button>
 
 					<p
 						v-if="billingError"
@@ -321,7 +376,7 @@
 	const storageNearLimit = computed(() => storagePercent.value >= 90)
 
 	// Display-only — the real Price IDs and amounts live server-side
-	// (server/utils/stripe.ts); this is just what the three buttons show.
+	// (server/utils/stripe.ts); this is just what the buttons show.
 	const storageTiers = [
 		{ key: '2gb', label: '2GB', price: '£5' },
 		{ key: '10gb', label: '10GB', price: '£15' },
@@ -333,20 +388,78 @@
 	}
 
 	const { data: billingStatus, refresh: refreshBillingStatus } = await useFetch<{
-		subscribed: boolean
-		tier: '2gb' | '10gb' | 'unlimited' | null
+		storage: { subscribed: boolean; tier: '2gb' | '10gb' | 'unlimited' | null }
+		plan: { subscribed: boolean; tier: 'growth' | 'pro' | null }
+		hasAnySubscription: boolean
 	}>('/api/billing/status', { key: 'admin-billing-status' })
 
 	const billingLoading = ref(false)
 	const billingError = ref('')
 
-	async function startCheckout(tierKey: string) {
+	// Display-only — the real bundle contents live server-side in
+	// getPlanTiers() (server/utils/stripe.ts); keep these feature lists in
+	// sync with that and the plans & pricing doc if either changes.
+	const planTierCards = [
+		{
+			key: 'starter',
+			name: 'Starter',
+			priceLabel: 'Included',
+			rank: 0,
+			features: ['Pages, Menus, Uploads, Forms', 'SEO, Redirects, Layout', '2 admin seats'],
+		},
+		{
+			key: 'growth',
+			name: 'Growth',
+			priceLabel: '£15/mo',
+			rank: 1,
+			features: ['Everything in Starter', 'Submissions Inbox', 'Analytics', '5 admin seats'],
+		},
+		{
+			key: 'pro',
+			name: 'Pro',
+			priceLabel: '£30/mo',
+			rank: 2,
+			features: ['Everything in Growth', 'Version History', 'Multi-step Forms', 'Unlimited admin seats'],
+		},
+	] as const
+
+	// The real Stripe subscription wins if there is one; otherwise falls back
+	// to the cosmetic label a manually-applied bundle would have set, and
+	// finally to Starter — every site has that whether or not it's ever been
+	// named.
+	const currentPlanKey = computed(() => {
+		if (billingStatus.value?.plan.subscribed && billingStatus.value.plan.tier) {
+			return billingStatus.value.plan.tier
+		}
+		return settings.value?.plan ?? 'starter'
+	})
+
+	const currentPlanRank = computed(() => planTierCards.find((t) => t.key === currentPlanKey.value)?.rank ?? 0)
+
+	function planCardAction(tier: (typeof planTierCards)[number]) {
+		if (tier.rank <= currentPlanRank.value) return { show: false as const, label: '', action: () => {} }
+
+		// Already has *some* active plan subscription, just not this tier —
+		// checkout would refuse a second one of the same kind, so switching
+		// goes through the portal instead (Stripe handles proration).
+		if (billingStatus.value?.plan.subscribed) {
+			return { show: true as const, label: 'Switch via Manage billing', action: openBillingPortal }
+		}
+
+		return {
+			show: true as const,
+			label: `Upgrade — ${tier.priceLabel}`,
+			action: () => startCheckout('plan', tier.key),
+		}
+	}
+
+	async function startCheckout(kind: 'storage' | 'plan', tierKey: string) {
 		billingLoading.value = true
 		billingError.value = ''
 		try {
 			const { url } = await $fetch<{ url: string }>('/api/billing/checkout', {
 				method: 'POST',
-				body: { tier: tierKey },
+				body: { kind, tier: tierKey },
 			})
 			await navigateTo(url, { external: true })
 		} catch (err) {
@@ -374,7 +487,7 @@
 		await $fetch('/api/billing/sync', { method: 'POST' }).catch(() => {})
 		await refreshBillingStatus()
 		await refresh()
-		toast.show('Storage upgraded.')
+		toast.show('Upgraded.')
 	} else if (route.query.billing === 'cancelled') {
 		toast.show('Checkout cancelled — no changes made.')
 	}
@@ -536,6 +649,93 @@
 			font-size: var(--h2-size);
 			font-weight: var(--heading-font-weight);
 		}
+	}
+
+	.plan-section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--padding-sm);
+	}
+
+	.plan-tiers {
+		display: grid;
+		gap: var(--padding-md);
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	@media (width <= 720px) {
+		.plan-tiers {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.plan-tier {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border);
+		border-radius: var(--border-radius-md);
+		display: flex;
+		flex-direction: column;
+		gap: var(--padding-sm);
+		padding: var(--padding-md);
+		position: relative;
+
+		&.current {
+			border-color: var(--brand-primary);
+			box-shadow: 0 0 0 1px var(--brand-primary);
+		}
+	}
+
+	.current-badge {
+		background: var(--brand-gradient);
+		border-radius: var(--border-radius-pill);
+		color: var(--text-inverse);
+		font-size: 0.625rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		padding: 0.15rem 0.6rem;
+		text-transform: uppercase;
+		width: fit-content;
+	}
+
+	.plan-tier-name {
+		font-family: var(--heading-font-family);
+		font-size: 1.1875rem;
+		font-weight: var(--heading-font-weight);
+	}
+
+	.plan-tier-price {
+		color: var(--text-secondary);
+		font-size: var(--eyebrow-size);
+		font-weight: 600;
+	}
+
+	.plan-tier-features {
+		color: var(--text-secondary);
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		font-size: 0.875rem;
+		gap: var(--padding-xs);
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		li {
+			padding-left: 1.1rem;
+			position: relative;
+
+			&::before {
+				color: var(--success);
+				content: '✓';
+				font-weight: 700;
+				left: 0;
+				position: absolute;
+			}
+		}
+	}
+
+	.plan-tier-cta {
+		width: 100%;
 	}
 
 	.integrations-table {
@@ -723,6 +923,69 @@
 		}
 	}
 
+	// Shared by .storage-note (inside the Storage modal) and .plan-card (the
+	// summary at the top of the page) — both offer a tier-choice grid and an
+	// upgrade/manage-billing flow, so this styling isn't specific to either.
+	.upgrade-intro {
+		color: var(--text-secondary);
+		font-size: var(--body-size);
+	}
+
+	.tier-grid {
+		display: grid;
+		gap: var(--padding-sm);
+		grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+		width: 100%;
+	}
+
+	.tier-card {
+		background: var(--bg-primary);
+		border: 1px solid var(--border);
+		border-radius: var(--border-radius-sm);
+		cursor: pointer;
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: var(--padding-sm);
+		text-align: left;
+		transition:
+			border-color var(--transition-base),
+			background var(--transition-base);
+
+		&:hover {
+			border-color: var(--brand-primary);
+		}
+
+		&:disabled {
+			cursor: default;
+			opacity: 0.6;
+		}
+	}
+
+	.tier-label {
+		font-size: var(--eyebrow-size);
+		font-weight: 600;
+	}
+
+	.tier-price {
+		font-family: var(--heading-font-family);
+		font-size: 1.125rem;
+		font-weight: var(--heading-font-weight);
+
+		.per {
+			color: var(--text-secondary);
+			font-family: var(--body-font-family);
+			font-size: 0.75rem;
+			font-weight: 400;
+		}
+	}
+
+	.error {
+		color: var(--error);
+		font-size: var(--eyebrow-size);
+		font-weight: 600;
+	}
+
 	.storage-note {
 		.usage-bar {
 			background: var(--bg-primary);
@@ -755,65 +1018,9 @@
 			margin-bottom: var(--padding-sm);
 		}
 
-		.upgrade-intro {
-			color: var(--text-secondary);
-			font-size: var(--body-size);
-			margin-bottom: var(--padding-sm);
-		}
-
+		.upgrade-intro,
 		.tier-grid {
-			display: grid;
-			gap: var(--padding-sm);
-			grid-template-columns: repeat(3, 1fr);
 			margin-bottom: var(--padding-sm);
-		}
-
-		.tier-card {
-			background: var(--bg-primary);
-			border: 1px solid var(--border);
-			border-radius: var(--border-radius-sm);
-			cursor: pointer;
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
-			padding: var(--padding-sm);
-			text-align: left;
-			transition:
-				border-color var(--transition-base),
-				background var(--transition-base);
-
-			&:hover {
-				border-color: var(--brand-primary);
-			}
-
-			&:disabled {
-				cursor: default;
-				opacity: 0.6;
-			}
-		}
-
-		.tier-label {
-			font-size: var(--eyebrow-size);
-			font-weight: 600;
-		}
-
-		.tier-price {
-			font-family: var(--heading-font-family);
-			font-size: 1.125rem;
-			font-weight: var(--heading-font-weight);
-
-			.per {
-				color: var(--text-secondary);
-				font-family: var(--body-font-family);
-				font-size: 0.75rem;
-				font-weight: 400;
-			}
-		}
-
-		.error {
-			color: var(--error);
-			font-size: var(--eyebrow-size);
-			font-weight: 600;
 		}
 	}
 </style>
