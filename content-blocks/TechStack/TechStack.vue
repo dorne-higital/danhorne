@@ -27,12 +27,12 @@
 
 			<div
 				v-if="items.length"
-				class="row"
+				class="stack-row"
 			>
 				<div
 					v-for="item in items"
 					:key="item.id"
-					class="item col-6 col-md-4 col-lg-2"
+					class="item"
 				>
 					<Icon
 						v-if="item.icon"
@@ -81,6 +81,13 @@
 			max-width: 42rem;
 		}
 
+		.stack-row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-md);
+			justify-content: center;
+		}
+
 		.eyebrow {
 			color: var(--brand-primary);
 			font-size: var(--eyebrow-size);
@@ -109,10 +116,19 @@
 			border: 1px solid var(--border);
 			border-radius: var(--border-radius-md);
 			display: flex;
+			flex: 0 1 calc(50% - var(--padding-md) / 2);
 			flex-direction: column;
 			gap: var(--padding-xs);
 			padding: var(--padding-md);
 			transition: var(--transition-base);
+
+			@media (width >= 768px) {
+				flex-basis: calc(100% / 3 - var(--padding-md) * 2 / 3);
+			}
+
+			@media (width >= 1024px) {
+				flex-basis: calc(100% / 6 - var(--padding-md) * 5 / 6);
+			}
 
 			&:hover {
 				border-color: var(--border-strong);

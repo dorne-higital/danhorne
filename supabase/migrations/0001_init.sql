@@ -5,12 +5,13 @@
 -- if you're on Neon.
 --
 -- Single init migration for a template repo — this is the full schema for a
--- brand new project, not an incremental history. Every table has RLS
--- enabled with zero policies: the app only ever talks to these tables
--- server-side via the service-role key (which always bypasses RLS), so
--- this just closes the direct-API hole that the public anon key (shipped
--- to every browser for Supabase Auth) would otherwise have via Supabase's
--- auto-generated REST API.
+-- brand new project, not an incremental history (squashed from a longer
+-- migration sequence, numbering restarted from here). Every table has RLS
+-- enabled with zero policies (bar profiles' own read policy): the app only
+-- ever talks to these tables server-side via the service-role key (which
+-- always bypasses RLS), so this just closes the direct-API hole that the
+-- public anon key (shipped to every browser for Supabase Auth) would
+-- otherwise have via Supabase's auto-generated REST API.
 
 create extension if not exists pgcrypto;
 
@@ -35,18 +36,25 @@ create table if not exists profiles (
 	last_name text,
 	nickname text,
 	role text not null default 'user' check (role in ('admin', 'user')),
+	-- Temporary/expiring access (/admin/users "Create temp access") — null
+	-- means a permanent account. Access is hard-blocked on every
+	-- authenticated request the instant this passes (requireAdminSession),
+	-- the row itself gets swept on next /admin/users visit.
+	expires_at timestamptz,
 	created_at timestamptz not null default now()
 );
 
 alter table profiles enable row level security;
 
+-- Read-only — there's deliberately no "update own profile" policy. Every
+-- profile write goes through server/api/admin/*.patch.ts using the
+-- service-role key (which always bypasses RLS regardless), so a self-update
+-- policy would only ever add a privilege-escalation surface (a user PATCHing
+-- their own row via the anon key + their own JWT to set role: 'admin')
+-- without the app ever actually needing it.
 drop policy if exists "Users can read own profile" on profiles;
 create policy "Users can read own profile" on profiles
 	for select using (auth.uid() = id);
-
-drop policy if exists "Users can update own profile" on profiles;
-create policy "Users can update own profile" on profiles
-	for update using (auth.uid() = id);
 
 -- Auto-create a profile row for every new auth user (invited or otherwise),
 -- deriving first/last name from invite metadata (or leaving them null for
@@ -82,12 +90,22 @@ create trigger on_auth_user_created
 	for each row execute function public.handle_new_user();
 
 -- ─── Pages ─────────────────────────────────────────────────────────────────
+-- Live content (title/blocks) is separate from the working draft
+-- (draft_title/draft_blocks) that the editor actually edits and the Preview
+-- button shows — saving a page never publishes it, only
+-- POST /api/pages/:slug/publish copies draft -> live. status gates whether a
+-- page exists publicly at all; preview_token is a stable per-page secret
+-- that lets a draft be shared via a preview link with no login needed.
 
 create table if not exists pages (
 	id text primary key,
 	slug text not null unique,
 	title text not null,
 	blocks jsonb not null default '[]'::jsonb,
+	draft_title text not null,
+	draft_blocks jsonb not null default '[]'::jsonb,
+	status text not null default 'draft' check (status in ('draft', 'published')),
+	preview_token uuid not null default gen_random_uuid(),
 	seo jsonb,
 	parent_id text references pages (id) on delete set null,
 	updated_by uuid references profiles (id) on delete set null,
@@ -126,6 +144,9 @@ create index if not exists uploads_created_at_idx on uploads (created_at desc);
 alter table uploads enable row level security;
 
 -- ─── Menus ─────────────────────────────────────────────────────────────────
+-- AppHeader.vue reads the menu with id 'header-main'; AppFooter.vue reads
+-- 'footer-main' (extra link column/inline links) and 'footer-legal' (bottom-
+-- bar legal links) — both optional, the footer renders fine with neither.
 
 create table if not exists menus (
 	id text primary key,
@@ -186,6 +207,10 @@ values (
 on conflict (id) do nothing;
 
 -- ─── Site settings ─────────────────────────────────────────────────────────
+-- Singleton row (id is always 'default') — every admin-editable, per-site
+-- knob lives here: brand/business info, the /admin/layout picker, and the
+-- optional integrations on /admin/integrations (GTM, reCAPTCHA, and the
+-- paid submissions-inbox gate — see form_submissions below).
 
 create table if not exists site_settings (
 	id text primary key default 'default',
@@ -198,6 +223,34 @@ create table if not exists site_settings (
 	contact_form_id uuid references forms (id) on delete set null,
 	company jsonb,
 	socials jsonb,
+	-- Layout picker (/admin/layout) — header nav arrangement, footer
+	-- arrangement, and independent light/dark/brand themes for each.
+	nav_style text not null default 'default' check (nav_style in ('default', 'centered')),
+	footer_style text not null default 'default' check (footer_style in ('default', 'simple')),
+	header_theme text not null default 'light' check (header_theme in ('light', 'dark', 'brand')),
+	footer_theme text not null default 'light' check (footer_theme in ('light', 'dark', 'brand')),
+	-- Header CTA ("Say hello" button) — on/off, custom label, and either the
+	-- contact modal or a plain link.
+	header_cta_enabled boolean not null default true,
+	header_cta_label text not null default 'Say hello',
+	header_cta_action text not null default 'modal' check (header_cta_action in ('modal', 'link')),
+	header_cta_url text,
+	-- Google Tag Manager (/admin/integrations) — when both are set, app.vue
+	-- injects the GTM snippet and the built-in first-party pageview tracker
+	-- stands down, so nothing double-counts.
+	gtm_id text,
+	gtm_enabled boolean not null default false,
+	-- reCAPTCHA v3 (/admin/integrations) — recaptcha_site_key is public
+	-- (embedded client-side). recaptcha_secret_key is never sent to the
+	-- browser, server/api/settings/index.get.ts only ever returns whether
+	-- one's set.
+	recaptcha_site_key text,
+	recaptcha_secret_key text,
+	recaptcha_enabled boolean not null default false,
+	-- Paid add-on gate for the /admin/submissions inbox — off by default,
+	-- switched on per site directly in the DB (not via PATCH /api/settings),
+	-- so a client can't just enable it themselves for free.
+	submissions_enabled boolean not null default false,
 	updated_at timestamptz not null default now()
 );
 
@@ -209,7 +262,8 @@ execute function set_updated_at();
 
 -- Single settings row, seeded with the starting palette so the table is
 -- never empty and the app never has to handle a "no settings yet" state —
--- change all of this from /admin/settings once the site's live.
+-- change all of this from /admin/settings once the site's live. Every other
+-- column above picks up its own default.
 insert into site_settings (id, primary_color, secondary_color, accent_color, background_color, site_name, contact_form_id)
 values ('default', '#e63946', '#457b9d', '#a8dadc', '#f1ede3', 'My Site', '00000000-0000-0000-0000-000000000001')
 on conflict (id) do nothing;
@@ -231,3 +285,107 @@ create table if not exists activity_log (
 create index if not exists activity_log_created_at_idx on activity_log (created_at desc);
 
 alter table activity_log enable row level security;
+
+-- ─── Redirects ─────────────────────────────────────────────────────────────
+-- Auto-redirect-on-rename — when a page's slug changes,
+-- server/api/pages/[slug].put.ts writes a row here so a visitor hitting the
+-- old URL gets a 301 to the new one instead of a 404.
+
+create table if not exists redirects (
+	old_slug text primary key,
+	new_slug text not null,
+	created_at timestamptz not null default now()
+);
+
+alter table redirects enable row level security;
+
+-- ─── Page views (first-party analytics) ─────────────────────────────────────
+-- No third-party script, no cookies. device_type/browser are derived from
+-- the request's user-agent at track time (the raw user-agent string itself
+-- is never stored); country comes from a geolocation header some hosts
+-- inject (Vercel/Netlify/Cloudflare) and just stays null without one.
+
+create table if not exists page_views (
+	id uuid primary key default gen_random_uuid(),
+	path text not null,
+	referrer text,
+	-- sha256(ip + user-agent + date), truncated — approximates a unique
+	-- visitor per day without ever storing a raw IP address.
+	visitor_hash text not null,
+	device_type text,
+	browser text,
+	country text,
+	created_at timestamptz not null default now()
+);
+
+create index if not exists page_views_created_at_idx on page_views (created_at desc);
+create index if not exists page_views_path_idx on page_views (path);
+
+alter table page_views enable row level security;
+
+-- ─── Page revisions ──────────────────────────────────────────────────────────
+-- A snapshot of a page's content is written every time it's created, saved,
+-- duplicated, or restored, so an editor can undo a bad save without needing
+-- a full site backup. Trimmed to the last 10 per page.
+
+create table if not exists page_revisions (
+	id uuid primary key default gen_random_uuid(),
+	page_id text not null references pages (id) on delete cascade,
+	title text not null,
+	slug text not null,
+	blocks jsonb not null default '[]'::jsonb,
+	seo jsonb,
+	actor_id uuid references profiles (id) on delete set null,
+	created_at timestamptz not null default now()
+);
+
+create index if not exists page_revisions_page_id_idx on page_revisions (page_id, created_at desc);
+
+alter table page_revisions enable row level security;
+
+-- ─── 404 tracking ────────────────────────────────────────────────────────────
+-- Logs real 404s (checked against redirects first, so this only fires on
+-- genuine dead ends) so /admin/redirects can surface "someone hit /old-page
+-- 6 times, want to redirect it?" instead of dead links silently happening.
+
+create table if not exists not_found_hits (
+	id uuid primary key default gen_random_uuid(),
+	path text not null unique,
+	hit_count integer not null default 1,
+	first_seen_at timestamptz not null default now(),
+	last_seen_at timestamptz not null default now()
+);
+
+create index if not exists not_found_hits_hit_count_idx on not_found_hits (hit_count desc);
+
+alter table not_found_hits enable row level security;
+
+-- ─── Form submissions ────────────────────────────────────────────────────────
+-- Every form submission (Newsletter Signup, Contact, or any FormBlock)
+-- always emails out via Resend AND is always logged here, regardless of
+-- whether the submissions inbox (site_settings.submissions_enabled) is
+-- switched on for this site — nothing is lost if a site upgrades later.
+
+create table if not exists form_submissions (
+	id uuid primary key default gen_random_uuid(),
+	form_id uuid not null references forms (id) on delete cascade,
+	values jsonb not null default '{}'::jsonb,
+	-- Convenience column, extracted the same way submit.post.ts already
+	-- picks a replyTo — the first field of type 'email' with a value. Lets
+	-- the submissions list/export show an email column without needing to
+	-- know each form's field names. Null for a form with no email field.
+	email text,
+	status text not null default 'new' check (status in ('new', 'read', 'replied')),
+	-- Set once a reply's been sent from the inbox — only ever holds the most
+	-- recent reply, not a full thread.
+	reply_message text,
+	replied_at timestamptz,
+	replied_by uuid references profiles (id) on delete set null,
+	created_at timestamptz not null default now()
+);
+
+create index if not exists form_submissions_form_id_idx on form_submissions (form_id);
+create index if not exists form_submissions_created_at_idx on form_submissions (created_at desc);
+create index if not exists form_submissions_status_idx on form_submissions (status);
+
+alter table form_submissions enable row level security;

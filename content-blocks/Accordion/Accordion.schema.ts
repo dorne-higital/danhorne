@@ -22,6 +22,12 @@ export default {
 			],
 		},
 		{
+			name: 'showFilters',
+			label: 'Show tag filters (a filter bar visitors can use to narrow the list by tag)',
+			type: 'boolean',
+			default: false,
+		},
+		{
 			name: 'items',
 			label: 'Items',
 			type: 'repeater',
@@ -29,6 +35,12 @@ export default {
 			fields: [
 				{ name: 'question', label: 'Question', type: 'text', default: '' },
 				{ name: 'answer', label: 'Answer', type: 'richtext', default: '' },
+				{
+					name: 'tags',
+					label: 'Tags (comma separated — used by "Show tag filters" above)',
+					type: 'text',
+					default: '',
+				},
 			],
 		},
 	],

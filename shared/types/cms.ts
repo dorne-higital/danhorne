@@ -282,6 +282,11 @@ export interface SiteSettings {
 	recaptcha_site_key: string | null
 	recaptcha_enabled: boolean
 	recaptcha_secret_key_set: boolean
+	// Paid add-on gate for the /admin/submissions inbox — off by default,
+	// switched on per site directly in the DB (not via PATCH /api/settings,
+	// see supabase/migrations/0019_submissions_enabled.sql), so a client
+	// can't just enable it themselves for free.
+	submissions_enabled: boolean
 }
 
 export type FormFieldType = 'text' | 'email' | 'tel' | 'number' | 'textarea' | 'select' | 'checkbox'
@@ -317,3 +322,31 @@ export interface FormRecord {
 }
 
 export type FormSummary = Omit<FormRecord, 'fields'>
+
+// One row per submission of any form (Newsletter Signup, Contact, or any
+// FormBlock) — see server/api/forms/[id]/submit.post.ts, which inserts one
+// of these alongside the existing Resend notification email. Surfaced as a
+// standalone inbox at /admin/submissions, not nested under each form.
+export type SubmissionStatus = 'new' | 'read' | 'replied'
+
+export interface FormSubmission {
+	id: string
+	form_id: string
+	values: Record<string, string>
+	// First field of type 'email' with a value, same extraction submit.post.ts
+	// already does for the notification email's replyTo. Null if the form has
+	// no email field, or the submitter left it blank on a non-required field.
+	// A reply can't be sent from the inbox without one.
+	email: string | null
+	status: SubmissionStatus
+	// Set once a reply's been sent from the inbox — see server/api/submissions/[id]/reply.post.ts.
+	// Only ever holds the most recent reply, not a full thread.
+	reply_message: string | null
+	replied_at: string | null
+	replied_by: string | null
+	created_at: string
+	// Embedded via form_submissions.form_id -> forms(id) on the inbox list/
+	// detail endpoints, which span every form at once and need to say which
+	// one each row came from.
+	form?: { name: string } | null
+}

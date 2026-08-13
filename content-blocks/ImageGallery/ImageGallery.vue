@@ -64,6 +64,7 @@
 
 <style lang="scss" scoped>
 	.cb-image-gallery {
+		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
 		.grid {

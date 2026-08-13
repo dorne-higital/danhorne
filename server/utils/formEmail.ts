@@ -22,6 +22,69 @@ function row(label: string, value: string): string {
 	`
 }
 
+// Reply email sent from the submissions inbox (server/api/submissions/[id]/reply.post.ts)
+// back to whoever submitted a form — same branded shell as the notification
+// email above, just a single message instead of a field/value table.
+export function buildReplyEmailHtml(siteName: string, message: string): string {
+	return `
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<meta name="color-scheme" content="light only" />
+				<meta name="supported-color-schemes" content="light only" />
+				<style>
+					@media (prefers-color-scheme: dark) {
+						.email-bg {
+							background: #fff8f8 !important;
+						}
+
+						.header {
+							background: #e63946 !important;
+						}
+
+						.header-text {
+							color: #ffffff !important;
+						}
+
+						.card {
+							background: #ffffff !important;
+						}
+
+						.text-ink {
+							color: #1d3557 !important;
+						}
+
+						.footer-text {
+							color: rgba(29, 53, 87, 0.6) !important;
+						}
+					}
+				</style>
+			</head>
+			<body class="email-bg" style="margin: 0; padding: 32px 16px; background: #fff8f8; font-family: Arial, Helvetica, sans-serif;">
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; margin: 0 auto;">
+					<tr>
+						<td class="header" style="background: #e63946; border: 2px solid #1d3557; border-radius: 12px 12px 0 0; padding: 20px 24px;">
+							<span class="header-text" style="color: #ffffff; font-size: 18px; font-weight: 700;">${escapeHtml(siteName)}</span>
+						</td>
+					</tr>
+					<tr>
+						<td class="card" style="background: #ffffff; border: 2px solid #1d3557; border-top: none; padding: 24px;">
+							<p class="text-ink" style="margin: 0; color: #1d3557; font-size: 15px; white-space: pre-wrap;">${escapeHtml(message)}</p>
+						</td>
+					</tr>
+					<tr>
+						<td class="email-bg" style="padding: 16px 24px; text-align: center;">
+							<span class="footer-text" style="color: rgba(29, 53, 87, 0.6); font-size: 12px;">In reply to your message sent via ${escapeHtml(siteName)}</span>
+						</td>
+					</tr>
+				</table>
+			</body>
+		</html>
+	`
+}
+
 // Generic form-submission email — same branded template every form's
 // notification uses, parameterized over the form's own name and whatever
 // label/value rows its fields produced (see server/api/forms/[id]/submit.post.ts).

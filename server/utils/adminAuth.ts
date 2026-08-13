@@ -46,3 +46,17 @@ export async function requireAdminRole(event: H3Event): Promise<{ user: JwtPaylo
 
 	return { user, profile: profile as AdminProfile }
 }
+
+// Guards every /api/submissions* and /api/forms/[id]/submissions* route —
+// the submissions inbox is a paid add-on (site_settings.submissions_enabled,
+// see supabase/migrations/0019_submissions_enabled.sql), so this enforces
+// the gate server-side even if someone hits the URL directly, not just in
+// the admin nav/UI.
+export async function requireSubmissionsEnabled(event: H3Event): Promise<void> {
+	const supabase = useSupabase()
+	const { data } = await supabase.from('site_settings').select('submissions_enabled').eq('id', 'default').single()
+
+	if (!data?.submissions_enabled) {
+		throw createError({ statusCode: 403, statusMessage: 'The submissions inbox is not enabled on this site' })
+	}
+}

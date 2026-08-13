@@ -90,6 +90,16 @@ export default defineEventHandler(async (event) => {
 
 	const config = useRuntimeConfig()
 
+	// Best-effort — a storage hiccup shouldn't cost the submitter their
+	// message, so this never blocks or fails the request. The Resend email
+	// below stays the primary, must-succeed notification path.
+	const { error: insertError } = await supabase
+		.from('form_submissions')
+		.insert({ form_id: id, values, email: replyTo ?? null })
+	if (insertError) {
+		console.error('Failed to log form submission:', insertError.message)
+	}
+
 	if (!config.resendApiKey) {
 		throw createError({ statusCode: 500, statusMessage: 'Email is not configured on the server.' })
 	}

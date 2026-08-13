@@ -1,16 +1,16 @@
 <template>
 	<section class="cb-tabs">
-		<div class="sw">
-			<SectionHeading
-				v-if="heading || subheading"
-				:heading="heading"
-				:subheading="subheading"
-				size="medium"
-				align="left"
-				:no-padding="true"
-				class="section-heading"
-			/>
+		<SectionHeading
+			v-if="heading || subheading"
+			:heading="heading"
+			:subheading="subheading"
+			size="medium"
+			align="left"
+			:no-padding="true"
+			class="section-heading"
+		/>
 
+		<div class="sw">
 			<div
 				v-if="items.length"
 				class="tabs"

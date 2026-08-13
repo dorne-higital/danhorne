@@ -38,12 +38,31 @@
 							:key="item.to"
 						>
 							<NuxtLink
-								v-if="!item.soon"
+								v-if="!item.soon && !item.locked"
 								:to="item.to"
 								class="nav-item"
 								active-class="active"
 							>
 								{{ item.label }}
+								<span
+									v-if="item.to === '/admin/submissions' && unreadCount > 0"
+									class="nav-badge"
+								>
+									{{ unreadCount }}
+								</span>
+							</NuxtLink>
+							<NuxtLink
+								v-else-if="item.locked"
+								to="/admin/integrations"
+								class="nav-item locked"
+								title="Paid add-on — enable it on the Integrations page"
+							>
+								{{ item.label }}
+								<Icon
+									name="lucide:lock"
+									class="lock-badge"
+									aria-hidden="true"
+								/>
 							</NuxtLink>
 							<div
 								v-else
@@ -100,6 +119,11 @@
 		// disabled with a "Soon" badge instead of a real NuxtLink, since
 		// there's no page behind them yet.
 		soon?: boolean
+		// Built and working, but gated behind a paid add-on this site hasn't
+		// got switched on (site_settings.submissions_enabled) — rendered as a
+		// locked link to /admin/integrations instead of the real page, so it
+		// still advertises the feature rather than disappearing outright.
+		locked?: boolean
 	}
 
 	interface NavGroup {
@@ -108,6 +132,22 @@
 	}
 
 	const { data: me } = useAdminProfile()
+	const { data: settings } = useSiteSettings()
+	const submissionsEnabled = computed(() => !!settings.value?.submissions_enabled)
+
+	const { data: unreadCountData, refresh: refreshUnreadCount } = useFetch<{ count: number }>(
+		'/api/submissions/unread-count',
+		{ key: 'admin-submissions-unread-count', immediate: false },
+	)
+	const unreadCount = computed(() => unreadCountData.value?.count ?? 0)
+
+	watch(
+		submissionsEnabled,
+		(enabled) => {
+			if (enabled) refreshUnreadCount()
+		},
+		{ immediate: true },
+	)
 
 	const displayName = computed(() => me.value?.profile.nickname || me.value?.user.email || '')
 	const firstName = computed(() => me.value?.profile.first_name || me.value?.user.email || '')
@@ -130,6 +170,7 @@
 					{ label: 'Uploads', to: '/admin/uploads' },
 					{ label: 'Menus', to: '/admin/menus' },
 					{ label: 'Forms', to: '/admin/forms' },
+					{ label: 'Submissions', to: '/admin/submissions', locked: !submissionsEnabled.value },
 					{ label: 'Layout', to: '/admin/layout' },
 				],
 			},
@@ -176,6 +217,11 @@
 	watch(
 		() => route.path,
 		(path) => {
+			// Cheap enough to just re-check on every navigation rather than
+			// only when leaving /admin/submissions — keeps the badge accurate
+			// after marking things read/replied there without extra wiring.
+			if (submissionsEnabled.value) refreshUnreadCount()
+
 			const activeGroup = navGroups.value.find((group) =>
 				group.items.some((item) => (item.to === '/admin' ? path === '/admin' : path.startsWith(item.to))),
 			)
@@ -295,6 +341,32 @@
 					background: none;
 				}
 			}
+
+			&.locked {
+				opacity: 0.7;
+			}
+		}
+
+		.lock-badge {
+			color: var(--text-secondary);
+			flex-shrink: 0;
+			height: 0.875rem;
+			width: 0.875rem;
+		}
+
+		.nav-badge {
+			align-items: center;
+			background: var(--brand-primary);
+			border-radius: var(--border-radius-pill);
+			color: var(--text-inverse);
+			display: flex;
+			flex-shrink: 0;
+			font-size: 0.625rem;
+			font-weight: 700;
+			height: 1.125rem;
+			justify-content: center;
+			min-width: 1.125rem;
+			padding-inline: 4px;
 		}
 
 		.soon-badge {

@@ -160,6 +160,45 @@
 					</button>
 				</form>
 			</section>
+
+			<section class="panel">
+				<div class="panel-header">
+					<div class="title-with-info">
+						<h2>Submissions Inbox</h2>
+						<span
+							class="info-tooltip"
+							tabindex="0"
+							aria-describedby="submissions-info"
+						>
+							<Icon
+								name="lucide:info"
+								aria-hidden="true"
+							/>
+							<span
+								id="submissions-info"
+								class="tooltip-bubble"
+								role="tooltip"
+							>
+								A CRM-style inbox for every form on the site — search, filter by read/replied, reply
+								straight from here, export to CSV. Paid add-on on top of the standard email notification
+								every submission already triggers. Get in touch to switch it on.
+							</span>
+						</span>
+					</div>
+					<span :class="['status-badge', submissionsActive ? 'on' : 'off']">
+						{{ submissionsActive ? 'Active' : 'Off' }}
+					</span>
+				</div>
+				<p class="panel-note">
+					<template v-if="submissionsActive">
+						Enabled on this site — find it under Site → Submissions in the sidebar.
+					</template>
+					<template v-else>
+						Not enabled on this site. Forms still email every submission out as normal; this adds a
+						searchable inbox with read/replied tracking on top. Get in touch if you'd like it switched on.
+					</template>
+				</p>
+			</section>
 		</div>
 	</div>
 </template>
@@ -191,6 +230,12 @@
 	const recaptchaActive = computed(() => !!settings.value?.recaptcha_enabled && !!settings.value?.recaptcha_site_key)
 	const savingRecaptcha = ref(false)
 	const recaptchaError = ref('')
+
+	// Read-only — unlike GTM/reCAPTCHA above, there's no form here. This one
+	// is a paid add-on switched on per site directly in the DB, not
+	// something a client's own admin login can self-serve (see
+	// supabase/migrations/0019_submissions_enabled.sql).
+	const submissionsActive = computed(() => !!settings.value?.submissions_enabled)
 
 	watch(settings, (value) => {
 		if (!value) return
@@ -322,6 +367,12 @@
 				visibility: hidden;
 				width: 18rem;
 				z-index: 10;
+			}
+
+			.panel-note {
+				color: var(--text-secondary);
+				font-size: var(--body-size);
+				line-height: 1.5;
 			}
 
 			.status-badge {

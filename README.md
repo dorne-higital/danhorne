@@ -45,20 +45,15 @@ cp .env.example .env
 
 ### Database
 
-Run `supabase/migrations/0001_init.sql` against your Supabase project — either paste it into the Supabase dashboard's SQL Editor, or via `psql`:
+One file, one query. Run `supabase/migrations/0001_init.sql` against your Supabase project — either paste it into the Supabase dashboard's SQL Editor, or via `psql`:
 
 ```bash
 psql "$DATABASE_URL" -f supabase/migrations/0001_init.sql
 ```
 
-This creates every table (`pages`, `uploads`, `menus`, `profiles`, `site_settings`, `activity_log`), the `uploads` Storage bucket, and enables RLS across the board.
+This creates every table (`pages`, `uploads`, `menus`, `forms`, `profiles`, `site_settings`, `activity_log`, `redirects`, `page_views`, `page_revisions`, `not_found_hits`, `form_submissions`), the `uploads` Storage bucket, and enables RLS across the board — the full current schema, not an incremental history. `0001_init.sql` is periodically re-squashed like this as the schema settles, so a fresh clone never has to run a long chain of small migrations — if you're picking this repo back up after a while, check `supabase/migrations/` for the current file(s) rather than assuming this list is still accurate.
 
-Then run the later migrations in order (same `psql`/SQL Editor approach) — each is a small, focused change on top of `0001_init.sql`:
-
-- `0002_lock_profiles_rls.sql` — closes a privilege-escalation gap in the default `profiles` RLS policy.
-- `0003_redirects.sql` — backs the auto-redirect-on-page-rename feature (`redirects` table).
-- `0004_page_views.sql` — backs first-party analytics (`page_views` table, Admin → Analytics).
-- `0005_page_view_details.sql` — adds `device_type`/`browser`/`country` columns so Analytics can show those breakdowns too.
+The submissions inbox this creates a `form_submissions` table for is a **paid add-on**, off by default (`site_settings.submissions_enabled`) — see below for how to switch it on per client.
 
 ### Auth
 
@@ -98,7 +93,15 @@ CI (`.github/workflows/ci.yml`) runs `format:check`, `lint:css`, `nuxi typecheck
 - Every page on the site is a **CMS page** — a row in the `pages` table, made of an ordered list of **blocks**. There is no separate "static" homepage; `/` is just a page whose slug is `/`.
 - Content is edited at `/admin/pages`: create a page, open it, drag blocks in from the picker, edit their fields, save.
 - **Menus** (`/admin/menus`) build the site's nav — multi-menu, up to 3 levels of nesting.
-- **Forms** (`/admin/forms`) — build arbitrary forms (field list, labels, types), submitted via Resend. Any form can power the "Say hello" modal (pick one in Settings) or be dropped onto a page via the Form content-block.
+- **Forms** (`/admin/forms`) — build arbitrary forms (field list, labels, types), submitted via Resend. Any form can power the "Say hello" modal (pick one in Settings) or be dropped onto a page via the Form content-block. Every submission always emails out (this is the standard/default behavior on every client site) **and** is always written to `form_submissions` in the DB, regardless of whether the inbox below is switched on — so nothing is lost if a site upgrades later.
+- **Submissions inbox** (`/admin/submissions`) — a searchable CRM-style inbox on top of the plain email notifications: read/replied status, reply straight from the admin panel, CSV export. **This is a paid add-on, off by default on every fresh clone of this template.** It's gated by `site_settings.submissions_enabled`, which is deliberately **not** editable from `/admin/integrations` or any self-service endpoint — a client's own admin login can't switch it on themselves. To turn it on for a client who's paid for it, run this directly against their Supabase project (SQL editor or `psql`):
+
+    ```sql
+    update site_settings set submissions_enabled = true where id = 'default';
+    ```
+
+    When it's off: the nav shows a locked "Submissions" entry linking to `/admin/integrations` (which shows a short upsell blurb), and every submissions API route 403s server-side even if hit directly — not just a hidden nav item. See `server/utils/adminAuth.ts`'s `requireSubmissionsEnabled` for the mechanism. A reply sent from the inbox goes out as a normal email — if the customer replies back, it lands in `NUXT_CONTACT_EMAIL_TO` like any other email, not back in the app (threading customer replies back into the inbox was tried and rolled back — needs a paid Resend plan to add a dedicated receiving domain, see `TODO.md`).
+
 - **Uploads** (`/admin/uploads`) is the media library — files go into the Supabase Storage `uploads` bucket.
 - **Analytics** (`/admin/analytics`) — first-party pageview tracking, no cookies, no third-party script. Shows totals, a daily trend, top pages/referrers, and device/browser/country breakdowns over a 7/30/90-day window. Country data comes from a geolocation header some hosts inject on incoming requests (Vercel, Netlify, Cloudflare — see `server/utils/geoCountry.ts`); on a plain Node host without one of those, the country breakdown just stays empty rather than guessing.
 - **Settings** (`/admin/settings`) — business info/address, logo, which form the contact modal uses, and social links.
