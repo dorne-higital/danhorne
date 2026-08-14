@@ -2,7 +2,21 @@ export default defineNuxtConfig({
 	compatibilityDate: '2025-01-01',
 	devtools: { enabled: true },
 
-	modules: ['@nuxt/image', '@nuxt/icon', '@nuxtjs/supabase'],
+	modules: ['@nuxt/image', '@nuxt/icon', '@nuxtjs/supabase', '@sentry/nuxt/module'],
+
+	// Source-map upload to Sentry (for readable stack traces on minified
+	// builds) needs org/project/authToken, which we don't set here — every
+	// client site would need its own, and error monitoring works fine without
+	// it, just with minified traces. sentry.client.config.ts /
+	// sentry.server.config.ts at the repo root hold the actual DSN/init and
+	// no-op entirely when NUXT_PUBLIC_SENTRY_DSN is blank.
+	// autoInjectServerSentry: 'top-level-import' — Netlify/Vercel deploys run
+	// as serverless functions where we can't control the node start command
+	// to add `--import`, which the module would otherwise need for
+	// server-side instrumentation.
+	sentry: {
+		autoInjectServerSentry: 'top-level-import',
+	},
 
 	// Every image in this app is dynamic content from Supabase Storage
 	// (uploaded via the CMS), which already serves everything through its
@@ -67,6 +81,11 @@ export default defineNuxtConfig({
 			// absolute URLs robots.txt/sitemap.xml require.
 			siteUrl: '',
 			stripePublishableKey: '',
+			// Error monitoring (see sentry.client.config.ts / sentry.server.config.ts)
+			// — optional, errors just aren't reported anywhere if this is blank.
+			// A Sentry DSN is meant to be public (same trust level as the Stripe
+			// publishable key above), safe to ship in the client bundle.
+			sentryDsn: '',
 		},
 	},
 

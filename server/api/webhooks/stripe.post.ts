@@ -51,7 +51,16 @@ export default defineEventHandler(async (event): Promise<{ received: true }> => 
 		const subscription = stripeEvent.data.object as Stripe.Subscription
 		const customerId = subscription.customer as string
 		if (await customerBelongsToThisSite(supabase, customerId)) {
-			await applySubscriptionToSettings(supabase, customerId, subscription)
+			if (subscription.status === 'active' || subscription.status === 'trialing') {
+				await applySubscriptionToSettings(supabase, customerId, subscription)
+			} else {
+				// past_due (a charge just failed), unpaid (retries exhausted but
+				// not yet formally cancelled), incomplete_expired — the customer
+				// isn't currently paying, so pull the perk immediately rather than
+				// waiting out Stripe's dunning retries, which can run for days to
+				// weeks before customer.subscription.deleted ever fires.
+				await revertSubscriptionInSettings(supabase, subscription)
+			}
 		}
 	}
 
