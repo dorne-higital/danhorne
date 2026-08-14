@@ -22,7 +22,6 @@
 	},
 	"dependencies": {
 		"@nuxtjs/supabase": "^2.0.9",
-		"@sentry/nuxt": "^10.70.0",
 		"@supabase/supabase-js": "^2.110.3",
 		"@tiptap/extension-link": "^3.27.4",
 		"@tiptap/pm": "^3.27.4",
