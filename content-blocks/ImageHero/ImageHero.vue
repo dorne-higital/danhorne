@@ -1,20 +1,22 @@
 <template>
 	<section
-		class="cb-image-hero sw"
-		:class="`shape-${bottomShape}`"
+		class="cb-image-hero"
+		:class="[`shape-${bottomShape}`, { 'no-image': !image }]"
 	>
-		<NuxtImg
-			v-if="image"
-			class="bg"
-			:src="image"
-			:alt="imageAlt"
-			loading="lazy"
-		/>
-		<div
-			v-if="image && clampedOverlayOpacity > 0"
-			class="overlay"
-			:style="{ opacity: clampedOverlayOpacity / 100 }"
-		/>
+		<div class="media">
+			<NuxtImg
+				v-if="image"
+				class="bg"
+				:src="image"
+				:alt="imageAlt"
+				loading="lazy"
+			/>
+			<div
+				v-if="image && clampedOverlayOpacity > 0"
+				class="overlay"
+				:style="{ opacity: clampedOverlayOpacity / 100 }"
+			/>
+		</div>
 
 		<div class="inner sw">
 			<h1
@@ -81,9 +83,6 @@
 		},
 	)
 
-	// overlayOpacity comes from a select field, so it's always a string —
-	// clamped defensively in case a stored value ever falls outside the
-	// picker's 0–100 options (e.g. hand-edited page data).
 	const clampedOverlayOpacity = computed(() => Math.min(100, Math.max(0, Number(props.overlayOpacity) || 0)))
 </script>
 
@@ -91,34 +90,37 @@
 	.cb-image-hero {
 		background-color: var(--bg-primary);
 		box-shadow: var(--shadow-sm);
-
-		// Mobile-first: the 3/1 ratio plus this padding (256px top alone)
-		// were fixed at every size. Combined with `overflow: hidden` below,
-		// a phone-width viewport resolves that ratio to well under 150px
-		// tall — nowhere near enough room for the padding, let alone the
-		// heading/sub/CTAs, so the content was getting silently clipped
-		// off, not just cramped. A min-height stand-in with much smaller
-		// padding replaces the ratio below 768px; the original wide-banner
-		// treatment only applies once there's enough width for it to still
-		// leave a sane amount of vertical room.
 		min-height: 420px;
-		overflow: hidden;
-		padding: var(--padding-xl) var(--padding-md) var(--padding-lg);
+		padding-block: var(--padding-xl) var(--padding-lg);
 		position: relative;
+		width: 100%;
 
 		@media (width >= 768px) {
 			aspect-ratio: 3/1;
 			min-height: unset;
-			padding: calc(var(--padding-xl) * 4) var(--padding-xl) calc(var(--padding-xl) * 2);
+			padding-block: calc(var(--padding-xl) * 4) calc(var(--padding-xl) * 2);
+		}
+
+		.media {
+			background:
+				linear-gradient(
+					65deg,
+					transparent 0%,
+					transparent 68%,
+					var(--brand-primary) 68%,
+					var(--brand-primary) 72%,
+					transparent 72%
+				),
+				linear-gradient(65deg, var(--bg-secondary) 0%, var(--bg-secondary) 56%, var(--bg-primary) 56%);
+			inset: 0;
+			position: absolute;
+			z-index: 0;
 		}
 
 		.bg {
 			height: 100%;
-			inset: 0;
 			object-fit: cover;
-			position: absolute;
 			width: 100%;
-			z-index: 0;
 		}
 
 		.overlay {
@@ -137,10 +139,12 @@
 			z-index: 2;
 
 			.heading {
+				color: var(--text-primary);
 				max-width: 20ch;
 			}
 
 			.sub {
+				color: var(--text-secondary);
 				max-width: 52ch;
 			}
 
@@ -152,8 +156,22 @@
 			}
 		}
 
-		// Bottom-edge shape variants — overflow: hidden above means anything
-		// clipped (the background image included) follows these exactly.
+		&.no-image .inner {
+			color: #fff;
+
+			.sub {
+				color: rgb(255 255 255 / 80%);
+			}
+		}
+
+		&.shape-corner,
+		&.shape-round {
+			.media {
+				border-radius: inherit;
+				overflow: hidden;
+			}
+		}
+
 		&.shape-corner {
 			border-radius: 0 0 40px 40px;
 		}

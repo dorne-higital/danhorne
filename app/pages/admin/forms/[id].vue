@@ -110,16 +110,18 @@
 						>
 							<div class="row">
 								<div class="field">
-									<label>Label</label>
+									<label :for="`${element.id}-label`">Label</label>
 									<input
+										:id="`${element.id}-label`"
 										v-model="element.label"
 										type="text"
 										@input="onLabelInput(element)"
 									/>
 								</div>
 								<div class="field">
-									<label>Name (internal)</label>
+									<label :for="`${element.id}-name`">Name (internal)</label>
 									<input
+										:id="`${element.id}-name`"
 										v-model="element.name"
 										type="text"
 										@input="onNameInput(element)"
@@ -129,8 +131,9 @@
 
 							<div class="row">
 								<div class="field">
-									<label>Type</label>
+									<label :for="`${element.id}-type`">Type</label>
 									<select
+										:id="`${element.id}-type`"
 										v-model="element.type"
 										@change="onTypeChange(element)"
 									>
@@ -144,8 +147,11 @@
 									</select>
 								</div>
 								<div class="field">
-									<label>Width</label>
-									<select v-model="element.width">
+									<label :for="`${element.id}-width`">Width</label>
+									<select
+										:id="`${element.id}-width`"
+										v-model="element.width"
+									>
 										<option value="quarter">Quarter</option>
 										<option value="half">Half</option>
 										<option value="full">Full</option>
@@ -155,15 +161,17 @@
 
 							<div class="row">
 								<div class="field">
-									<label>Placeholder</label>
+									<label :for="`${element.id}-placeholder`">Placeholder</label>
 									<input
+										:id="`${element.id}-placeholder`"
 										v-model="element.placeholder"
 										type="text"
 									/>
 								</div>
 								<div class="field">
-									<label>Hint</label>
+									<label :for="`${element.id}-hint`">Hint</label>
 									<input
+										:id="`${element.id}-hint`"
 										v-model="element.hint"
 										type="text"
 									/>
@@ -175,8 +183,9 @@
 								class="row"
 							>
 								<div class="field">
-									<label>Step</label>
+									<label :for="`${element.id}-step`">Step</label>
 									<input
+										:id="`${element.id}-step`"
 										v-model.number="element.step"
 										type="number"
 										min="1"
@@ -211,8 +220,9 @@
 									class="row"
 								>
 									<div class="field">
-										<label>Depends on field</label>
+										<label :for="`${element.id}-show-if-field`">Depends on field</label>
 										<select
+											:id="`${element.id}-show-if-field`"
 											v-model="element.showIf.field"
 											@change="onShowIfFieldChange(element)"
 										>
@@ -232,9 +242,10 @@
 										</select>
 									</div>
 									<div class="field">
-										<label>Equals</label>
+										<label :for="`${element.id}-show-if-equals`">Equals</label>
 										<select
 											v-if="dependencyOptions(element).length"
+											:id="`${element.id}-show-if-equals`"
 											v-model="element.showIf.equals"
 										>
 											<option
@@ -253,6 +264,7 @@
 										</select>
 										<input
 											v-else
+											:id="`${element.id}-show-if-equals`"
 											v-model="element.showIf.equals"
 											type="text"
 											placeholder="Value"
@@ -265,21 +277,42 @@
 								v-if="element.type === 'select'"
 								class="options-editor"
 							>
-								<p class="options-label">Options</p>
+								<p
+									:id="`${element.id}-options-label`"
+									class="options-label"
+								>
+									Options
+								</p>
 								<div
 									v-for="(option, optionIndex) in element.options ?? []"
 									:key="optionIndex"
 									class="option-row"
 								>
+									<label
+										class="sr-only"
+										:for="`${element.id}-option-${optionIndex}-label`"
+									>
+										Option {{ Number(optionIndex) + 1 }} label
+									</label>
 									<input
+										:id="`${element.id}-option-${optionIndex}-label`"
 										v-model="option.label"
 										type="text"
 										placeholder="Label"
+										:aria-describedby="`${element.id}-options-label`"
 									/>
+									<label
+										class="sr-only"
+										:for="`${element.id}-option-${optionIndex}-value`"
+									>
+										Option {{ Number(optionIndex) + 1 }} value
+									</label>
 									<input
+										:id="`${element.id}-option-${optionIndex}-value`"
 										v-model="option.value"
 										type="text"
 										placeholder="Value"
+										:aria-describedby="`${element.id}-options-label`"
 									/>
 									<button
 										type="button"
@@ -475,6 +508,16 @@
 </script>
 
 <style lang="scss" scoped>
+	.sr-only {
+		border: 0;
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
+
 	.admin-form-editor {
 		padding-block: var(--padding-xl);
 

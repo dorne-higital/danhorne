@@ -6,7 +6,7 @@ export default {
 	group: 'Hero',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
-		{ name: 'heading', label: 'Heading', type: 'richtext', default: 'Page heading' },
+		{ name: 'heading', label: 'Heading', type: 'text', default: 'Page heading' },
 		{ name: 'sub', label: 'Subheading', type: 'text', default: '' },
 		{
 			name: 'background',

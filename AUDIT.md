@@ -6,22 +6,6 @@ Severity: 🔴 Critical · 🟠 High · 🟡 Medium · 🟢 Low/info.
 
 ---
 
-## 🟠 High priority
-
-### Modal has no focus trap and doesn't restore focus on close
-
-`app/components/ui/Modal.vue` — `role="dialog"`/`aria-modal="true"` are set and Escape-to-close works, but focus is never moved into the panel on open (Tab can reach page content hidden behind the overlay) and never returned to the trigger element on close. Same gap, lower severity, in `AppHeader.vue`'s mobile nav drawer (lines 62-66). Also: a modal opened via the `#header` slot instead of the `title` prop gets no accessible name at all (`aria-label` is only set when `title` is used).
-
-**Fix:** add a small focus-trap composable (or the `focus-trap` package) shared between `Modal.vue` and the mobile drawer — focus the panel/first field on open, restore focus to the trigger on close. Set `aria-labelledby` when a slotted header is used instead of `title`.
-
-### Admin form-builder field editor has unlabeled inputs
-
-`app/pages/admin/forms/[id].vue:113,121,132,147,158,165,178,214,235` — every field-editor row (Label, Name, Type, Width, Placeholder, Hint, Step, conditional-logic fields) uses a bare `<label>` with no `for`/`id`, not wrapping its input. A screen reader gets an unlabeled control for every single field in the form builder — the one place where admin-authored forms actually get built. The `Options` row (274-283) has no label at all, just placeholder text.
-
-**Fix:** same `:for`/`:id` pattern already used correctly a few lines up for name/submit-label/success-message (25-45), and in `SchemaField.vue:3-6`.
-
----
-
 ## 🟡 Medium priority
 
 **Security**
@@ -72,7 +56,37 @@ Severity: 🔴 Critical · 🟠 High · 🟡 Medium · 🟢 Low/info.
 - `Tabs.vue` is a fully correct ARIA tabs implementation (roles, `aria-selected`, `aria-controls`, roving tabindex, arrow-key nav) — worth using as the reference pattern if `Accordion.vue` gets tightened up.
 - `AdminSidebar.vue`'s new Forms/Submissions nav group is correctly wired, feature-gated, and active-state-highlighted; no orphaned admin pages found anywhere in `app/pages/admin/**`.
 
+---
 
+## Fixed since this audit
+
+### ~~Modal has no focus trap and doesn't restore focus on close~~ — Fixed 2026-08-18
+
+`app/components/ui/Modal.vue` had no focus management at all — Tab could reach page content behind the overlay, and focus was never returned to whatever triggered the modal on close.
+
+**Fix applied:** the panel now traps Tab/Shift+Tab (wraps at the first/last focusable element, and pulls focus back in if it ever ends up outside the panel), focuses the first focusable element on open, and restores focus to the trigger element on close. Also replaced the fragile `aria-label`-only-when-`title`-is-used logic with `aria-labelledby` pointing at the header, so it's correctly named whether a modal uses the `title` prop or a custom `#header` slot. `AppHeader.vue`'s mobile nav drawer shares the same underlying gap and was **not** touched — flagged again below as still open, since it wasn't part of this specific fix.
+
+- **Still open:** the mobile nav drawer (`AppHeader.vue` lines 62-66) has the identical missing-focus-trap issue, lower severity than the modal since it's a single flat menu, not fixed in this pass.
+
+### ~~Admin form-builder field editor has unlabeled inputs~~ — Fixed 2026-08-18
+
+`app/pages/admin/forms/[id].vue` had every field-editor input (Label, Name, Type, Width, Placeholder, Hint, Step, the conditional-logic Depends-on/Equals pair) using a bare `<label>` with no `for`/`id`, plus an Options row with no labels at all.
+
+**Fix applied:** every label now has a matching `:for`/`:id` pair keyed off `element.id` (unique per field row). The Options row's Label/Value inputs gained visually-hidden (`.sr-only`) labels — "Option 1 label"/"Option 1 value" etc. — plus `aria-describedby` back to the "Options" heading, so the visual layout is unchanged but a screen reader gets real labels. A pre-existing, unrelated TS arithmetic error in the same markup (`optionIndex + 1`) was fixed along the way since it blocked a clean typecheck.
+
+### ~~ImageHero: buttons silently clipped, dark theme didn't apply~~ — Fixed 2026-08-18
+
+Not from the original audit passes — reported directly by Dan while using the block. Two separate real bugs, both in `content-blocks/ImageHero/ImageHero.vue`:
+
+- **CTA buttons could get clipped.** The section combined `aspect-ratio: 3/1` (desktop) with `overflow: hidden`. Per the CSS sizing spec, an `aspect-ratio` box's content-based automatic minimum size is 0 whenever `overflow` isn't `visible` — so when a page's heading/subheading/CTAs needed more vertical room than the fixed 3/1 ratio allowed, the excess was silently clipped rather than growing the box, and the buttons (last in the flex column) were the first casualty.
+  **Fix applied:** moved the background image + overlay into a dedicated absolutely-positioned `.media` wrapper and removed `overflow: hidden` from the section itself, so it's free to grow with its content again. `overflow: hidden` now only lives on `.media` for the corner/round shape variants (which need it to clip the *image* to their border-radius) — `.inner`'s text/buttons are never inside that wrapper, so they can't be clipped by it. `shape-angular`'s `clip-path` was already safe (it doesn't trigger the same automatic-minimum-size behavior) and needed no change.
+  **Follow-up regression, same day:** removing `overflow: hidden` fixed the clipping but, combined with a separate change making the section full-bleed (below), exposed a second real bug: in the admin page builder's narrow preview column, the desktop `padding-block` (256px + 128px) is far taller than 1/3 of that column's width, so the box needed more height than `aspect-ratio: 3/1` would derive from its own width. With `width` left as the implicit block-level default rather than an explicit value, the browser resolved that conflict by growing **width** to match the forced-taller height at the same ratio instead of just letting height grow — blowing the section out past its own container entirely, image included. Reproduced and confirmed in isolation with headless Chrome before fixing (not a guess). **Fix applied:** added `width: 100%;` to `.cb-image-hero`, which makes width unambiguously definite for the `aspect-ratio` calculation, so it can only ever derive height from width, never the reverse. Re-verified in the same isolated repro that both fixes hold together — no clipping, no overflow.
+- **Dark theme didn't visibly apply.** `--bg-gradient` (used for the image's overlay scrim) was hardcoded to the light theme's color (`#fafafa`) in a single global declaration, never overridden for `[data-theme='dark']`/`[data-theme='brand']` — so a dark-themed ImageHero kept a light-colored scrim regardless, undermining contrast for the (now near-white) heading text over it. Separately, the admin editor's live block-preview panel (`body.is-admin .block-preview`) reset most theme tokens back to the real site palette but never reset `--bg-primary` for either its light or dark state — so toggling a block's dark-theme switch while editing left the background looking unchanged even where the rest of the fix below was correct.
+  **Fix applied:** `--bg-gradient` now derives from `var(--bg-primary)` instead of a hardcoded hex, matching the same pattern `--brand-gradient` already uses — this makes it automatically theme-correct everywhere (site, admin preview) with no per-theme redeclaration needed. Added the missing `--bg-primary` overrides to both `body.is-admin .block-preview` and `body.is-admin .block-preview [data-theme='dark']`.
+
+---
+
+# Site Audit — 2026-07-29
 
 A point-in-time review across security, SEO, performance, accessibility, and code quality/devops. Compiled by reading the codebase, DB migrations, and running `yarn audit` — not a runtime penetration test or a Lighthouse run, so treat performance/accessibility numbers as code-level findings, not measured scores.
 

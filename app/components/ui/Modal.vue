@@ -8,11 +8,13 @@
 				@click.self="close"
 			>
 				<div
+					ref="panelRef"
 					class="panel"
 					:class="size"
 					role="dialog"
 					aria-modal="true"
-					:aria-label="!$slots.header && title ? title : undefined"
+					tabindex="-1"
+					:aria-labelledby="title || $slots.header ? headingId : undefined"
 				>
 					<button
 						class="dismiss"
@@ -25,6 +27,7 @@
 
 					<header
 						v-if="title || $slots.header"
+						:id="headingId"
 						class="head"
 					>
 						<slot name="header">
@@ -67,19 +70,72 @@
 		close: []
 	}>()
 
+	const headingId = useId()
+	const panelRef = ref<HTMLElement>()
+	let previouslyFocused: HTMLElement | null = null
+
 	function close() {
 		emit('update:open', false)
 		emit('close')
 	}
 
+	function getFocusable(): HTMLElement[] {
+		if (!panelRef.value) return []
+		return Array.from(
+			panelRef.value.querySelectorAll<HTMLElement>(
+				'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+			),
+		).filter((el) => el.offsetParent !== null)
+	}
+
 	function onKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && props.open) close()
+		if (!props.open) return
+
+		if (event.key === 'Escape') {
+			close()
+			return
+		}
+
+		if (event.key !== 'Tab') return
+
+		// Trap Tab/Shift+Tab inside the panel — wrap at the ends, and pull
+		// focus back in if it ever ends up outside the panel entirely.
+		const focusable = getFocusable()
+		if (!focusable.length) {
+			event.preventDefault()
+			return
+		}
+
+		const first = focusable[0]
+		const last = focusable[focusable.length - 1]
+		const active = document.activeElement as HTMLElement | null
+		const activeInPanel = active && panelRef.value?.contains(active)
+
+		if (event.shiftKey) {
+			if (!activeInPanel || active === first) {
+				event.preventDefault()
+				last?.focus()
+			}
+		} else if (!activeInPanel || active === last) {
+			event.preventDefault()
+			first?.focus()
+		}
 	}
 
 	watch(
 		() => props.open,
-		(isOpen) => {
+		async (isOpen) => {
 			document.body.style.overflow = isOpen ? 'hidden' : ''
+
+			if (isOpen) {
+				previouslyFocused = document.activeElement as HTMLElement | null
+				await nextTick()
+				const first = getFocusable()[0]
+				;(first ?? panelRef.value)?.focus()
+			} else {
+				previouslyFocused?.focus()
+				previouslyFocused = null
+			}
 		},
 	)
 
