@@ -16,7 +16,9 @@
 				<h1
 					v-if="heading"
 					class="heading"
-				/>
+				>
+					{{ heading }}
+				</h1>
 
 				<h4
 					v-if="sub"
