@@ -14,8 +14,8 @@
 
 				<!-- eslint-disable-next-line vue/no-v-html -->
 				<h1
+					v-if="heading"
 					class="heading"
-					v-html="heading"
 				/>
 
 				<h4
