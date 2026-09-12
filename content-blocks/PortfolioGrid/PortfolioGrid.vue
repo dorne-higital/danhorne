@@ -2,6 +2,7 @@
 	<section
 		v-if="sites?.length"
 		class="cb-portfolio-grid"
+		:class="minimalPadding ? 'small-padding' : ''"
 	>
 		<div class="sw">
 			<div class="head">
@@ -271,12 +272,14 @@
 			caption?: string
 			layout?: 'grid' | 'rows' | 'masonry'
 			columns?: number
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			caption: '',
 			layout: 'grid',
 			columns: 3,
+			minimalPadding: false,
 		},
 	)
 
@@ -331,6 +334,10 @@
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
+		}
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
 		}
 
 		.head {

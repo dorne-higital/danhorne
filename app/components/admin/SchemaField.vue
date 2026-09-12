@@ -55,6 +55,33 @@
 			</p>
 		</div>
 
+		<div
+			v-else-if="field.type === 'portfolioSite'"
+			class="form-field-picker"
+		>
+			<select
+				:id="field.name"
+				:value="stringValue"
+				@change="onSelectChange"
+			>
+				<option value="">— None —</option>
+				<option
+					v-for="option in portfolioSites"
+					:key="option.id"
+					:value="option.id"
+				>
+					{{ option.name }}
+				</option>
+			</select>
+			<p
+				v-if="!portfolioSites?.length"
+				class="hint"
+			>
+				No portfolio sites yet — add one in
+				<NuxtLink to="/admin/portfolio">Portfolio</NuxtLink>.
+			</p>
+		</div>
+
 		<label
 			v-else-if="field.type === 'boolean'"
 			:for="field.name"
@@ -191,7 +218,7 @@
 
 <script setup lang="ts">
 	import draggable from 'vuedraggable'
-	import type { FieldSchema, FormSummary } from '#shared/types/cms'
+	import type { FieldSchema, FormSummary, PortfolioSite } from '#shared/types/cms'
 	import { createRepeaterItem } from '~~/content-blocks/registry'
 
 	const props = defineProps<{
@@ -212,6 +239,15 @@
 	const { data: forms } = useFetch<FormSummary[]>('/api/forms', {
 		key: 'schema-field-forms-list',
 		immediate: props.field.type === 'form',
+	})
+
+	// Same reasoning as `forms` above, for 'portfolioSite'-type fields. Hits
+	// GET /api/portfolio-sites as a logged-in admin, which returns every site
+	// (drafts included, not just published) — same "pick from everything you
+	// have, not just what's live" behavior the forms picker already has.
+	const { data: portfolioSites } = useFetch<PortfolioSite[]>('/api/portfolio-sites', {
+		key: 'schema-field-portfolio-sites-list',
+		immediate: props.field.type === 'portfolioSite',
 	})
 	const repeaterItems = computed(() => (props.modelValue as Record<string, unknown>[] | undefined) ?? [])
 

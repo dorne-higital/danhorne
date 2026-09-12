@@ -41,10 +41,15 @@
 
 <script setup lang="ts">
 	import draggable from 'vuedraggable'
-	import type { Block } from '#shared/types/cms'
+	import type { Block, BlockSchema } from '#shared/types/cms'
 	import { createDefaultProps, getGroupedBlockSchemas } from '~~/content-blocks/registry'
 
-	const groupedSchemas = getGroupedBlockSchemas()
+	// Reactive (not a plain const) — settings is useFetch-backed and may not
+	// have resolved yet on first render, so a block gated by requiredFeature
+	// (see shared/types/cms.ts) needs to appear the moment it does, not stay
+	// hidden for the rest of the session.
+	const { data: settings } = useSiteSettings()
+	const groupedSchemas = computed(() => getGroupedBlockSchemas(settings.value?.enabled_features))
 	const collapsedGroups = ref(new Set<string>())
 
 	function isExpanded(name: string): boolean {
@@ -59,7 +64,7 @@
 		}
 	}
 
-	function cloneBlock(schema: (typeof groupedSchemas)[number]['schemas'][number]): Block {
+	function cloneBlock(schema: BlockSchema): Block {
 		return {
 			id: crypto.randomUUID(),
 			type: schema.type,

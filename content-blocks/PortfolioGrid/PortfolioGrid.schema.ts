@@ -4,6 +4,7 @@ export default {
 	type: 'PortfolioGrid',
 	label: 'Portfolio Grid',
 	group: 'Sections',
+	requiredFeature: 'portfolio',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Our work' },
@@ -20,5 +21,6 @@ export default {
 			],
 		},
 		{ name: 'columns', label: 'Columns (grid/masonry, desktop)', type: 'number', default: 3 },
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

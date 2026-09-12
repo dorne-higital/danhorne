@@ -4,6 +4,7 @@ export default {
 	type: 'PortfolioStats',
 	label: 'Portfolio Stats',
 	group: 'Sections',
+	requiredFeature: 'portfolio',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },
@@ -17,5 +18,6 @@ export default {
 				{ label: 'Minimal, divided', value: 'minimal' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

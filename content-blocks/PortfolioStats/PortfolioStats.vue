@@ -2,7 +2,7 @@
 	<section
 		v-if="stats.length"
 		class="cb-portfolio-stats"
-		:class="`variant-${variant}`"
+		:class="[`variant-${variant}`, minimalPadding ? 'small-padding' : '']"
 	>
 		<div class="sw container">
 			<SectionHeading
@@ -36,11 +36,13 @@
 			heading?: string
 			subheading?: string
 			variant?: 'block' | 'minimal'
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			subheading: '',
 			variant: 'block',
+			minimalPadding: false,
 		},
 	)
 
@@ -85,6 +87,10 @@
 	.cb-portfolio-stats {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.container {
 			display: flex;

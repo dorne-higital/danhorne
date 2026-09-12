@@ -1,4 +1,6 @@
 import type { BlockSchema, FieldSchema } from '#shared/types/cms'
+import type { FeatureKey } from '#shared/utils/features'
+import { isFeatureEnabled } from '#shared/utils/features'
 
 const schemaModules = import.meta.glob('./*/*.schema.ts', { eager: true }) as Record<string, { default: BlockSchema }>
 
@@ -6,6 +8,11 @@ export const blockSchemas: BlockSchema[] = Object.values(schemaModules)
 	.map((mod) => mod.default)
 	.sort((a, b) => a.label.localeCompare(b.label))
 
+// Still resolves a schema regardless of requiredFeature — an already-placed
+// block on a page needs to render/edit fine even if the feature that gates
+// *adding new ones* (see getGroupedBlockSchemas below) happens to be off,
+// same reasoning app/components/BlockRenderer.vue never checks feature flags
+// either.
 export function getBlockSchema(type: string): BlockSchema | undefined {
 	return blockSchemas.find((schema) => schema.type === type)
 }
@@ -17,9 +24,14 @@ export interface BlockSchemaGroup {
 
 const GROUP_ORDER = ['Hero', 'Content', 'Sections', 'Features', 'CTAs']
 
-export function getGroupedBlockSchemas(): BlockSchemaGroup[] {
+// enabledFeatures is optional (defaults to "nothing enabled") rather than
+// required, so a caller that forgets to pass it fails closed — a
+// requiredFeature block simply disappears from the picker instead of
+// leaking through as if every feature were on.
+export function getGroupedBlockSchemas(enabledFeatures?: Partial<Record<FeatureKey, boolean>>): BlockSchemaGroup[] {
 	const groups = new Map<string, BlockSchema[]>()
 	for (const schema of blockSchemas) {
+		if (schema.requiredFeature && !isFeatureEnabled(schema.requiredFeature, enabledFeatures)) continue
 		const name = schema.group ?? 'Other'
 		if (!groups.has(name)) groups.set(name, [])
 		groups.get(name)!.push(schema)

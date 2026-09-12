@@ -30,7 +30,9 @@
 		close: []
 	}>()
 
-	const groupedSchemas = getGroupedBlockSchemas()
+	// Reactive — see the identical comment in BlockPicker.vue.
+	const { data: settings } = useSiteSettings()
+	const groupedSchemas = computed(() => getGroupedBlockSchemas(settings.value?.enabled_features))
 
 	function onDocumentClick() {
 		emit('close')

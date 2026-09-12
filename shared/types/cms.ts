@@ -1,6 +1,15 @@
 import type { FeatureKey } from '#shared/utils/features'
 
-export type FieldType = 'text' | 'richtext' | 'image' | 'number' | 'select' | 'boolean' | 'repeater' | 'form'
+export type FieldType =
+	| 'text'
+	| 'richtext'
+	| 'image'
+	| 'number'
+	| 'select'
+	| 'boolean'
+	| 'repeater'
+	| 'form'
+	| 'portfolioSite'
 
 export interface SelectOption {
 	label: string
@@ -23,6 +32,15 @@ export interface BlockSchema {
 	// Category shown as a heading in the block picker, e.g. "Hero", "Content".
 	// Blocks with no group are bucketed under "Other".
 	group?: string
+	// Hides this block from the picker (BlockPicker.vue/InsertBlockMenu.vue —
+	// see getGroupedBlockSchemas in content-blocks/registry.ts) on any site
+	// that doesn't have this feature enabled — e.g. the Portfolio* blocks,
+	// which read from a private/internal-only data source (see
+	// shared/utils/features.ts's 'portfolio' key) that a fresh clone of this
+	// template has switched off by default. An already-placed block with
+	// this schema still renders/edits fine regardless — this only affects
+	// whether it can be newly added.
+	requiredFeature?: FeatureKey
 	fields: FieldSchema[]
 }
 

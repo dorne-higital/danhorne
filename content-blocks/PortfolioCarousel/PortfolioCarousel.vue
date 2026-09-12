@@ -2,6 +2,7 @@
 	<section
 		v-if="filteredSites.length"
 		class="cb-portfolio-carousel"
+		:class="minimalPadding ? 'small-padding' : ''"
 	>
 		<div class="sw">
 			<div class="head">
@@ -90,6 +91,7 @@
 			limit?: number
 			viewAllHref?: string
 			viewAllLabel?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -98,6 +100,7 @@
 			limit: 8,
 			viewAllHref: '',
 			viewAllLabel: 'View all work',
+			minimalPadding: false,
 		},
 	)
 
@@ -157,6 +160,10 @@
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
+		}
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
 		}
 
 		.head {

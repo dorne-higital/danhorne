@@ -4,6 +4,7 @@ export default {
 	type: 'PortfolioCarousel',
 	label: 'Portfolio Carousel',
 	group: 'Sections',
+	requiredFeature: 'portfolio',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Recent work' },
@@ -22,5 +23,6 @@ export default {
 		{ name: 'limit', label: 'Max sites to show', type: 'number', default: 8 },
 		{ name: 'viewAllHref', label: '"View all" link', type: 'text', default: '' },
 		{ name: 'viewAllLabel', label: '"View all" label', type: 'text', default: 'View all work' },
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema
