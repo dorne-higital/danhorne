@@ -194,6 +194,10 @@
 					{ label: 'Settings', to: '/admin/settings', feature: 'settings' },
 					{ label: 'Activity log', to: '/admin/activity', feature: 'activity' },
 					{ label: 'Integrations', to: '/admin/integrations', feature: 'integrations' },
+					// Private "sites I've built" directory — feature: 'portfolio'
+					// defaults off (shared/utils/features.ts), enabled only on my
+					// own site directly in the DB, same as every other paid add-on.
+					{ label: 'Portfolio', to: '/admin/portfolio', feature: 'portfolio' },
 				],
 			})
 		}

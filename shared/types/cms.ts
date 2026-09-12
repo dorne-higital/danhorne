@@ -359,3 +359,37 @@ export interface FormSubmission {
 	// one each row came from.
 	form?: { name: string } | null
 }
+
+export type PortfolioSiteStatus = 'draft' | 'published'
+
+export interface PortfolioImage {
+	url: string
+	alt: string
+}
+
+// Private "sites I've built" directory — see supabase/migrations/0002_portfolio_sites.sql.
+// Powers PortfolioCarousel/PortfolioGrid/PortfolioStats, which all read
+// through GET /api/portfolio-sites rather than taking this data as block props.
+export interface PortfolioSite {
+	id: string
+	name: string
+	url: string
+	repo_url: string | null
+	description: string | null
+	tags: string[]
+	cover_image: string | null
+	images: PortfolioImage[]
+	client_name: string | null
+	completed_at: string | null
+	is_favourite: boolean
+	is_featured: boolean
+	status: PortfolioSiteStatus
+	sort_order: number
+	// Optional case-study detail page — a full path (e.g. /work/acme or
+	// /projects/acme, admin's choice), not just a segment under a fixed
+	// prefix. Served by app/pages/[...slug].vue's fallback (no CMS page
+	// matched, so it tries this table next). Null means no detail page.
+	slug: string | null
+	created_at: string
+	updated_at: string
+}

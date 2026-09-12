@@ -14,16 +14,19 @@ export type FeatureKey =
 	| 'integrations'
 	| 'pageHistory'
 	| 'multiStepForms'
+	| 'portfolio'
 
 // Most of these are one entry per admin sidebar item; pageHistory and
 // multiStepForms are narrower — capabilities inside the Pages/Forms editors
 // rather than whole sections. Either way, a site gets everything on by
 // default except the paid add-ons (submissions inbox, analytics, page
-// version history, multi-step/conditional forms). Overrides live in
-// site_settings.enabled_features, keyed by FeatureKey; a key absent from
-// that jsonb object falls back to the default below, and it's switched on
-// per site directly in the DB (not via PATCH /api/settings), so a client
-// can't just enable a paid feature themselves.
+// version history, multi-step/conditional forms) and 'portfolio' — an
+// internal-only section (see AdminSidebar.vue's role==='admin' gate), off by
+// default on every fresh clone of this template and flipped on directly in
+// the DB only for this site. Overrides live in site_settings.enabled_features,
+// keyed by FeatureKey; a key absent from that jsonb object falls back to the
+// default below, and it's switched on per site directly in the DB (not via
+// PATCH /api/settings), so a client can't just enable a paid feature themselves.
 export const FEATURE_DEFAULTS: Record<FeatureKey, boolean> = {
 	pages: true,
 	menus: true,
@@ -40,6 +43,7 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, boolean> = {
 	integrations: true,
 	pageHistory: false,
 	multiStepForms: false,
+	portfolio: false,
 }
 
 export function isFeatureEnabled(
