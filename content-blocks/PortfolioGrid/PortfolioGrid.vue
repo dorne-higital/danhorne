@@ -86,7 +86,7 @@
 							>
 								{{ site.name.trim().charAt(0).toUpperCase() }}
 							</span>
-							<a
+							<!-- <a
 								v-if="site.slug"
 								:href="normalizeHref(site.url)"
 								:title="`Visit ${site.name}`"
@@ -96,7 +96,7 @@
 								class="external-link"
 							>
 								<Icon name="lucide:arrow-up-right" />
-							</a>
+							</a> -->
 						</div>
 						<div class="text">
 							<p class="title">
@@ -164,7 +164,7 @@
 									name="lucide:arrow-up-right"
 									class="arrow"
 								/>
-								<a
+								<!-- <a
 									v-if="site.slug"
 									:href="normalizeHref(site.url)"
 									:title="`Visit ${site.name}`"
@@ -174,7 +174,7 @@
 									class="external-link"
 								>
 									<Icon name="lucide:external-link" />
-								</a>
+								</a> -->
 							</p>
 							<p
 								v-if="site.description"
@@ -221,7 +221,7 @@
 							>
 								{{ site.name.trim().charAt(0).toUpperCase() }}
 							</span>
-							<a
+							<!-- <a
 								v-if="site.slug"
 								:href="normalizeHref(site.url)"
 								:title="`Visit ${site.name}`"
@@ -231,7 +231,7 @@
 								class="external-link"
 							>
 								<Icon name="lucide:arrow-up-right" />
-							</a>
+							</a> -->
 						</div>
 						<div class="m-text">
 							<p class="title">
