@@ -79,6 +79,10 @@
 			font-weight: var(--heading-font-weight);
 			line-height: var(--leading-tight);
 			margin-top: var(--padding-sm);
+
+			> * + * {
+				margin-top: var(--padding-sm);
+			}
 		}
 
 		.attribution {

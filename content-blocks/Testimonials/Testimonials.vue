@@ -1,5 +1,8 @@
 <template>
-	<section class="testimonials">
+	<section
+		class="testimonials"
+		:class="`size-${size}`"
+	>
 		<div class="container sw">
 			<div class="panel">
 				<div
@@ -13,7 +16,11 @@
 					>
 						&ldquo;
 					</div>
-					<blockquote class="quote">{{ quote }}</blockquote>
+					<!-- eslint-disable-next-line vue/no-v-html -->
+					<blockquote
+						class="quote"
+						v-html="quote"
+					/>
 					<div class="author">
 						<div class="avatar">{{ initials }}</div>
 						<div>
@@ -31,12 +38,14 @@
 	withDefaults(
 		defineProps<{
 			quote?: string
+			size?: 'h1' | 'h2' | 'h3' | 'h4'
 			initials?: string
 			name?: string
 			role?: string
 		}>(),
 		{
 			quote: '',
+			size: 'h2',
 			initials: '',
 			name: '',
 			role: '',
@@ -82,10 +91,13 @@
 
 				.quote {
 					color: var(--text-primary);
-					font-size: clamp(1.5rem, 3.4vw, 2.625rem);
 					font-weight: var(--heading-font-weight);
 					letter-spacing: -0.025em;
 					line-height: 1.12;
+
+					> * + * {
+						margin-top: var(--padding-sm);
+					}
 				}
 
 				.author {
@@ -119,6 +131,22 @@
 					}
 				}
 			}
+		}
+
+		&.size-h1 .quote {
+			font-size: clamp(1.75rem, 4vw, var(--h1-size));
+		}
+
+		&.size-h2 .quote {
+			font-size: clamp(1.5rem, 3.4vw, var(--h2-size));
+		}
+
+		&.size-h3 .quote {
+			font-size: clamp(1.25rem, 2.5vw, var(--h3-size));
+		}
+
+		&.size-h4 .quote {
+			font-size: var(--h4-size);
 		}
 	}
 </style>
