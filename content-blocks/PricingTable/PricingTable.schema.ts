@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'PricingTable',
 	label: 'Pricing Table',
-	group: 'CTAs',
+	group: 'Forms & CTA',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Pricing' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

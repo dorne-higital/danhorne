@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'TechStack',
 	label: 'Tech Stack',
-	group: 'Content',
+	group: 'Social Proof',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },

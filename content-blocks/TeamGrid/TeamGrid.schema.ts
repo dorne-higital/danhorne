@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'TeamGrid',
 	label: 'Team Grid',
-	group: 'Sections',
+	group: 'Grids & Cards',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Meet the team' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

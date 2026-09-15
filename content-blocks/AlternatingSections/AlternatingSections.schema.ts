@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'AlternatingSections',
 	label: 'Alternating Sections',
-	group: 'Content',
+	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },

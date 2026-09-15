@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'NewsletterSignup',
 	label: 'Newsletter Signup',
-	group: 'Contact',
+	group: 'Forms & CTA',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Join the newsletter' },

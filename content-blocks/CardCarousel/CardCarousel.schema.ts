@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'CardCarousel',
 	label: 'Card Carousel',
-	group: 'Sections',
+	group: 'Grids & Cards',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Recent work' },

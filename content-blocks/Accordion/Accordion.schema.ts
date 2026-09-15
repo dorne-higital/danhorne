@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'Accordion',
 	label: 'Accordion',
-	group: 'Content',
+	group: 'Interactive',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

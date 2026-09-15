@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'Testimonials',
 	label: 'Testimonial',
-	group: 'Content',
+	group: 'Social Proof',
 	fields: [
 		{ name: 'quote', label: 'Quote', type: 'richtext', default: '' },
 		{

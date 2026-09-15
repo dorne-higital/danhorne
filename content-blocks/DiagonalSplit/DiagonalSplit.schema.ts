@@ -1,8 +1,8 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'SplitContent',
-	label: 'Split Content',
+	type: 'DiagonalSplit',
+	label: 'Diagonal Split',
 	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
@@ -14,11 +14,22 @@ export default {
 			name: 'imagePosition',
 			label: 'Image position',
 			type: 'select',
+			default: 'right',
 			options: [
 				{ label: 'Right', value: 'right' },
 				{ label: 'Left', value: 'left' },
 			],
-			default: 'right',
+		},
+		{
+			name: 'panelColor',
+			label: 'Text panel color',
+			type: 'select',
+			default: 'primary',
+			options: [
+				{ label: 'Brand', value: 'primary' },
+				{ label: 'Dark', value: 'dark' },
+				{ label: 'Light', value: 'light' },
+			],
 		},
 		{ name: 'ctaLabel', label: 'Button label', type: 'text', default: '' },
 		{
@@ -33,6 +44,5 @@ export default {
 			type: 'form',
 			default: '',
 		},
-		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

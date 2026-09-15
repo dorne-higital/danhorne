@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'LogoStrip',
 	label: 'Logo Strip',
-	group: 'Sections',
+	group: 'Social Proof',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },
 		{

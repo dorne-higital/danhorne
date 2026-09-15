@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'SpotlightGrid',
 	label: 'Spotlight Grid',
-	group: 'Sections',
+	group: 'Grids & Cards',
 	fields: [
 		{ name: 'statLabel', label: 'Eyebrow (e.g. "04 projects")', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Selected work' },

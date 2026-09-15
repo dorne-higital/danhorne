@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'FeatureGrid',
 	label: 'Feature Grid',
-	group: 'Features',
+	group: 'Grids & Cards',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Why choose us' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

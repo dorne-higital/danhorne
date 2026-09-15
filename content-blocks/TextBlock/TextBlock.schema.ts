@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'TextBlock',
 	label: 'Text Block',
-	group: 'Content',
+	group: 'Text',
 	fields: [
 		{ name: 'content', label: 'Content', type: 'richtext', default: '' },
 		{

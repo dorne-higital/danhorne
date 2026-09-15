@@ -1,14 +1,14 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'SplitContent',
-	label: 'Split Content',
+	type: 'ProductShowcase',
+	label: 'Product Showcase',
 	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
-		{ name: 'heading', label: 'Heading', type: 'text', default: 'Section heading' },
+		{ name: 'heading', label: 'Heading', type: 'text', default: 'Built with my own CMS' },
 		{ name: 'content', label: 'Body text', type: 'richtext', default: '' },
-		{ name: 'image', label: 'Image', type: 'image', default: '' },
+		{ name: 'image', label: 'Screenshot or GIF', type: 'image', default: '' },
 		{ name: 'imageAlt', label: 'Image alt text', type: 'text', default: '' },
 		{
 			name: 'imagePosition',
@@ -19,6 +19,13 @@ export default {
 				{ label: 'Left', value: 'left' },
 			],
 			default: 'right',
+		},
+		{
+			name: 'features',
+			label: 'Feature checklist',
+			type: 'repeater',
+			default: [],
+			fields: [{ name: 'text', label: 'Text', type: 'text', default: '' }],
 		},
 		{ name: 'ctaLabel', label: 'Button label', type: 'text', default: '' },
 		{
@@ -33,6 +40,5 @@ export default {
 			type: 'form',
 			default: '',
 		},
-		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

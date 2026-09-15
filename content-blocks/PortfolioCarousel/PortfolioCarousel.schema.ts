@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'PortfolioCarousel',
 	label: 'Portfolio Carousel',
-	group: 'Sections',
+	group: 'Portfolio',
 	requiredFeature: 'portfolio',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },

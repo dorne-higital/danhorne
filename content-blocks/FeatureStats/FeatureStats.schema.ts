@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'FeatureStats',
 	label: 'Feature Stats',
-	group: 'Features',
+	group: 'Social Proof',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

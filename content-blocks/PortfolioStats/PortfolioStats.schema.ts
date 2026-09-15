@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'PortfolioStats',
 	label: 'Portfolio Stats',
-	group: 'Sections',
+	group: 'Portfolio',
 	requiredFeature: 'portfolio',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: '' },

@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'Divider',
 	label: 'Divider',
-	group: 'Content',
+	group: 'Text',
 	fields: [
 		{
 			name: 'variant',

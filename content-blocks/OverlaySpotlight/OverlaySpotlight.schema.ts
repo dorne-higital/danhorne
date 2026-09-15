@@ -1,24 +1,25 @@
 import type { BlockSchema } from '#shared/types/cms'
 
 export default {
-	type: 'SplitContent',
-	label: 'Split Content',
+	type: 'OverlaySpotlight',
+	label: 'Overlay Spotlight',
 	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Section heading' },
 		{ name: 'content', label: 'Body text', type: 'richtext', default: '' },
-		{ name: 'image', label: 'Image', type: 'image', default: '' },
+		{ name: 'image', label: 'Background image', type: 'image', default: '' },
 		{ name: 'imageAlt', label: 'Image alt text', type: 'text', default: '' },
 		{
-			name: 'imagePosition',
-			label: 'Image position',
+			name: 'cardPosition',
+			label: 'Card position',
 			type: 'select',
+			default: 'bottom-left',
 			options: [
-				{ label: 'Right', value: 'right' },
-				{ label: 'Left', value: 'left' },
+				{ label: 'Bottom left', value: 'bottom-left' },
+				{ label: 'Bottom right', value: 'bottom-right' },
+				{ label: 'Center', value: 'center' },
 			],
-			default: 'right',
 		},
 		{ name: 'ctaLabel', label: 'Button label', type: 'text', default: '' },
 		{
@@ -33,6 +34,5 @@ export default {
 			type: 'form',
 			default: '',
 		},
-		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

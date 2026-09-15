@@ -22,7 +22,18 @@ export interface BlockSchemaGroup {
 	schemas: BlockSchema[]
 }
 
-const GROUP_ORDER = ['Hero', 'Content', 'Sections', 'Features', 'CTAs']
+const GROUP_ORDER = [
+	'Hero',
+	'Image + Text',
+	'Text',
+	'Grids & Cards',
+	'Portfolio',
+	'Media',
+	'Social Proof',
+	'Interactive',
+	'Forms & CTA',
+	'Contact',
+]
 
 // enabledFeatures is optional (defaults to "nothing enabled") rather than
 // required, so a caller that forgets to pass it fails closed — a

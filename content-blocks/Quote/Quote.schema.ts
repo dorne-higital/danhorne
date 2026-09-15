@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'Quote',
 	label: 'Quote',
-	group: 'Content',
+	group: 'Text',
 	fields: [
 		{ name: 'quote', label: 'Quote', type: 'richtext', default: '' },
 		{ name: 'name', label: 'Attribution name', type: 'text', default: '' },

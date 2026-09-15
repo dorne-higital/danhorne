@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'SectionHeading',
 	label: 'Section Heading',
-	group: 'Content',
+	group: 'Text',
 	fields: [
 		{ name: 'heading', label: 'Heading', type: 'text', default: 'Section heading' },
 		{ name: 'subheading', label: 'Subheading', type: 'text', default: '' },

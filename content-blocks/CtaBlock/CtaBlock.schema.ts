@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'CtaBlock',
 	label: 'CTA Block',
-	group: 'CTAs',
+	group: 'Forms & CTA',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'richtext', default: "Let's build<br>something good." },

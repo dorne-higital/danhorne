@@ -3,7 +3,7 @@ import type { BlockSchema } from '#shared/types/cms'
 export default {
 	type: 'ImageGallery',
 	label: 'Image gallery',
-	group: 'Content',
+	group: 'Media',
 	fields: [
 		{ name: 'columns', label: 'Columns', type: 'number', default: 3 },
 		{ name: 'image1', label: 'Image 1', type: 'image', default: '' },
