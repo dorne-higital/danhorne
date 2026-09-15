@@ -12,6 +12,30 @@
 				Dark theme
 			</label>
 
+			<fieldset class="surface-toggle">
+				<legend>Surface</legend>
+				<label>
+					<input
+						type="radio"
+						name="surface"
+						value="primary"
+						:checked="block.surface !== 'secondary'"
+						@change="emit('update-surface', 'primary')"
+					/>
+					Primary
+				</label>
+				<label>
+					<input
+						type="radio"
+						name="surface"
+						value="secondary"
+						:checked="block.surface === 'secondary'"
+						@change="emit('update-surface', 'secondary')"
+					/>
+					Secondary
+				</label>
+			</fieldset>
+
 			<SchemaField
 				v-for="field in schema.fields"
 				:key="field.name"
@@ -40,6 +64,7 @@
 	const emit = defineEmits<{
 		'update-prop': [name: string, value: unknown]
 		'update-dark-theme': [value: boolean]
+		'update-surface': [value: 'primary' | 'secondary']
 	}>()
 
 	const schema = computed(() => (props.block ? getBlockSchema(props.block.type) : undefined))
@@ -63,6 +88,32 @@
 			font-size: 0.9375rem;
 			font-weight: 600;
 			gap: var(--padding-xs);
+
+			input {
+				width: auto;
+			}
+		}
+
+		.surface-toggle {
+			border: 0;
+			display: flex;
+			gap: var(--padding-sm);
+			margin: 0;
+			padding: 0;
+
+			legend {
+				font-size: 0.9375rem;
+				font-weight: 600;
+				margin-bottom: var(--padding-xs);
+				width: 100%;
+			}
+
+			label {
+				align-items: center;
+				display: flex;
+				font-size: 0.9375rem;
+				gap: var(--padding-xs);
+			}
 
 			input {
 				width: auto;

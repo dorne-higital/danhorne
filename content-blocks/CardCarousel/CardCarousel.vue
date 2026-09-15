@@ -23,7 +23,7 @@
 						v-if="viewAllHref"
 						:href="viewAllHref"
 						:title="viewAllLabel"
-						class="btn outline sm"
+						class="btn outline sm view-all-header"
 					>
 						{{ viewAllLabel }}
 					</a>
@@ -51,25 +51,39 @@
 				</div>
 
 				<div
-					v-if="items.length > 1"
+					v-if="items.length > 1 || viewAllHref"
 					class="nav"
+					:class="{ 'has-view-all': viewAllHref }"
 				>
-					<button
-						type="button"
-						aria-label="Previous project"
-						:disabled="atStart"
-						@click="scrollByCard(-1)"
+					<a
+						v-if="viewAllHref"
+						:href="viewAllHref"
+						:title="viewAllLabel"
+						class="btn outline sm view-all-mobile"
 					>
-						<Icon name="lucide:chevron-left" />
-					</button>
-					<button
-						type="button"
-						aria-label="Next project"
-						:disabled="atEnd"
-						@click="scrollByCard(1)"
+						{{ viewAllLabel }}
+					</a>
+					<div
+						v-if="items.length > 1"
+						class="nav-buttons"
 					>
-						<Icon name="lucide:chevron-right" />
-					</button>
+						<button
+							type="button"
+							aria-label="Previous project"
+							:disabled="atStart"
+							@click="scrollByCard(-1)"
+						>
+							<Icon name="lucide:chevron-left" />
+						</button>
+						<button
+							type="button"
+							aria-label="Next project"
+							:disabled="atEnd"
+							@click="scrollByCard(1)"
+						>
+							<Icon name="lucide:chevron-right" />
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -162,6 +176,12 @@
 				flex-direction: column;
 				gap: var(--padding-sm);
 				text-align: right;
+
+				.view-all-header {
+					@media (width < 768px) {
+						display: none;
+					}
+				}
 			}
 		}
 
@@ -194,10 +214,30 @@
 			}
 
 			.nav {
+				align-items: center;
 				display: flex;
 				gap: var(--padding-sm);
 				justify-content: flex-end;
 				margin-top: var(--padding-lg);
+
+				&.has-view-all {
+					justify-content: space-between;
+
+					@media (width >= 768px) {
+						justify-content: flex-end;
+					}
+				}
+
+				.view-all-mobile {
+					@media (width >= 768px) {
+						display: none;
+					}
+				}
+
+				.nav-buttons {
+					display: flex;
+					gap: var(--padding-sm);
+				}
 
 				button {
 					align-items: center;

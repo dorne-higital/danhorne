@@ -1,15 +1,7 @@
 import type { FeatureKey } from '#shared/utils/features'
 
 export type FieldType =
-	| 'text'
-	| 'richtext'
-	| 'image'
-	| 'number'
-	| 'select'
-	| 'boolean'
-	| 'repeater'
-	| 'form'
-	| 'portfolioSite'
+	'text' | 'richtext' | 'image' | 'number' | 'select' | 'boolean' | 'repeater' | 'form' | 'portfolioSite'
 
 export interface SelectOption {
 	label: string
@@ -51,6 +43,13 @@ export interface Block {
 	// Universal per-block setting, not schema-driven — applies data-theme="dark"
 	// to the block's root element so it picks up the dark theme CSS vars.
 	darkTheme?: boolean
+	// Universal per-block setting, not schema-driven — applies data-surface="secondary"
+	// to the block's root element, flipping which canonical token --bg-primary/
+	// --bg-secondary resolve to (see [data-surface='secondary'] in _themes.scss).
+	// Independent of darkTheme/light/dark/brand — lets a block sit one shade off
+	// its neighbors for contrast without switching theme. Undefined/'primary' is
+	// the existing default look.
+	surface?: 'primary' | 'secondary'
 }
 
 export interface PageSeo {

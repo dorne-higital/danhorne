@@ -147,6 +147,7 @@
 				:block="selectedBlock"
 				@update-prop="(name, value) => selectedBlock && updateBlockProp(selectedBlock.id, name, value)"
 				@update-dark-theme="(value) => selectedBlock && updateBlockDarkTheme(selectedBlock.id, value)"
+				@update-surface="(value) => selectedBlock && updateBlockSurface(selectedBlock.id, value)"
 			/>
 		</div>
 	</div>
@@ -176,8 +177,16 @@
 
 	// title/blocks are the working draft, not what's live — Save persists
 	// them here, Publish is what actually pushes them out.
-	const { blocks, selectedBlockId, selectedBlock, removeBlock, updateBlockProp, updateBlockDarkTheme, selectBlock } =
-		usePageBlocks(page.value.draft_blocks!)
+	const {
+		blocks,
+		selectedBlockId,
+		selectedBlock,
+		removeBlock,
+		updateBlockProp,
+		updateBlockDarkTheme,
+		updateBlockSurface,
+		selectBlock,
+	} = usePageBlocks(page.value.draft_blocks!)
 	const title = ref(page.value.draft_title!)
 	const originalSlug = page.value.slug
 	const slug = ref(page.value.slug)

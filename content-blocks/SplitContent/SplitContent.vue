@@ -116,7 +116,11 @@
 			padding: var(--padding-lg);
 
 			@media (width >= 1024px) {
-				grid-template-columns: 1fr 1fr;
+				grid-template-columns: 3fr 2fr;
+
+				&.image-left {
+					grid-template-columns: 2fr 3fr;
+				}
 			}
 
 			&.image-left {
@@ -155,7 +159,7 @@
 
 		.visual {
 			img {
-				aspect-ratio: 3/2;
+				aspect-ratio: 1;
 				border-radius: var(--border-radius-lg);
 				box-shadow: var(--shadow-lg);
 				height: auto;

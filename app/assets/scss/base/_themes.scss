@@ -1,8 +1,14 @@
 /* LIGHT THEME (default) */
 :root {
-	/* backgrounds */
-	--bg-primary: #fafafa;
-	--bg-secondary: #fff;
+	/* backgrounds — --bg-primary/--bg-secondary point at these canonical
+	   surface tokens rather than holding literal colors, so
+	   [data-surface='secondary'] below can flip which one each resolves to
+	   (per block, independent of light/dark/brand theme) without every
+	   consuming component needing to know about surfaces at all */
+	--surface-a: #fafafa;
+	--surface-b: #fff;
+	--bg-primary: var(--surface-a);
+	--bg-secondary: var(--surface-b);
 	--bg-gradient: linear-gradient(180deg, var(--bg-primary) 0, transparent 100%);
 
 	/* text */
@@ -80,8 +86,10 @@
 [data-theme='dark'] {
 	/* backgrounds â€” warm near-black, sits with the red brand rather than a
 	   generic blue-black or gray */
-	--bg-primary: #140f0e;
-	--bg-secondary: #1e1614;
+	--surface-a: #140f0e;
+	--surface-b: #1e1614;
+	--bg-primary: var(--surface-a);
+	--bg-secondary: var(--surface-b);
 
 	/* text */
 	--text-primary: #f7f2f0;
@@ -122,8 +130,10 @@
    .bg-primary) — same look, now selectable for the header/footer chrome
    too, from /admin/layout. */
 [data-theme='brand'] {
-	--bg-primary: var(--brand-primary);
-	--bg-secondary: var(--brand-secondary);
+	--surface-a: var(--brand-primary);
+	--surface-b: var(--brand-secondary);
+	--bg-primary: var(--surface-a);
+	--bg-secondary: var(--surface-b);
 	--text-primary: #fff;
 	--text-secondary: rgb(255 255 255 / 75%);
 	--text-inverse: var(--brand-primary);
@@ -136,9 +146,23 @@
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 25%);
 }
 
+/* SURFACE OVERRIDE â€” opt in per block with data-surface="secondary" (a
+   universal per-block setting, same mechanism as darkTheme â€” see
+   BlockRenderer.vue). Flips which canonical token --bg-primary/--bg-secondary
+   point at, independent of light/dark/brand theme, so a block can sit one
+   shade off its neighbors for visual contrast without switching themes.
+   Declared after every [data-theme='...'] rule above so it always wins the
+   cascade and always reads that theme's own --surface-a/--surface-b. */
+[data-surface='secondary'] {
+	--bg-primary: var(--surface-b);
+	--bg-secondary: var(--surface-a);
+}
+
 body.is-admin {
-	--bg-primary: #fafafa !important;
-	--bg-secondary: #fff !important;
+	--surface-a: #fafafa !important;
+	--surface-b: #fff !important;
+	--bg-primary: var(--surface-a) !important;
+	--bg-secondary: var(--surface-b) !important;
 	--text-primary: #18181b !important;
 	--text-secondary: rgb(24 24 27 / 60%) !important;
 	--text-inverse: #fff !important;
@@ -177,8 +201,10 @@ body.is-admin .block-preview {
 	--brand-primary: oklch(56% 0.2 25deg) !important;
 	--brand-secondary: oklch(56% 0.2 45deg) !important;
 	--brand-accent: oklch(90% 0.05 25deg) !important;
-	--bg-primary: #fafafa !important;
-	--bg-secondary: #fff !important;
+	--surface-a: #fafafa !important;
+	--surface-b: #fff !important;
+	--bg-primary: var(--surface-a) !important;
+	--bg-secondary: var(--surface-b) !important;
 	--text-primary: #0f1222 !important;
 	--text-secondary: rgb(15 18 34 / 70%) !important;
 	--text-inverse: #fff !important;
@@ -202,8 +228,10 @@ body.is-admin .block-preview {
 }
 
 body.is-admin .block-preview [data-theme='dark'] {
-	--bg-primary: #140f0e !important;
-	--bg-secondary: #141726 !important;
+	--surface-a: #140f0e !important;
+	--surface-b: #141726 !important;
+	--bg-primary: var(--surface-a) !important;
+	--bg-secondary: var(--surface-b) !important;
 	--text-primary: #f5f5fa !important;
 	--text-secondary: rgb(245 245 250 / 60%) !important;
 	--text-inverse: #0b0d17 !important;
@@ -228,4 +256,15 @@ body.is-admin .block-preview [data-theme='dark'] {
 	--shadow-sm: 0 1px 2px rgb(0 0 0 / 30%) !important;
 	--shadow-md: 0 4px 10px rgb(0 0 0 / 40%) !important;
 	--shadow-lg: 0 10px 24px rgb(0 0 0 / 50%) !important;
+}
+
+// Mirrors the top-level [data-surface='secondary'] rule for the admin
+// canvas preview, which resets --bg-primary/--bg-secondary with !important
+// above (both the light and dark preview variants) — this needs matching
+// !important + specificity to still win, and must come after both preview
+// rules above so it reads whichever theme's --surface-a/--surface-b already
+// won for this block.
+body.is-admin .block-preview [data-surface='secondary'] {
+	--bg-primary: var(--surface-b) !important;
+	--bg-secondary: var(--surface-a) !important;
 }

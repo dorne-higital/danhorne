@@ -62,6 +62,7 @@
 							:is="resolveComponent(element.type)"
 							v-bind="element.props"
 							:data-theme="element.darkTheme ? 'dark' : undefined"
+							:data-surface="element.surface === 'secondary' ? 'secondary' : undefined"
 						/>
 					</div>
 

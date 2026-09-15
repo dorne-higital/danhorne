@@ -5,6 +5,7 @@
 		:key="block.id"
 		v-bind="block.props"
 		:data-theme="block.darkTheme ? 'dark' : undefined"
+		:data-surface="block.surface === 'secondary' ? 'secondary' : undefined"
 	/>
 </template>
 

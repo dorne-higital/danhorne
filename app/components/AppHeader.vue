@@ -67,7 +67,11 @@
 						:data-theme="headerTheme === 'light' ? undefined : headerTheme"
 					>
 						<div class="panel-head">
-							<AppLogo @click="mobileNavOpen = false" />
+							<AppLogo
+								:logo-text="'dan'"
+								:highlighted-text="'horne.'"
+								@click="mobileNavOpen = false"
+							/>
 							<button
 								type="button"
 								class="close"

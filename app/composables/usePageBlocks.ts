@@ -38,6 +38,12 @@ export function usePageBlocks(initialBlocks: Block[]) {
 		block.darkTheme = value
 	}
 
+	function updateBlockSurface(id: string, value: 'primary' | 'secondary') {
+		const block = blocks.value.find((block) => block.id === id)
+		if (!block) return
+		block.surface = value
+	}
+
 	function selectBlock(id: string | null) {
 		selectedBlockId.value = id
 	}
@@ -50,6 +56,7 @@ export function usePageBlocks(initialBlocks: Block[]) {
 		removeBlock,
 		updateBlockProp,
 		updateBlockDarkTheme,
+		updateBlockSurface,
 		selectBlock,
 	}
 }
