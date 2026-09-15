@@ -251,9 +251,9 @@
 		flex-direction: column;
 		gap: var(--padding-lg);
 		height: 100%;
-		max-width: 20rem;
+		max-width: 100%;
 		overflow-y: auto;
-		padding: var(--padding-lg);
+		padding: var(--padding-md);
 		width: 100%;
 
 		// Teleported to <body>, so it falls outside the .header element's own
