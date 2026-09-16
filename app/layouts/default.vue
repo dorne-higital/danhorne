@@ -4,7 +4,7 @@
 		<main>
 			<slot />
 		</main>
-		<AppFooter data-theme="dark" />
+		<AppFooter />
 
 		<Modal
 			:open="isOpen"

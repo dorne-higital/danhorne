@@ -251,7 +251,7 @@
 		flex-direction: column;
 		gap: var(--padding-lg);
 		height: 100%;
-		max-width: 100%;
+		max-width: 768px;
 		overflow-y: auto;
 		padding: var(--padding-md);
 		width: 100%;

@@ -65,35 +65,9 @@
 						:highlighted-text="'horne.'"
 					/>
 					<ul
-						v-if="socialLinks.length"
-						class="socials"
+						v-if="hasContactInfo"
+						class="text-secondary"
 					>
-						<li
-							v-for="social in socialLinks"
-							:key="social.key"
-						>
-							<a
-								:href="normalizeHref(social.href)"
-								target="_blank"
-								rel="noopener noreferrer"
-								:aria-label="social.label"
-								:title="social.label"
-							>
-								<Icon
-									:name="social.icon"
-									size="1.5rem"
-								/>
-							</a>
-						</li>
-					</ul>
-				</div>
-
-				<div
-					v-if="hasContactInfo"
-					class="column"
-				>
-					<p class="col-heading text-primary">Connect</p>
-					<ul class="text-secondary">
 						<li v-if="company?.email">
 							<button
 								type="button"
@@ -140,7 +114,7 @@
 					v-if="footerMainMenu?.items?.length"
 					class="column"
 				>
-					<p class="col-heading text-primary">Menu</p>
+					<p class="col-heading text-primary">Quick Links</p>
 					<ul class="text-secondary">
 						<li
 							v-for="item in footerMainMenu.items"
@@ -152,6 +126,32 @@
 								:rel="item.newTab ? 'noopener noreferrer' : undefined"
 							>
 								{{ item.label }}
+							</a>
+						</li>
+					</ul>
+				</div>
+
+				<div
+					v-if="socialLinks.length"
+					class="column"
+				>
+					<p class="col-heading text-primary">Connect</p>
+					<ul class="socials">
+						<li
+							v-for="social in socialLinks"
+							:key="social.key"
+						>
+							<a
+								:href="normalizeHref(social.href)"
+								target="_blank"
+								rel="noopener noreferrer"
+								:aria-label="social.label"
+								:title="social.label"
+							>
+								<Icon
+									:name="social.icon"
+									size="1.5rem"
+								/>
 							</a>
 						</li>
 					</ul>
@@ -235,15 +235,40 @@
 
 			@media (width >= 640px) {
 				flex-direction: row;
+				gap: 0;
+
+				.brand,
+				.column {
+					flex: 1 1 0;
+				}
+
+				> * + * {
+					border-left: 1px solid var(--border);
+					padding-left: var(--padding-xl);
+				}
 			}
 
 			.brand {
 				display: flex;
 				flex-direction: column;
 				gap: var(--padding-sm);
+			}
+
+			.column {
+				display: flex;
+				flex-direction: column;
+				gap: var(--padding-xs);
+
+				.col-heading {
+					font-size: var(--eyebrow-size);
+					font-weight: var(--navigation-font-weight);
+					letter-spacing: 0.08em;
+					margin-bottom: var(--padding-xs);
+					text-transform: uppercase;
+				}
 
 				.socials {
-					display: flex;
+					flex-direction: row;
 					gap: var(--padding-sm);
 
 					a {
@@ -266,19 +291,11 @@
 				}
 			}
 
+			// Shared between .brand (logo + address) and .column (Quick Links,
+			// Follow) — the brand column's contact list is the same li/a/button/
+			// span shape as a text column's links, just living under the logo.
+			.brand,
 			.column {
-				display: flex;
-				flex-direction: column;
-				gap: var(--padding-xs);
-
-				.col-heading {
-					font-size: var(--eyebrow-size);
-					font-weight: var(--navigation-font-weight);
-					letter-spacing: 0.08em;
-					margin-bottom: var(--padding-xs);
-					text-transform: uppercase;
-				}
-
 				ul {
 					display: flex;
 					flex-direction: column;

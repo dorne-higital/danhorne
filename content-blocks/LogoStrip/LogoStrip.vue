@@ -1,12 +1,12 @@
 <template>
 	<section class="cb-logo-strip">
 		<div class="sw">
-			<p
+			<h3
 				v-if="heading"
-				class="heading caption text-secondary"
+				class="heading text-secondary"
 			>
 				{{ heading }}
-			</p>
+			</h3>
 
 			<div
 				v-if="items.length"
@@ -68,15 +68,16 @@
 			align-items: center;
 			display: flex;
 			filter: grayscale(100%);
-			height: 2.25rem;
-			opacity: 0.6;
+			height: 4rem;
 			transition:
 				filter var(--transition-base),
-				opacity var(--transition-base);
+				opacity var(--transition-base),
+				transform var(--transition-base);
 
 			&:hover {
-				filter: none;
+				filter: grayscale(0);
 				opacity: 1;
+				transform: scale(1.08);
 			}
 
 			img {
