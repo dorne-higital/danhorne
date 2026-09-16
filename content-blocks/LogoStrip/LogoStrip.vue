@@ -1,5 +1,9 @@
 <template>
-	<section class="cb-logo-strip">
+	<section
+		v-if="items.length"
+		class="cb-logo-strip"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<h3
 				v-if="heading"
@@ -8,10 +12,7 @@
 				{{ heading }}
 			</h3>
 
-			<div
-				v-if="items.length"
-				class="strip"
-			>
+			<div class="strip">
 				<component
 					:is="item.href ? 'a' : 'span'"
 					v-for="item in items"
@@ -38,10 +39,12 @@
 		defineProps<{
 			heading?: string
 			items?: { id: string; logo?: string; name?: string; href?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -50,6 +53,10 @@
 	.cb-logo-strip {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.heading {
 			margin-bottom: var(--padding-lg);

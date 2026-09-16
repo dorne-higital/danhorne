@@ -1,12 +1,18 @@
 <template>
-	<section class="cb-columns-text">
+	<section
+		v-if="heading || column1 || column2 || (columns === '3' && column3)"
+		class="cb-columns-text"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
-			<h2
+			<SectionHeading
 				v-if="heading"
-				class="heading"
-			>
-				{{ heading }}
-			</h2>
+				:heading="heading"
+				size="medium"
+				align="left"
+				:no-padding="true"
+				class="section-heading"
+			/>
 
 			<div
 				class="grid"
@@ -43,6 +49,7 @@
 			column1?: string
 			column2?: string
 			column3?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
@@ -50,6 +57,7 @@
 			column1: '',
 			column2: '',
 			column3: '',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -59,12 +67,11 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
-		.heading {
-			color: var(--text-primary);
-			font-family: var(--heading-font-family);
-			font-size: var(--h2-size);
-			font-weight: var(--heading-font-weight);
-			line-height: var(--leading-tight);
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
+		.section-heading {
 			margin-bottom: var(--padding-lg);
 		}
 

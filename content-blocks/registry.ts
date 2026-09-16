@@ -28,6 +28,7 @@ const GROUP_ORDER = [
 	'Text',
 	'Grids & Cards',
 	'Portfolio',
+	'Blog',
 	'Media',
 	'Social Proof',
 	'Interactive',

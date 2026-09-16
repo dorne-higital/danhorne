@@ -17,5 +17,6 @@ export default {
 				{ name: 'href', label: 'Link (optional)', type: 'text', default: '' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

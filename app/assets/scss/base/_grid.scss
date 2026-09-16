@@ -1,0 +1,16 @@
+// Shared card-grid shape used by any block laying out a repeater of cards
+// with an editor-selectable column count: 1 column on mobile, 2 from
+// $container-sm, then the editor's chosen column count from $container-lg.
+@mixin card-grid {
+	display: grid;
+	gap: var(--padding-lg);
+	grid-template-columns: 1fr;
+
+	@media (width >= 640px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media (width >= 1024px) {
+		grid-template-columns: repeat(var(--columns, 3), 1fr);
+	}
+}

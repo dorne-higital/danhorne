@@ -18,5 +18,6 @@ export default {
 		{ name: 'image5Alt', label: 'Image 5 alt text', type: 'text', default: '' },
 		{ name: 'image6', label: 'Image 6', type: 'image', default: '' },
 		{ name: 'image6Alt', label: 'Image 6 alt text', type: 'text', default: '' },
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

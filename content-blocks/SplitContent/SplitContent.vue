@@ -32,24 +32,12 @@
 					v-if="ctaLabel"
 					class="ctas"
 				>
-					<a
-						v-if="ctaHref"
-						:href="normalizeHref(ctaHref)"
-						:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-						:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-						:title="ctaLabel"
-						class="btn primary"
-					>
-						{{ ctaLabel }}
-					</a>
-					<button
-						v-else
-						type="button"
-						class="btn primary"
-						@click="open(formId)"
-					>
-						{{ ctaLabel }}
-					</button>
+					<CtaButton
+						:label="ctaLabel"
+						:href="ctaHref"
+						:form-id="formId"
+						variant="primary"
+					/>
 				</div>
 			</div>
 
@@ -93,8 +81,6 @@
 			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>

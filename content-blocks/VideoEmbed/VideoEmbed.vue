@@ -1,62 +1,68 @@
 <template>
-	<section class="cb-video-embed">
+	<section
+		v-if="videoUrl"
+		class="cb-video-embed"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
-				v-if="eyebrow || heading || subheading"
-				class="head"
+				class="content"
+				:style="{ '--width': width }"
 			>
-				<span
-					v-if="eyebrow"
-					class="eyebrow"
+				<div
+					v-if="eyebrow || heading || subheading"
+					class="head"
 				>
-					{{ eyebrow }}
-				</span>
-				<h2
-					v-if="heading"
-					class="heading"
-				>
-					{{ heading }}
-				</h2>
+					<span
+						v-if="eyebrow"
+						class="eyebrow"
+					>
+						{{ eyebrow }}
+					</span>
+					<h2
+						v-if="heading"
+						class="heading"
+					>
+						{{ heading }}
+					</h2>
+					<p
+						v-if="subheading"
+						class="subheading text-secondary"
+					>
+						{{ subheading }}
+					</p>
+				</div>
+
+				<div class="video-wrap">
+					<iframe
+						v-if="embedUrl"
+						:src="embedUrl"
+						:title="heading || 'Video'"
+						allow="
+							accelerometer;
+							autoplay;
+							clipboard-write;
+							encrypted-media;
+							gyroscope;
+							picture-in-picture;
+							web-share;
+						"
+						allowfullscreen
+					/>
+					<video
+						v-else
+						:src="videoUrl"
+						controls
+					/>
+				</div>
+
 				<p
-					v-if="subheading"
-					class="subheading text-secondary"
+					v-if="caption"
+					class="caption"
 				>
-					{{ subheading }}
+					{{ caption }}
 				</p>
 			</div>
-
-			<div
-				v-if="videoUrl"
-				class="video-wrap"
-			>
-				<iframe
-					v-if="embedUrl"
-					:src="embedUrl"
-					:title="heading || 'Video'"
-					allow="
-						accelerometer;
-						autoplay;
-						clipboard-write;
-						encrypted-media;
-						gyroscope;
-						picture-in-picture;
-						web-share;
-					"
-					allowfullscreen
-				/>
-				<video
-					v-else
-					:src="videoUrl"
-					controls
-				/>
-			</div>
-
-			<p
-				v-if="caption"
-				class="caption"
-			>
-				{{ caption }}
-			</p>
 		</div>
 	</section>
 </template>
@@ -69,6 +75,8 @@
 			subheading?: string
 			videoUrl?: string
 			caption?: string
+			width?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -76,6 +84,8 @@
 			subheading: '',
 			videoUrl: '',
 			caption: '',
+			width: '9',
+			minimalPadding: false,
 		},
 	)
 
@@ -99,6 +109,19 @@
 	.cb-video-embed {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
+		.content {
+			margin-inline: auto;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 9) / 12);
+			}
+		}
 
 		.head {
 			margin-inline: auto;
@@ -128,9 +151,8 @@
 			aspect-ratio: 16 / 9;
 			background: var(--bg-secondary);
 			border-radius: var(--border-radius-md);
-			margin-inline: auto;
-			max-width: 960px;
 			overflow: hidden;
+			width: 100%;
 
 			iframe,
 			video {
@@ -144,9 +166,7 @@
 		.caption {
 			color: var(--text-secondary);
 			font-size: var(--eyebrow-size);
-			margin-inline: auto;
 			margin-top: var(--padding-sm);
-			max-width: 960px;
 			text-align: center;
 		}
 	}

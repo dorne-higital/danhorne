@@ -1,28 +1,35 @@
 <template>
 	<section
+		v-if="heading || subheading || description"
+		:id="anchorId || undefined"
 		class="cb-section-heading"
 		:class="[`size-${size}`, `align-${align}`, { 'remove-padding': noPadding }]"
 	>
 		<div class="sw">
-			<component
-				:is="headingTag"
-				class="heading"
-			>
-				{{ heading }}
-			</component>
-			<component
-				:is="subheadingTag"
-				v-if="subheading"
-				class="subheading"
-			>
-				{{ subheading }}
-			</component>
-			<!-- eslint-disable-next-line vue/no-v-html -->
 			<div
-				v-if="description"
-				class="description prose"
-				v-html="description"
-			/>
+				class="content"
+				:style="{ '--width': width }"
+			>
+				<component
+					:is="headingTag"
+					class="heading"
+				>
+					{{ heading }}
+				</component>
+				<component
+					:is="subheadingTag"
+					v-if="subheading"
+					class="subheading"
+				>
+					{{ subheading }}
+				</component>
+				<!-- eslint-disable-next-line vue/no-v-html -->
+				<div
+					v-if="description"
+					class="description prose"
+					v-html="description"
+				/>
+			</div>
 		</div>
 	</section>
 </template>
@@ -38,14 +45,18 @@
 			description?: string
 			size?: Size
 			align?: Align
+			width?: string
 			noPadding?: boolean
+			anchorId?: string
 		}>(),
 		{
 			subheading: '',
 			description: '',
 			size: 'medium',
 			align: 'left',
+			width: '12',
 			noPadding: false,
+			anchorId: '',
 		},
 	)
 
@@ -68,10 +79,16 @@
 			padding: 0;
 		}
 
-		.sw {
+		.content {
 			display: flex;
 			flex-direction: column;
 			gap: var(--padding-sm);
+			margin-inline: auto;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 12) / 12);
+			}
 		}
 
 		.heading {
@@ -98,7 +115,7 @@
 		&.align-center {
 			text-align: center;
 
-			.sw {
+			.content {
 				align-items: center;
 			}
 
@@ -110,7 +127,7 @@
 		&.align-right {
 			text-align: right;
 
-			.sw {
+			.content {
 				align-items: flex-end;
 			}
 

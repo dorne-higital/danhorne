@@ -1,7 +1,8 @@
 <template>
 	<section
+		v-if="logos.length"
 		class="cb-logo-marquee"
-		:class="{ grayscale }"
+		:class="[{ grayscale }, minimalPadding ? 'small-padding' : '']"
 	>
 		<div class="sw">
 			<span
@@ -13,7 +14,6 @@
 		</div>
 
 		<div
-			v-if="logos.length"
 			class="track"
 			:style="{ '--duration': duration }"
 		>
@@ -46,12 +46,14 @@
 			logos?: { id: string; image?: string; alt?: string }[]
 			grayscale?: boolean
 			speed?: 'slow' | 'normal' | 'fast'
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			logos: () => [],
 			grayscale: true,
 			speed: 'normal',
+			minimalPadding: false,
 		},
 	)
 
@@ -64,6 +66,10 @@
 		background: var(--bg-primary);
 		overflow: hidden;
 		padding-block: var(--padding-lg);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.heading {
 			color: var(--text-secondary);

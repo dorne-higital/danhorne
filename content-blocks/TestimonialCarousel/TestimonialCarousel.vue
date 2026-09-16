@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-testimonial-carousel">
+	<section
+		class="cb-testimonial-carousel"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				v-if="eyebrow || heading"
@@ -23,54 +26,27 @@
 				<div
 					ref="track"
 					class="track"
+					role="region"
+					aria-label="Testimonials carousel"
+					tabindex="0"
 					@scroll="updateNav"
 				>
 					<div
-						v-for="item in items"
+						v-for="(item, index) in items"
 						:key="item.id"
 						class="slide"
+						role="group"
+						aria-roledescription="slide"
+						:aria-label="`${index + 1} of ${items.length}`"
 					>
-						<div class="panel">
-							<div
-								class="glow"
-								aria-hidden="true"
-							/>
-							<div class="content">
-								<div
-									class="mark"
-									aria-hidden="true"
-								>
-									&ldquo;
-								</div>
-
-								<!-- eslint-disable-next-line vue/no-v-html -->
-								<blockquote
-									class="quote"
-									v-html="item.quote"
-								/>
-
-								<div class="author">
-									<div class="avatar">
-										<NuxtImg
-											v-if="item.photo"
-											:src="item.photo"
-											:alt="item.name"
-											loading="lazy"
-										/>
-										<span
-											v-else
-											aria-hidden="true"
-										>
-											{{ initials(item.name) }}
-										</span>
-									</div>
-									<div>
-										<div class="author-name">{{ item.name }}</div>
-										<div class="author-role">{{ item.role }}</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<TestimonialCard
+							class="panel"
+							:quote="item.quote"
+							:name="item.name"
+							:role="item.role"
+							:photo="item.photo"
+							:initials="initials(item.name)"
+						/>
 					</div>
 				</div>
 
@@ -106,11 +82,13 @@
 			eyebrow?: string
 			heading?: string
 			items?: { id: string; quote?: string; photo?: string; name?: string; role?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			heading: '',
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 
@@ -160,6 +138,10 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
 		}
@@ -202,6 +184,11 @@
 					display: none;
 				}
 
+				&:focus-visible {
+					outline: 2px solid var(--brand-secondary);
+					outline-offset: -2px;
+				}
+
 				.slide {
 					display: flex;
 					flex: 0 0 100%;
@@ -242,90 +229,8 @@
 		}
 
 		.panel {
-			background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-			border-radius: var(--border-radius-md);
-			box-shadow: var(--shadow-md);
 			max-width: 90%;
-			overflow: hidden;
-			padding: var(--padding-lg);
-			position: relative;
 			width: 100%;
-
-			.glow {
-				background: color-mix(in srgb, var(--brand-primary) 20%, var(--bg-secondary) 38%);
-				border-radius: 50%;
-				bottom: -120px;
-				filter: blur(3rem);
-				height: 220px;
-				position: absolute;
-				right: -100px;
-				width: 220px;
-			}
-
-			.content {
-				position: relative;
-
-				.mark {
-					color: var(--text-secondary);
-					font-size: 3.75rem;
-					font-weight: 600;
-					line-height: 0.6;
-					opacity: 0.6;
-				}
-
-				.quote {
-					color: var(--text-primary);
-					font-family: var(--heading-font-family);
-					font-size: var(--h4-size);
-					font-weight: var(--heading-font-weight);
-					letter-spacing: -0.025em;
-					line-height: 1.25;
-
-					> * + * {
-						margin-top: var(--padding-sm);
-					}
-				}
-
-				.author {
-					align-items: center;
-					color: var(--text-secondary);
-					display: flex;
-					gap: var(--padding-sm);
-					margin-top: var(--padding-md);
-
-					.avatar {
-						align-items: center;
-						background: var(--bg-secondary);
-						border: 1px solid var(--border-strong);
-						border-radius: 50%;
-						display: flex;
-						flex-shrink: 0;
-						font-size: var(--eyebrow-size);
-						font-weight: var(--heading-font-weight);
-						height: 46px;
-						justify-content: center;
-						overflow: hidden;
-						width: 46px;
-
-						img {
-							height: 100%;
-							object-fit: cover;
-							width: 100%;
-						}
-					}
-
-					.author-name {
-						font-size: var(--eyebrow-size);
-						font-weight: 600;
-					}
-
-					.author-role {
-						font-size: 0.85rem;
-						margin-top: 2px;
-						opacity: 0.8;
-					}
-				}
-			}
 		}
 	}
 </style>

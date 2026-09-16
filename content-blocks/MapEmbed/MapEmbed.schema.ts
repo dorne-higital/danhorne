@@ -23,5 +23,6 @@ export default {
 				{ label: 'Large', value: 'lg' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

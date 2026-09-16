@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-overlay-spotlight">
+	<section
+		class="cb-overlay-spotlight"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="frame">
 				<NuxtImg
@@ -37,24 +40,12 @@
 						v-if="ctaLabel"
 						class="ctas"
 					>
-						<a
-							v-if="ctaHref"
-							:href="normalizeHref(ctaHref)"
-							:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-							:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-							:title="ctaLabel"
-							class="btn primary"
-						>
-							{{ ctaLabel }}
-						</a>
-						<button
-							v-else
-							type="button"
-							class="btn primary"
-							@click="open(formId)"
-						>
-							{{ ctaLabel }}
-						</button>
+						<CtaButton
+							:label="ctaLabel"
+							:href="ctaHref"
+							:form-id="formId"
+							variant="primary"
+						/>
 					</div>
 				</div>
 			</div>
@@ -74,6 +65,7 @@
 			ctaLabel?: string
 			ctaHref?: string
 			formId?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -84,10 +76,9 @@
 			ctaLabel: '',
 			ctaHref: '',
 			formId: '',
+			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>
@@ -95,7 +86,15 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		.frame {
+			// Fallback surface for when no image is set yet — without it the
+			// frame is just the scrim gradient over nothing, which reads as a
+			// broken/empty section rather than an unconfigured one.
+			background: var(--bg-secondary);
 			border-radius: var(--border-radius-lg);
 			min-height: clamp(22rem, 45vw, 34rem);
 			overflow: hidden;
@@ -119,8 +118,8 @@
 		}
 
 		.card {
-			background: color-mix(in srgb, var(--bg-secondary) 88%, transparent);
 			backdrop-filter: blur(12px);
+			background: color-mix(in srgb, var(--bg-secondary) 88%, transparent);
 			border-radius: var(--border-radius-md);
 			display: flex;
 			flex-direction: column;

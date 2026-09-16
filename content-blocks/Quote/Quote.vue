@@ -1,10 +1,14 @@
 <template>
 	<section
+		v-if="quote"
 		class="cb-quote"
-		:class="`align-${align}`"
+		:class="[`align-${align}`, minimalPadding ? 'small-padding' : '']"
 	>
 		<div class="sw">
-			<figure class="inner">
+			<figure
+				class="inner"
+				:style="{ '--width': width }"
+			>
 				<Icon
 					name="lucide:quote"
 					class="mark"
@@ -46,12 +50,16 @@
 			name?: string
 			role?: string
 			align?: 'center' | 'left'
+			width?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			quote: '',
 			name: '',
 			role: '',
 			align: 'center',
+			width: '8',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -61,9 +69,17 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		.inner {
 			margin-inline: auto;
-			max-width: 48rem;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 8) / 12);
+			}
 		}
 
 		.mark {

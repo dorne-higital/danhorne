@@ -11,5 +11,6 @@ export default {
 		{ name: 'beforeLabel', label: 'Before label', type: 'text', default: 'Before' },
 		{ name: 'afterImage', label: 'After image', type: 'image', default: '' },
 		{ name: 'afterLabel', label: 'After label', type: 'text', default: 'After' },
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

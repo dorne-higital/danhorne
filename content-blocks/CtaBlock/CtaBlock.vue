@@ -28,12 +28,12 @@
 						v-html="heading"
 					/>
 
-					<p
+					<!-- eslint-disable-next-line vue/no-v-html -->
+					<div
 						v-if="sub"
-						class="sub text-secondary"
-					>
-						{{ sub }}
-					</p>
+						class="sub prose text-secondary"
+						v-html="sub"
+					/>
 
 					<div
 						v-if="ctaLabel || secondaryCtaLabel"
@@ -48,7 +48,10 @@
 							:class="['btn primary', ctaSize]"
 						>
 							{{ ctaLabel }}
-							<Icon name="lucide:arrow-right" />
+							<Icon
+								name="lucide:arrow-right"
+								aria-hidden="true"
+							/>
 						</a>
 						<button
 							v-else-if="ctaLabel"
@@ -57,7 +60,10 @@
 							@click="open()"
 						>
 							{{ ctaLabel }}
-							<Icon name="lucide:arrow-right" />
+							<Icon
+								name="lucide:arrow-right"
+								aria-hidden="true"
+							/>
 						</button>
 
 						<a

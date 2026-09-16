@@ -1,11 +1,17 @@
 <template>
-	<section class="cb-timeline">
+	<section
+		class="cb-timeline"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				class="layout"
 				:class="{ 'has-image': image }"
 			>
-				<div class="content">
+				<div
+					class="content"
+					:style="{ '--width': width }"
+				>
 					<div
 						v-if="eyebrow || heading || sub"
 						class="intro"
@@ -64,12 +70,12 @@
 									>
 										{{ item.title }}
 									</h3>
-									<p
+									<!-- eslint-disable-next-line vue/no-v-html -->
+									<div
 										v-if="item.text"
-										class="text"
-									>
-										{{ item.text }}
-									</p>
+										class="text prose"
+										v-html="item.text"
+									/>
 								</div>
 							</div>
 						</li>
@@ -101,6 +107,8 @@
 			image?: string
 			imageAlt?: string
 			items?: { id: string; label?: string; title?: string; text?: string; image?: string; imageAlt?: string }[]
+			width?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -109,6 +117,8 @@
 			image: '',
 			imageAlt: '',
 			items: () => [],
+			width: '6',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -117,6 +127,10 @@
 	.cb-timeline {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.layout {
 			display: flex;
@@ -128,7 +142,12 @@
 			display: flex;
 			flex-direction: column;
 			gap: var(--padding-xl);
-			max-width: 42rem;
+			margin-inline: auto;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 6) / 12);
+			}
 		}
 
 		.intro {

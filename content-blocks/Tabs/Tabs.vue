@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-tabs">
+	<section
+		class="cb-tabs"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<SectionHeading
 			v-if="heading || subheading"
 			:heading="heading"
@@ -14,6 +17,7 @@
 			<div
 				v-if="items.length"
 				class="tabs"
+				:style="{ '--width': width }"
 			>
 				<div
 					class="tab-list"
@@ -59,21 +63,30 @@
 			heading?: string
 			subheading?: string
 			items?: { id: string; label?: string; content?: string }[]
+			width?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			subheading: '',
 			items: () => [],
+			width: '12',
+			minimalPadding: false,
 		},
 	)
 
 	const activeIndex = ref(0)
 
 	function onKeydown(event: KeyboardEvent, index: number) {
-		if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return
+		if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
 		event.preventDefault()
-		const direction = event.key === 'ArrowRight' ? 1 : -1
-		const nextIndex = (index + direction + props.items.length) % props.items.length
+
+		let nextIndex = index
+		if (event.key === 'ArrowRight') nextIndex = (index + 1) % props.items.length
+		else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + props.items.length) % props.items.length
+		else if (event.key === 'Home') nextIndex = 0
+		else if (event.key === 'End') nextIndex = props.items.length - 1
+
 		activeIndex.value = nextIndex
 		const nextTab = document.getElementById(`tab-${props.items[nextIndex]?.id}`)
 		nextTab?.focus()
@@ -85,8 +98,21 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		.section-heading {
 			margin-bottom: var(--padding-lg);
+		}
+
+		.tabs {
+			margin-inline: auto;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 12) / 12);
+			}
 		}
 
 		.tab-list {

@@ -134,5 +134,6 @@ export default {
 				{ name: 'name', label: 'Name (e.g. Vue.js)', type: 'text', default: '' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

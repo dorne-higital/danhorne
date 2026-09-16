@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-alternating-sections">
+	<section
+		class="cb-alternating-sections"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				v-if="eyebrow || heading || sub"
@@ -53,12 +56,12 @@
 					>
 						{{ section.title }}
 					</h3>
-					<p
+					<!-- eslint-disable-next-line vue/no-v-html -->
+					<div
 						v-if="section.text"
-						class="text"
-					>
-						{{ section.text }}
-					</p>
+						class="text prose"
+						v-html="section.text"
+					/>
 
 					<template v-if="showVectors">
 						<span
@@ -104,6 +107,7 @@
 			sub?: string
 			showVectors?: boolean
 			sections?: Section[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -111,6 +115,7 @@
 			sub: '',
 			showVectors: true,
 			sections: () => [],
+			minimalPadding: false,
 		},
 	)
 
@@ -174,6 +179,10 @@
 	.cb-alternating-sections {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.intro {
 			display: flex;

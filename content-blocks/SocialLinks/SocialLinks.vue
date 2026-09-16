@@ -1,5 +1,9 @@
 <template>
-	<section class="cb-social-links">
+	<section
+		v-if="eyebrow || heading || links.length"
+		class="cb-social-links"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				v-if="eyebrow || heading"
@@ -34,7 +38,10 @@
 					:title="link.label"
 				>
 					<span class="icon">
-						<Icon :name="link.icon" />
+						<Icon
+							:name="link.icon"
+							aria-hidden="true"
+						/>
 					</span>
 				</a>
 			</div>
@@ -50,11 +57,13 @@
 			eyebrow?: string
 			heading?: string
 			items?: { id: string; platform?: Platform; value?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			heading: '',
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 
@@ -173,6 +182,10 @@
 	.cb-social-links {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.intro {
 			display: flex;

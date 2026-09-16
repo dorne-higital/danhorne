@@ -2,9 +2,9 @@
 	<component
 		:is="href ? 'a' : 'div'"
 		class="work-card"
-		:href="href"
-		:target="external ? '_blank' : undefined"
-		:rel="external ? 'noopener' : undefined"
+		:href="href ? normalizeHref(href) : undefined"
+		:target="href && isExternalHref(href) ? '_blank' : undefined"
+		:rel="href && isExternalHref(href) ? 'noopener noreferrer' : undefined"
 		:title="href ? title : undefined"
 	>
 		<div
@@ -34,7 +34,7 @@
 
 		<div class="body">
 			<div class="text">
-				<p class="title">{{ title }}</p>
+				<h3 class="title">{{ title }}</h3>
 				<p
 					v-if="subtitle"
 					class="subtitle text-secondary"
@@ -60,7 +60,6 @@
 		image?: string
 		monogram?: string
 		href?: string
-		external?: boolean
 		accent?: 1 | 2 | 3 | 4
 	}
 
@@ -70,7 +69,6 @@
 		image: undefined,
 		monogram: undefined,
 		href: undefined,
-		external: false,
 		accent: 1,
 	})
 

@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-product-showcase">
+	<section
+		class="cb-product-showcase"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				class="panel"
@@ -55,26 +58,13 @@
 						v-if="ctaLabel"
 						class="ctas"
 					>
-						<a
-							v-if="ctaHref"
-							:href="normalizeHref(ctaHref)"
-							:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-							:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-							:title="ctaLabel"
-							class="btn primary"
-						>
-							{{ ctaLabel }}
-							<Icon name="lucide:arrow-right" />
-						</a>
-						<button
-							v-else
-							type="button"
-							class="btn primary"
-							@click="open(formId)"
-						>
-							{{ ctaLabel }}
-							<Icon name="lucide:arrow-right" />
-						</button>
+						<CtaButton
+							:label="ctaLabel"
+							:href="ctaHref"
+							:form-id="formId"
+							variant="primary"
+							icon="lucide:arrow-right"
+						/>
 					</div>
 				</div>
 
@@ -117,6 +107,7 @@
 			ctaLabel?: string
 			ctaHref?: string
 			formId?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -128,16 +119,19 @@
 			ctaLabel: '',
 			ctaHref: '',
 			formId: '',
+			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>
 	.cb-product-showcase {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.panel {
 			background: var(--bg-secondary);

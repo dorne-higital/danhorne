@@ -14,7 +14,7 @@ export default {
 			default: [],
 			fields: [
 				{ name: 'name', label: 'Tier name', type: 'text', default: '' },
-				{ name: 'price', label: 'Price (e.g. "£49/mo" or "Custom")', type: 'text', default: '' },
+				{ name: 'price', label: 'Price (e.g. "49/mo" or "Custom")', type: 'text', default: '' },
 				{ name: 'description', label: 'Short description', type: 'text', default: '' },
 				{ name: 'featured', label: 'Highlight this tier', type: 'boolean', default: false },
 				{
@@ -33,5 +33,6 @@ export default {
 				},
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

@@ -22,8 +22,8 @@ export default {
 				{ name: 'image', label: 'Image', type: 'image', default: '' },
 				{ name: 'monogram', label: 'Monogram (shown when no image)', type: 'text', default: '' },
 				{ name: 'href', label: 'Link', type: 'text', default: '' },
-				{ name: 'external', label: 'Opens in new tab', type: 'boolean', default: false },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

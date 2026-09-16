@@ -18,54 +18,33 @@
 					v-html="heading"
 				/>
 
-				<h4
+				<p
 					v-if="sub"
 					class="sub"
 				>
 					{{ sub }}
-				</h4>
+				</p>
 
 				<div
 					v-if="ctaLabel || secondaryCtaLabel"
 					class="ctas"
 				>
-					<a
-						v-if="ctaLabel && ctaHref"
-						:href="normalizeHref(ctaHref)"
-						:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-						:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-						:title="ctaLabel"
-						class="btn primary lg"
-					>
-						{{ ctaLabel }}
-					</a>
-					<button
-						v-else-if="ctaLabel"
-						type="button"
-						class="btn primary lg"
-						@click="open(formId)"
-					>
-						{{ ctaLabel }}
-					</button>
-
-					<a
-						v-if="secondaryCtaLabel && secondaryCtaHref"
-						:href="normalizeHref(secondaryCtaHref)"
-						:target="isExternalHref(secondaryCtaHref) ? '_blank' : undefined"
-						:rel="isExternalHref(secondaryCtaHref) ? 'noopener noreferrer' : undefined"
-						:title="secondaryCtaLabel"
-						class="btn outline lg"
-					>
-						{{ secondaryCtaLabel }}
-					</a>
-					<button
-						v-else-if="secondaryCtaLabel"
-						type="button"
-						class="btn outline lg"
-						@click="open(formId)"
-					>
-						{{ secondaryCtaLabel }}
-					</button>
+					<CtaButton
+						v-if="ctaLabel"
+						:label="ctaLabel"
+						:href="ctaHref"
+						:form-id="formId"
+						variant="primary"
+						size="lg"
+					/>
+					<CtaButton
+						v-if="secondaryCtaLabel"
+						:label="secondaryCtaLabel"
+						:href="secondaryCtaHref"
+						:form-id="formId"
+						variant="outline"
+						size="lg"
+					/>
 				</div>
 			</div>
 
@@ -115,8 +94,6 @@
 			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>

@@ -5,65 +5,49 @@
 		:data-theme="background === 'dark' ? 'dark' : undefined"
 	>
 		<div class="inner sw">
-			<span
-				v-if="eyebrow"
-				class="eyebrow"
-			>
-				{{ eyebrow }}
-			</span>
-
-			<h1 class="heading">
-				{{ heading }}
-			</h1>
-
-			<h3
-				v-if="sub"
-				class="sub"
-			>
-				{{ sub }}
-			</h3>
-
 			<div
-				v-if="ctaLabel || secondaryCtaLabel"
-				class="ctas"
+				class="content"
+				:style="{ '--width': width }"
 			>
-				<a
-					v-if="ctaLabel && ctaHref"
-					:href="normalizeHref(ctaHref)"
-					:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-					:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-					:title="ctaLabel"
-					class="btn primary lg"
+				<span
+					v-if="eyebrow"
+					class="eyebrow"
 				>
-					{{ ctaLabel }}
-				</a>
-				<button
-					v-else-if="ctaLabel"
-					type="button"
-					class="btn primary lg"
-					@click="open(formId)"
-				>
-					{{ ctaLabel }}
-				</button>
+					{{ eyebrow }}
+				</span>
 
-				<a
-					v-if="secondaryCtaLabel && secondaryCtaHref"
-					:href="normalizeHref(secondaryCtaHref)"
-					:target="isExternalHref(secondaryCtaHref) ? '_blank' : undefined"
-					:rel="isExternalHref(secondaryCtaHref) ? 'noopener noreferrer' : undefined"
-					:title="secondaryCtaLabel"
-					class="btn outline lg"
+				<h1 class="heading">
+					{{ heading }}
+				</h1>
+
+				<h3
+					v-if="sub"
+					class="sub"
 				>
-					{{ secondaryCtaLabel }}
-				</a>
-				<button
-					v-else-if="secondaryCtaLabel"
-					type="button"
-					class="btn outline lg"
-					@click="open(formId)"
+					{{ sub }}
+				</h3>
+
+				<div
+					v-if="ctaLabel || secondaryCtaLabel"
+					class="ctas"
 				>
-					{{ secondaryCtaLabel }}
-				</button>
+					<CtaButton
+						v-if="ctaLabel"
+						:label="ctaLabel"
+						:href="ctaHref"
+						:form-id="formId"
+						variant="primary"
+						size="lg"
+					/>
+					<CtaButton
+						v-if="secondaryCtaLabel"
+						:label="secondaryCtaLabel"
+						:href="secondaryCtaHref"
+						:form-id="formId"
+						variant="outline"
+						size="lg"
+					/>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -82,6 +66,7 @@
 			secondaryCtaLabel?: string
 			secondaryCtaHref?: string
 			formId?: string
+			width?: string
 			minimalPadding?: boolean
 		}>(),
 		{
@@ -94,11 +79,10 @@
 			secondaryCtaLabel: '',
 			secondaryCtaHref: '',
 			formId: '',
+			width: '12',
 			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>
@@ -138,12 +122,17 @@
 			}
 		}
 
-		.inner {
+		.content {
 			align-items: center;
 			display: flex;
 			flex-direction: column;
 			gap: var(--padding-md);
 			margin-inline: auto;
+			width: 100%;
+
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 12) / 12);
+			}
 		}
 
 		.heading {

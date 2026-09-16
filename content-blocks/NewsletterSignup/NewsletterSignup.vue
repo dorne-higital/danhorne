@@ -1,40 +1,21 @@
 <template>
-	<section class="cb-newsletter">
+	<section
+		class="cb-newsletter"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="panel">
 				<div class="content">
-					<span
-						v-if="eyebrow"
-						class="eyebrow"
-					>
-						{{ eyebrow }}
-					</span>
-					<h2
-						v-if="heading"
-						class="heading"
-					>
-						{{ heading }}
-					</h2>
-					<p
-						v-if="caption"
-						class="caption text-secondary"
-					>
-						{{ caption }}
-					</p>
+					<BlockHead
+						:eyebrow="eyebrow"
+						:heading="heading"
+						:caption="caption"
+						rich-caption
+						size="h3"
+					/>
 				</div>
 
-				<div
-					v-if="formId"
-					class="form-wrap"
-				>
-					<DynamicForm :form-id="formId" />
-				</div>
-				<p
-					v-else
-					class="no-form"
-				>
-					No form selected — choose one in the block editor.
-				</p>
+				<FormOrPlaceholder :form-id="formId" />
 			</div>
 		</div>
 	</section>
@@ -47,12 +28,14 @@
 			heading?: string
 			caption?: string
 			formId?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			heading: '',
 			caption: '',
 			formId: '',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -61,6 +44,10 @@
 	.cb-newsletter {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.panel {
 			align-items: center;
@@ -75,23 +62,6 @@
 				grid-template-columns: 1fr auto;
 				padding: var(--padding-xl);
 			}
-		}
-
-		.content {
-			display: flex;
-			flex-direction: column;
-			gap: var(--padding-xs);
-		}
-
-		.heading {
-			color: var(--text-primary);
-			font-family: var(--heading-font-family);
-			font-size: var(--h3-size);
-			font-weight: var(--heading-font-weight);
-		}
-
-		.caption {
-			font-size: var(--body-size);
 		}
 
 		.form-wrap {

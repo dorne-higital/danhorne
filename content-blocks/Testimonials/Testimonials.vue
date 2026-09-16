@@ -1,35 +1,18 @@
 <template>
 	<section
 		class="testimonials"
-		:class="`size-${size}`"
+		:class="minimalPadding ? 'small-padding' : ''"
 	>
 		<div class="container sw">
-			<div class="panel">
-				<div
-					class="glow"
-					aria-hidden="true"
-				/>
-				<div class="content">
-					<div
-						class="mark"
-						aria-hidden="true"
-					>
-						&ldquo;
-					</div>
-					<!-- eslint-disable-next-line vue/no-v-html -->
-					<blockquote
-						class="quote"
-						v-html="quote"
-					/>
-					<div class="author">
-						<div class="avatar">{{ initials }}</div>
-						<div>
-							<div class="author-name">{{ name }}</div>
-							<div class="author-role">{{ role }}</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<TestimonialCard
+				class="panel"
+				:style="{ '--width': width }"
+				:quote="quote"
+				:name="name"
+				:role="role"
+				:initials="initials"
+				:size="size"
+			/>
 		</div>
 	</section>
 </template>
@@ -42,6 +25,8 @@
 			initials?: string
 			name?: string
 			role?: string
+			width?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			quote: '',
@@ -49,6 +34,8 @@
 			initials: '',
 			name: '',
 			role: '',
+			width: '9',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -58,95 +45,17 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		.panel {
-			background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-			border-radius: var(--border-radius-md);
-			box-shadow: var(--shadow-md);
-			color: #fff;
-			overflow: hidden;
-			padding: var(--padding-lg);
-			position: relative;
+			margin-inline: auto;
+			width: 100%;
 
-			.glow {
-				background: color-mix(in srgb, var(--brand-primary) 20%, var(--bg-secondary) 38%);
-				border-radius: 50%;
-				bottom: -60px;
-				filter: blur(2rem);
-				height: 220px;
-				position: absolute;
-				right: -40px;
-				width: 220px;
+			@media (width >= 1024px) {
+				max-width: calc(100% * var(--width, 9) / 12);
 			}
-
-			.content {
-				position: relative;
-
-				.mark {
-					color: var(--text-secondary);
-					font-size: 3.75rem;
-					font-weight: 600;
-					line-height: 0.6;
-					opacity: 0.6;
-				}
-
-				.quote {
-					color: var(--text-primary);
-					font-weight: var(--heading-font-weight);
-					letter-spacing: -0.025em;
-					line-height: 1.12;
-
-					> * + * {
-						margin-top: var(--padding-sm);
-					}
-				}
-
-				.author {
-					align-items: center;
-					color: var(--text-secondary);
-					display: flex;
-					gap: var(--padding-sm);
-					margin-top: var(--padding-md);
-
-					.avatar {
-						background: rgb(255 255 255 / 20%);
-						border: 1px solid var(--border-strong);
-						border-radius: 50%;
-						display: grid;
-						font-size: var(--eyebrow-size);
-						font-weight: var(--heading-font-weight);
-						height: 46px;
-						place-items: center;
-						width: 46px;
-					}
-
-					.author-name {
-						font-size: var(--eyebrow-size);
-						font-weight: 600;
-					}
-
-					.author-role {
-						font-size: 0.85rem;
-						margin-top: 2px;
-						opacity: 0.8;
-					}
-				}
-			}
-		}
-
-		&.size-h1 .quote {
-			font-size: clamp(1.75rem, 4vw, var(--h1-size));
-		}
-
-		&.size-h2 .quote {
-			font-size: clamp(1.5rem, 3.4vw, var(--h2-size));
-		}
-
-		&.size-h3 .quote {
-			font-size: clamp(1.25rem, 2.5vw, var(--h3-size));
-		}
-
-		&.size-h4 .quote {
-			font-size: var(--h4-size);
 		}
 	}
 </style>

@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-tiled-grid">
+	<section
+		class="cb-tiled-grid"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="head">
 				<div>
@@ -34,10 +37,12 @@
 			eyebrow?: string
 			heading: string
 			items?: Record<string, unknown>[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -49,6 +54,10 @@
 		// Mobile-first: this was fixed at every size, leaving a large empty
 		// gap above the eyebrow on a phone-height viewport.
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);

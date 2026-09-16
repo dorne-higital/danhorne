@@ -6,15 +6,10 @@
 	>
 		<div class="sw">
 			<div class="head">
-				<div>
-					<span
-						v-if="eyebrow"
-						class="eyebrow"
-					>
-						{{ eyebrow }}
-					</span>
-					<h2 class="heading">{{ heading }}</h2>
-				</div>
+				<BlockHead
+					:eyebrow="eyebrow"
+					:heading="heading"
+				/>
 
 				<div class="head-actions">
 					<p
@@ -38,17 +33,22 @@
 				<div
 					ref="track"
 					class="track"
+					role="region"
+					aria-label="Portfolio carousel"
+					tabindex="0"
 					@scroll="updateNav"
 				>
 					<WorkCard
 						v-for="(site, index) in filteredSites"
 						:key="site.id"
+						role="group"
+						aria-roledescription="slide"
+						:aria-label="`${index + 1} of ${filteredSites.length}`"
 						:title="site.name"
 						:subtitle="site.description ?? undefined"
 						:tag="site.tags[0]"
 						:image="site.cover_image ?? undefined"
-						:href="site.slug || normalizeHref(site.url)"
-						:external="!site.slug && isExternalHref(site.url)"
+						:href="site.slug || site.url"
 						:accent="((index % 4) + 1) as 1 | 2 | 3 | 4"
 					/>
 				</div>
@@ -188,17 +188,6 @@
 			justify-content: space-between;
 			margin-bottom: var(--padding-xl);
 
-			.eyebrow {
-				margin-bottom: var(--padding-sm);
-			}
-
-			.heading {
-				color: var(--text-primary);
-				font-family: var(--heading-font-family);
-				font-size: var(--h2-size);
-				font-weight: var(--heading-font-weight);
-			}
-
 			.head-actions {
 				display: flex;
 				flex-direction: column;
@@ -220,11 +209,22 @@
 				display: flex;
 				gap: var(--padding-lg);
 				overflow-x: auto;
+
+				// overflow-x alone forces overflow-y to compute as auto too, and
+				// since the track sits flush against each card's edges, that
+				// invisible vertical clip slices the card's box-shadow off in a
+				// flat rectangle instead of following its rounded corner.
+				padding-block: var(--padding-md);
 				scroll-snap-type: x mandatory;
 				scrollbar-width: none;
 
 				&::-webkit-scrollbar {
 					display: none;
+				}
+
+				&:focus-visible {
+					outline: 2px solid var(--brand-secondary);
+					outline-offset: -2px;
 				}
 
 				> * {
@@ -246,7 +246,7 @@
 				display: flex;
 				gap: var(--padding-sm);
 				justify-content: flex-end;
-				margin-top: var(--padding-lg);
+				margin-top: var(--padding-sm);
 
 				&.has-view-all {
 					justify-content: space-between;

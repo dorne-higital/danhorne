@@ -6,7 +6,7 @@ export default {
 	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
-		{ name: 'heading', label: 'Heading', type: 'text', default: 'Built with my own CMS' },
+		{ name: 'heading', label: 'Heading', type: 'text', default: 'Section heading' },
 		{ name: 'content', label: 'Body text', type: 'richtext', default: '' },
 		{ name: 'image', label: 'Screenshot or GIF', type: 'image', default: '' },
 		{ name: 'imageAlt', label: 'Image alt text', type: 'text', default: '' },
@@ -40,5 +40,6 @@ export default {
 			type: 'form',
 			default: '',
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

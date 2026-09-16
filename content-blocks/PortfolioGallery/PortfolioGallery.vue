@@ -9,30 +9,17 @@
 				v-if="eyebrow || heading || caption"
 				class="head"
 			>
-				<span
-					v-if="eyebrow"
-					class="eyebrow"
-				>
-					{{ eyebrow }}
-				</span>
-				<h2
-					v-if="heading"
-					class="heading"
-				>
-					{{ heading }}
-				</h2>
-				<p
-					v-if="caption"
-					class="caption"
-				>
-					{{ caption }}
-				</p>
+				<BlockHead
+					:eyebrow="eyebrow"
+					:heading="heading"
+					:caption="caption"
+				/>
 			</div>
 
 			<div
 				ref="galleryRef"
 				class="gallery"
-				:style="{ '--columns': columns }"
+				:style="{ '--columns': safeColumns }"
 			>
 				<div
 					v-for="(image, index) in images"
@@ -72,6 +59,8 @@
 			minimalPadding: false,
 		},
 	)
+
+	const safeColumns = computed(() => Math.min(Math.max(Math.round(props.columns) || 1, 1), 6))
 
 	// Self-keyed off this component instance, same reasoning as the other
 	// Portfolio* blocks — BlockRenderer.vue doesn't forward block.id into
@@ -130,22 +119,6 @@
 		.head {
 			margin-bottom: var(--padding-lg);
 			max-width: 65ch;
-
-			.eyebrow {
-				margin-bottom: var(--padding-sm);
-			}
-
-			.heading {
-				color: var(--text-primary);
-				font-family: var(--heading-font-family);
-				font-size: var(--h2-size);
-				font-weight: var(--heading-font-weight);
-			}
-
-			.caption {
-				color: var(--text-secondary);
-				margin-top: var(--padding-sm);
-			}
 		}
 
 		// CSS columns, not grid — each image keeps its own natural aspect

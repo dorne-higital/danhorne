@@ -6,7 +6,7 @@ export default {
 	group: 'Image + Text',
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
-		{ name: 'heading', label: 'Heading', type: 'text', default: 'Section heading' },
+		{ name: 'heading', label: 'Heading', type: 'richtext', default: 'Section heading' },
 		{ name: 'content', label: 'Body text', type: 'richtext', default: '' },
 		{ name: 'image', label: 'Image', type: 'image', default: '' },
 		{ name: 'imageAlt', label: 'Image alt text', type: 'text', default: '' },

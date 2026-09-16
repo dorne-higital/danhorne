@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-diagonal-split">
+	<section
+		class="cb-diagonal-split"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div
 			class="inner"
 			:class="[`image-${imagePosition}`]"
@@ -38,26 +41,12 @@
 					v-if="ctaLabel"
 					class="ctas"
 				>
-					<a
-						v-if="ctaHref"
-						:href="normalizeHref(ctaHref)"
-						:target="isExternalHref(ctaHref) ? '_blank' : undefined"
-						:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
-						:title="ctaLabel"
-						class="btn"
-						:class="panelColor === 'light' ? 'primary' : 'outline'"
-					>
-						{{ ctaLabel }}
-					</a>
-					<button
-						v-else
-						type="button"
-						class="btn"
-						:class="panelColor === 'light' ? 'primary' : 'outline'"
-						@click="open(formId)"
-					>
-						{{ ctaLabel }}
-					</button>
+					<CtaButton
+						:label="ctaLabel"
+						:href="ctaHref"
+						:form-id="formId"
+						:variant="panelColor === 'light' ? 'primary' : 'outline'"
+					/>
 				</div>
 			</div>
 		</div>
@@ -77,6 +66,7 @@
 			ctaLabel?: string
 			ctaHref?: string
 			formId?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -88,15 +78,18 @@
 			ctaLabel: '',
 			ctaHref: '',
 			formId: '',
+			minimalPadding: false,
 		},
 	)
-
-	const { open } = useAppModal()
 </script>
 
 <style lang="scss" scoped>
 	.cb-diagonal-split {
 		background: var(--bg-primary);
+
+		&.small-padding .panel {
+			padding-block: var(--padding-sm);
+		}
 
 		.inner {
 			display: flex;
@@ -125,9 +118,9 @@
 			img {
 				display: block;
 				height: 100%;
+				inset: 0;
 				object-fit: cover;
 				position: absolute;
-				inset: 0;
 				width: 100%;
 			}
 		}
@@ -143,13 +136,12 @@
 			position: relative;
 
 			@media (width >= 1024px) {
-				padding: var(--padding-xl) calc(var(--padding-xl) * 1.5);
-
 				// The diagonal bite: cut this panel's inner edge on an angle
 				// and pull it over the image by the same amount so the cut
 				// reads as one continuous seam rather than a gap.
 				clip-path: polygon(6% 0, 100% 0, 100% 100%, 0 100%);
 				margin-left: -6vw;
+				padding: var(--padding-xl) calc(var(--padding-xl) * 1.5);
 			}
 		}
 

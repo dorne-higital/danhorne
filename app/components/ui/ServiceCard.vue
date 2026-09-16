@@ -4,14 +4,14 @@
 		:class="[tone, `span-${span}`]"
 	>
 		<span
-			v-if="tone === 'primary' || 'tint'"
+			v-if="tone === 'primary' || tone === 'tint'"
 			class="glow"
 			aria-hidden="true"
 		/>
 
 		<div class="top">
 			<span class="number">{{ number }}</span>
-			<p class="title">{{ title }}</p>
+			<h3 class="title">{{ title }}</h3>
 			<p class="description">{{ description }}</p>
 		</div>
 	</div>

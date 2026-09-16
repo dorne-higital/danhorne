@@ -1,5 +1,9 @@
 <template>
-	<section class="cb-map-embed">
+	<section
+		v-if="embedUrl"
+		class="cb-map-embed"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<h2
 				v-if="heading"
@@ -9,7 +13,6 @@
 			</h2>
 
 			<div
-				v-if="embedUrl"
 				class="frame"
 				:class="`height-${height}`"
 			>
@@ -20,12 +23,6 @@
 					referrerpolicy="no-referrer-when-downgrade"
 				/>
 			</div>
-			<p
-				v-else
-				class="no-map"
-			>
-				No map URL set — add one in the block editor.
-			</p>
 		</div>
 	</section>
 </template>
@@ -36,11 +33,13 @@
 			heading?: string
 			embedUrl?: string
 			height?: 'sm' | 'md' | 'lg'
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			embedUrl: '',
 			height: 'md',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -49,6 +48,10 @@
 	.cb-map-embed {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.heading {
 			color: var(--text-primary);
@@ -81,10 +84,6 @@
 			&.height-lg {
 				height: 32rem;
 			}
-		}
-
-		.no-map {
-			color: var(--text-secondary);
 		}
 	}
 </style>

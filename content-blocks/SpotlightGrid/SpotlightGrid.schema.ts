@@ -37,5 +37,6 @@ export default {
 				{ name: 'external', label: 'Opens in new tab', type: 'boolean', default: false },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

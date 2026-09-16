@@ -2,6 +2,7 @@
 	<section
 		v-if="hasDetails"
 		class="cb-contact-details"
+		:class="minimalPadding ? 'small-padding' : ''"
 	>
 		<div class="sw">
 			<div class="card">
@@ -66,6 +67,7 @@
 			phone?: string
 			email?: string
 			hours?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
@@ -73,6 +75,7 @@
 			phone: '',
 			email: '',
 			hours: '',
+			minimalPadding: false,
 		},
 	)
 
@@ -83,6 +86,10 @@
 	.cb-contact-details {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.card {
 			background: var(--bg-secondary);

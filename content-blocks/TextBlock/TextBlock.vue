@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-text-block sw">
+	<section
+		class="cb-text-block sw"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<!-- eslint-disable-next-line vue/no-v-html -->
 		<div
 			class="content prose"
@@ -16,10 +19,12 @@
 			content: string
 			width?: string
 			align?: 'left' | 'center' | 'right'
+			minimalPadding?: boolean
 		}>(),
 		{
 			width: '12',
 			align: 'left',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -28,6 +33,10 @@
 	.cb-text-block {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		// The block itself is always centered on the page regardless of width —
 		// only the text alignment inside it (.align-*) is independently

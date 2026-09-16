@@ -17,10 +17,11 @@ export default {
 			fields: [
 				{ name: 'label', label: 'Label (optional short tag)', type: 'text', default: '' },
 				{ name: 'title', label: 'Title', type: 'text', default: '' },
-				{ name: 'text', label: 'Text', type: 'text', default: '' },
+				{ name: 'text', label: 'Text', type: 'richtext', default: '' },
 				{ name: 'image', label: 'Image (optional)', type: 'image', default: '' },
 				{ name: 'imageAlt', label: 'Image alt text', type: 'text', default: '' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

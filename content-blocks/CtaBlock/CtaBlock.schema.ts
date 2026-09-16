@@ -7,7 +7,7 @@ export default {
 	fields: [
 		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
 		{ name: 'heading', label: 'Heading', type: 'richtext', default: "Let's build<br>something good." },
-		{ name: 'sub', label: 'Subheading', type: 'text', default: '' },
+		{ name: 'sub', label: 'Subheading', type: 'richtext', default: '' },
 		{ name: 'ctaLabel', label: 'Primary button label', type: 'text', default: 'Say hello' },
 		{
 			name: 'ctaHref',

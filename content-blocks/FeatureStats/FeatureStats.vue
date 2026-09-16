@@ -1,7 +1,7 @@
 <template>
 	<section
 		class="cb-feature-stats"
-		:class="`variant-${variant}`"
+		:class="[`variant-${variant}`, minimalPadding ? 'small-padding' : '']"
 	>
 		<div class="sw container">
 			<SectionHeading
@@ -47,12 +47,14 @@
 			subheading?: string
 			variant?: 'block' | 'minimal'
 			feature?: { id: string; stat?: string; label?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			subheading: '',
 			variant: 'block',
 			feature: () => [],
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -61,6 +63,10 @@
 	.cb-feature-stats {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.container {
 			display: flex;

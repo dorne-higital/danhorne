@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-card-carousel">
+	<section
+		class="cb-card-carousel"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="head">
 				<div>
@@ -45,7 +48,6 @@
 						:image="item.image as string | undefined"
 						:monogram="item.monogram as string | undefined"
 						:href="item.href as string | undefined"
-						:external="!!item.external"
 						:accent="((index % 4) + 1) as 1 | 2 | 3 | 4"
 					/>
 				</div>
@@ -99,6 +101,7 @@
 			items?: Record<string, unknown>[]
 			viewAllHref?: string
 			viewAllLabel?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -106,6 +109,7 @@
 			items: () => [],
 			viewAllHref: '',
 			viewAllLabel: 'View all work',
+			minimalPadding: false,
 		},
 	)
 
@@ -147,6 +151,10 @@
 		// Mobile-first: this was fixed at every size, leaving a large empty
 		// gap above the eyebrow on a phone-height viewport.
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
@@ -192,6 +200,12 @@
 				display: flex;
 				gap: var(--padding-lg);
 				overflow-x: auto;
+
+				// overflow-x alone forces overflow-y to compute as auto too, and
+				// since the track sits flush against each card's edges, that
+				// invisible vertical clip slices the card's box-shadow off in a
+				// flat rectangle instead of following its rounded corner.
+				padding-block: var(--padding-md);
 				scroll-snap-type: x mandatory;
 				scrollbar-width: none;
 
@@ -218,7 +232,7 @@
 				display: flex;
 				gap: var(--padding-sm);
 				justify-content: flex-end;
-				margin-top: var(--padding-lg);
+				margin-top: var(--padding-sm);
 
 				&.has-view-all {
 					justify-content: space-between;

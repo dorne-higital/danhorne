@@ -44,5 +44,6 @@ export default {
 				{ label: 'Round', value: 'round' },
 			],
 		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

@@ -1,7 +1,7 @@
 <template>
 	<section
 		class="cb-image-hero"
-		:class="[`shape-${bottomShape}`, { 'no-image': !image }]"
+		:class="[`shape-${bottomShape}`, { 'no-image': !image }, minimalPadding ? 'small-padding' : '']"
 	>
 		<div class="media">
 			<NuxtImg
@@ -37,7 +37,9 @@
 			>
 				<a
 					v-if="ctaLabel && ctaHref"
-					:href="ctaHref"
+					:href="normalizeHref(ctaHref)"
+					:target="isExternalHref(ctaHref) ? '_blank' : undefined"
+					:rel="isExternalHref(ctaHref) ? 'noopener noreferrer' : undefined"
 					:title="ctaLabel"
 					class="btn primary lg"
 				>
@@ -45,7 +47,9 @@
 				</a>
 				<a
 					v-if="secondaryCtaLabel && secondaryCtaHref"
-					:href="secondaryCtaHref"
+					:href="normalizeHref(secondaryCtaHref)"
+					:target="isExternalHref(secondaryCtaHref) ? '_blank' : undefined"
+					:rel="isExternalHref(secondaryCtaHref) ? 'noopener noreferrer' : undefined"
 					:title="secondaryCtaLabel"
 					class="btn secondary lg"
 				>
@@ -69,6 +73,7 @@
 			secondaryCtaLabel?: string
 			secondaryCtaHref?: string
 			bottomShape?: 'none' | 'corner' | 'angular' | 'round'
+			minimalPadding?: boolean
 		}>(),
 		{
 			subheading: '',
@@ -80,6 +85,7 @@
 			secondaryCtaLabel: '',
 			secondaryCtaHref: '',
 			bottomShape: 'none',
+			minimalPadding: false,
 		},
 	)
 
@@ -94,6 +100,10 @@
 		padding-block: var(--padding-xl) var(--padding-lg);
 		position: relative;
 		width: 100%;
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		@media (width >= 768px) {
 			aspect-ratio: 3/1;

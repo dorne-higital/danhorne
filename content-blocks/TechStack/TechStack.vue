@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-tech-stack">
+	<section
+		class="cb-tech-stack"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				v-if="eyebrow || heading || sub"
@@ -38,6 +41,7 @@
 						v-if="item.icon"
 						:name="item.icon"
 						class="icon"
+						aria-hidden="true"
 					/>
 					<span
 						v-if="item.name"
@@ -58,12 +62,14 @@
 			heading?: string
 			sub?: string
 			items?: { id: string; icon?: string; name?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			heading: '',
 			sub: '',
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -72,6 +78,10 @@
 	.cb-tech-stack {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.intro {
 			display: flex;

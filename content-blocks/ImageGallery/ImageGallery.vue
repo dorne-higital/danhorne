@@ -1,9 +1,12 @@
 <template>
-	<section class="cb-image-gallery sw">
+	<section
+		v-if="images.length"
+		class="cb-image-gallery sw"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div
-			v-if="images.length"
 			class="grid"
-			:style="{ '--columns': columns }"
+			:style="{ '--columns': safeColumns }"
 		>
 			<NuxtImg
 				v-for="(item, index) in images"
@@ -32,6 +35,7 @@
 			image5Alt?: string
 			image6?: string
 			image6Alt?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			columns: 3,
@@ -47,6 +51,7 @@
 			image5Alt: '',
 			image6: '',
 			image6Alt: '',
+			minimalPadding: false,
 		},
 	)
 
@@ -60,12 +65,17 @@
 			{ src: props.image6, alt: props.image6Alt },
 		].filter((item) => item.src),
 	)
+	const safeColumns = computed(() => Math.min(Math.max(Math.round(props.columns) || 1, 1), 6))
 </script>
 
 <style lang="scss" scoped>
 	.cb-image-gallery {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.grid {
 			display: grid;

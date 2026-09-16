@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-spotlight-grid">
+	<section
+		class="cb-spotlight-grid"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div
 				v-if="statLabel || heading || ctaLabel"
@@ -62,12 +65,12 @@
 						{{ featured.eyebrow }}
 					</span>
 					<div class="info-bottom">
-						<p
+						<h2
 							v-if="featured.title"
 							class="title"
 						>
 							{{ featured.title }}
-						</p>
+						</h2>
 						<p
 							v-if="featured.subtitle"
 							class="subtitle"
@@ -88,7 +91,7 @@
 			<div
 				v-if="rest.length"
 				class="grid"
-				:style="{ '--columns': columns }"
+				:style="{ '--columns': safeColumns }"
 			>
 				<component
 					:is="item.href ? 'a' : 'div'"
@@ -115,12 +118,12 @@
 						</span>
 					</div>
 					<div class="info">
-						<p
+						<h3
 							v-if="item.title"
 							class="title"
 						>
 							{{ item.title }}
-						</p>
+						</h3>
 						<p
 							v-if="item.subtitle"
 							class="subtitle text-secondary"
@@ -150,6 +153,7 @@
 			ctaHref?: string
 			columns?: number
 			items?: Record<string, unknown>[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			statLabel: '',
@@ -158,17 +162,23 @@
 			ctaHref: '',
 			columns: 2,
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 
 	const featured = computed(() => props.items[0])
 	const rest = computed(() => props.items.slice(1))
+	const safeColumns = computed(() => Math.min(Math.max(Math.round(props.columns) || 1, 1), 6))
 </script>
 
 <style lang="scss" scoped>
 	.cb-spotlight-grid {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.head {
 			align-items: flex-end;

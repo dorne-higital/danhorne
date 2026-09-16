@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-pricing-table">
+	<section
+		class="cb-pricing-table"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<SectionHeading
 				v-if="heading || subheading"
@@ -83,6 +86,12 @@
 					</button>
 				</div>
 			</div>
+			<p
+				v-else
+				class="empty"
+			>
+				No pricing tiers added yet — add one in the block editor.
+			</p>
 		</div>
 	</section>
 </template>
@@ -104,11 +113,13 @@
 			heading?: string
 			subheading?: string
 			tiers?: Tier[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			subheading: '',
 			tiers: () => [],
+			minimalPadding: false,
 		},
 	)
 
@@ -120,8 +131,17 @@
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
 
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
+
 		.section-heading {
 			margin-bottom: var(--padding-xl);
+		}
+
+		.empty {
+			color: var(--text-secondary);
+			padding-block: var(--padding-md);
 		}
 
 		.grid {

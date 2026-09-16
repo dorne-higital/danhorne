@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-detail-page-hero">
+	<section
+		class="cb-detail-page-hero"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="top">
 				<span
@@ -57,7 +60,7 @@
 						class="meta-item"
 					>
 						<span class="label text-secondary">{{ item.label }}</span>
-						<span class="eyebrow">{{ item.value }}</span>
+						<span class="value">{{ item.value }}</span>
 					</div>
 
 					<a
@@ -89,6 +92,7 @@
 			ctaHref?: string
 			image?: string
 			imageAlt?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -100,6 +104,7 @@
 			ctaHref: '',
 			image: '',
 			imageAlt: '',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -108,6 +113,10 @@
 	.cb-detail-page-hero {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.top {
 			align-items: center;

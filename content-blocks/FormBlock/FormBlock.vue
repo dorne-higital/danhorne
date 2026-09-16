@@ -1,40 +1,20 @@
 <template>
-	<section class="cb-form-block">
+	<section
+		class="cb-form-block"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<div class="content">
 				<div class="head">
-					<span
-						v-if="eyebrow"
-						class="eyebrow"
-					>
-						{{ eyebrow }}
-					</span>
-					<h2
-						v-if="heading"
-						class="heading"
-					>
-						{{ heading }}
-					</h2>
-					<p
-						v-if="caption"
-						class="caption text-secondary"
-					>
-						{{ caption }}
-					</p>
+					<BlockHead
+						:eyebrow="eyebrow"
+						:heading="heading"
+						:caption="caption"
+						rich-caption
+					/>
 				</div>
 
-				<div
-					v-if="formId"
-					class="form-wrap"
-				>
-					<DynamicForm :form-id="formId" />
-				</div>
-				<p
-					v-else
-					class="no-form"
-				>
-					No form selected — choose one in the block editor.
-				</p>
+				<FormOrPlaceholder :form-id="formId" />
 			</div>
 		</div>
 	</section>
@@ -47,12 +27,14 @@
 			heading?: string
 			caption?: string
 			formId?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
 			heading: '',
 			caption: '',
 			formId: '',
+			minimalPadding: false,
 		},
 	)
 </script>
@@ -64,6 +46,10 @@
 		// Mobile-first: this was fixed at every size, leaving a large empty
 		// gap above the form heading on a phone-height viewport.
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
@@ -83,23 +69,6 @@
 			margin-bottom: var(--padding-lg);
 			max-width: 640px;
 			text-align: center;
-
-			.heading {
-				color: var(--text-primary);
-				font-family: var(--heading-font-family);
-				font-size: var(--h2-size);
-				font-weight: var(--heading-font-weight);
-			}
-
-			.eyebrow {
-				justify-content: center;
-				margin-bottom: var(--padding-sm);
-			}
-
-			.caption {
-				font-size: 1.25rem;
-				margin-top: var(--padding-sm);
-			}
 		}
 
 		.form-wrap {

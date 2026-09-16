@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-accordion">
+	<section
+		class="cb-accordion"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<SectionHeading
 			v-if="heading || subheading"
 			:heading="heading"
@@ -53,8 +56,11 @@
 						<button
 							type="button"
 							class="question"
+							:id="`accordion-trigger-${item.id}`"
 							:aria-expanded="openId === item.id"
+							:aria-controls="`accordion-panel-${item.id}`"
 							@click="toggle(item.id)"
+							@keydown="onKeydown($event, item.id)"
 						>
 							<span>{{ item.question }}</span>
 							<Icon
@@ -66,6 +72,8 @@
 						<!-- eslint-disable-next-line vue/no-v-html -->
 						<div
 							v-show="openId === item.id"
+							:id="`accordion-panel-${item.id}`"
+							:aria-labelledby="`accordion-trigger-${item.id}`"
 							class="answer prose"
 							v-html="item.answer"
 						/>
@@ -90,6 +98,7 @@
 			width?: string
 			showFilters?: boolean
 			items?: { id: string; question?: string; answer?: string; tags?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
@@ -97,6 +106,7 @@
 			width: '12',
 			showFilters: false,
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
 
@@ -104,6 +114,22 @@
 
 	function toggle(id: string) {
 		openId.value = openId.value === id ? null : id
+	}
+
+	function onKeydown(event: KeyboardEvent, id: string) {
+		if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+		event.preventDefault()
+
+		const ids = visibleItems.value.map((item) => item.id)
+		const currentIndex = ids.indexOf(id)
+		let nextIndex = currentIndex
+
+		if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % ids.length
+		else if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + ids.length) % ids.length
+		else if (event.key === 'Home') nextIndex = 0
+		else if (event.key === 'End') nextIndex = ids.length - 1
+
+		document.getElementById(`accordion-trigger-${ids[nextIndex]}`)?.focus()
 	}
 
 	// Tags are authored as one comma-separated text field per item (no
@@ -137,6 +163,10 @@
 	.cb-accordion {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.list-wrap {
 			margin-inline: auto;

@@ -19,5 +19,6 @@ export default {
 		{ name: 'column1', label: 'Column 1', type: 'richtext', default: '' },
 		{ name: 'column2', label: 'Column 2', type: 'richtext', default: '' },
 		{ name: 'column3', label: 'Column 3 (only shown when Columns is set to 3)', type: 'richtext', default: '' },
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
 	],
 } satisfies BlockSchema

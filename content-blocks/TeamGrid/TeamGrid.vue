@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-team-grid">
+	<section
+		class="cb-team-grid"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<SectionHeading
 				v-if="heading || subheading"
@@ -14,7 +17,7 @@
 			<div
 				v-if="items.length"
 				class="grid"
-				:style="{ '--columns': columns }"
+				:style="{ '--columns': safeColumns }"
 			>
 				<div
 					v-for="item in items"
@@ -61,20 +64,24 @@
 </template>
 
 <script setup lang="ts">
-	withDefaults(
+	const props = withDefaults(
 		defineProps<{
 			heading?: string
 			subheading?: string
 			columns?: number
 			items?: { id: string; photo?: string; name?: string; role?: string; bio?: string }[]
+			minimalPadding?: boolean
 		}>(),
 		{
 			heading: '',
 			subheading: '',
 			columns: 3,
 			items: () => [],
+			minimalPadding: false,
 		},
 	)
+
+	const safeColumns = computed(() => Math.min(Math.max(Math.round(props.columns) || 1, 1), 6))
 
 	function initials(name?: string): string {
 		if (!name) return ''
@@ -88,26 +95,22 @@
 </script>
 
 <style lang="scss" scoped>
+	@use '~/assets/scss/base/grid' as *;
+
 	.cb-team-grid {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.section-heading {
 			margin-bottom: var(--padding-xl);
 		}
 
 		.grid {
-			display: grid;
-			gap: var(--padding-lg);
-			grid-template-columns: 1fr;
-
-			@media (width >= 640px) {
-				grid-template-columns: repeat(2, 1fr);
-			}
-
-			@media (width >= 1024px) {
-				grid-template-columns: repeat(var(--columns, 3), 1fr);
-			}
+			@include card-grid;
 		}
 
 		.person {

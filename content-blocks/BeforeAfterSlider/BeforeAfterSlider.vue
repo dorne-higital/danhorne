@@ -1,5 +1,8 @@
 <template>
-	<section class="cb-before-after">
+	<section
+		class="cb-before-after"
+		:class="minimalPadding ? 'small-padding' : ''"
+	>
 		<div class="sw">
 			<span
 				v-if="eyebrow"
@@ -52,7 +55,7 @@
 					max="100"
 					class="range"
 					:aria-label="`Drag to compare ${beforeLabel} and ${afterLabel}`"
-				>
+				/>
 			</div>
 		</div>
 	</section>
@@ -67,6 +70,7 @@
 			beforeLabel?: string
 			afterImage?: string
 			afterLabel?: string
+			minimalPadding?: boolean
 		}>(),
 		{
 			eyebrow: '',
@@ -75,6 +79,7 @@
 			beforeLabel: 'Before',
 			afterImage: '',
 			afterLabel: 'After',
+			minimalPadding: false,
 		},
 	)
 
@@ -85,6 +90,10 @@
 	.cb-before-after {
 		background: var(--bg-primary);
 		padding-block: var(--padding-xl);
+
+		&.small-padding {
+			padding-block: var(--padding-sm);
+		}
 
 		.sw {
 			display: flex;
