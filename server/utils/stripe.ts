@@ -87,14 +87,14 @@ export function getPlanTiers(): PlanTier[] {
 			key: 'growth',
 			label: 'Growth',
 			priceId: config.stripePriceGrowth,
-			features: ['submissions', 'analytics'],
+			features: ['submissions', 'analytics', 'blog'],
 			seatLimit: 5,
 		},
 		{
 			key: 'pro',
 			label: 'Pro',
 			priceId: config.stripePricePro,
-			features: ['submissions', 'analytics', 'pageHistory', 'multiStepForms'],
+			features: ['submissions', 'analytics', 'blog', 'pageHistory', 'multiStepForms'],
 			seatLimit: null,
 		},
 	]

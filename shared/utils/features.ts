@@ -15,6 +15,7 @@ export type FeatureKey =
 	| 'pageHistory'
 	| 'multiStepForms'
 	| 'portfolio'
+	| 'blog'
 
 // Most of these are one entry per admin sidebar item; pageHistory and
 // multiStepForms are narrower — capabilities inside the Pages/Forms editors
@@ -44,6 +45,12 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, boolean> = {
 	pageHistory: false,
 	multiStepForms: false,
 	portfolio: false,
+	// Paid add-on, bundled into the Growth/Pro plans (see
+	// server/utils/stripe.ts's getPlanTiers()) alongside submissions/
+	// analytics — off by default, same as those. Unlike 'portfolio' this
+	// isn't internal-only, so it shows as a normal (locked-until-paid)
+	// Content nav item rather than living behind the admin-role gate.
+	blog: false,
 }
 
 export function isFeatureEnabled(

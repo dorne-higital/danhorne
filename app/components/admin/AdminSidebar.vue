@@ -162,6 +162,7 @@
 				label: 'Content',
 				items: [
 					{ label: 'Pages', to: '/admin/pages', feature: 'pages' },
+					{ label: 'Blog', to: '/admin/blog', feature: 'blog' },
 					{ label: 'Menus', to: '/admin/menus', feature: 'menus' },
 					{ label: 'Uploads', to: '/admin/uploads', feature: 'uploads' },
 				],

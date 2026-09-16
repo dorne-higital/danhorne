@@ -410,3 +410,30 @@ export interface PortfolioSite {
 	created_at: string
 	updated_at: string
 }
+
+export type PostStatus = 'draft' | 'published'
+
+// Blog post — see supabase/migrations/0004_posts.sql. Powers the /blog and
+// /blog/[slug] public routes plus the BlogGrid content-block, which reads
+// through GET /api/posts rather than taking posts as block props.
+export interface Post {
+	id: string
+	// Single path segment under the fixed /blog/ prefix (via slugify()), not
+	// a full custom path like PortfolioSite.slug.
+	slug: string
+	title: string
+	excerpt: string | null
+	content: string | null
+	cover_image: string | null
+	category: string | null
+	tags: string[]
+	author_name: string | null
+	author_photo: string | null
+	read_time: string | null
+	status: PostStatus
+	published_at: string | null
+	seo: PageSeo | null
+	sort_order: number
+	created_at: string
+	updated_at: string
+}

@@ -320,6 +320,7 @@
 		| 'recaptcha'
 		| 'submissions'
 		| 'analytics'
+		| 'blog'
 		| 'pageHistory'
 		| 'multiStepForms'
 		| 'storage'
@@ -357,6 +358,7 @@
 	// shared/utils/features.ts).
 	const submissionsActive = computed(() => isFeatureEnabled('submissions', settings.value?.enabled_features))
 	const analyticsActive = computed(() => isFeatureEnabled('analytics', settings.value?.enabled_features))
+	const blogActive = computed(() => isFeatureEnabled('blog', settings.value?.enabled_features))
 	const pageHistoryActive = computed(() => isFeatureEnabled('pageHistory', settings.value?.enabled_features))
 	const multiStepFormsActive = computed(() => isFeatureEnabled('multiStepForms', settings.value?.enabled_features))
 
@@ -412,7 +414,7 @@
 			name: 'Growth',
 			priceLabel: '£15/mo',
 			rank: 1,
-			features: ['Everything in Starter', 'Submissions Inbox', 'Analytics', '5 admin seats'],
+			features: ['Everything in Starter', 'Submissions Inbox', 'Analytics', 'Blog', '5 admin seats'],
 		},
 		{
 			key: 'pro',
@@ -531,6 +533,16 @@
 			type: 'addon',
 			active: analyticsActive.value,
 			location: 'in the sidebar under SEO & Insights → Analytics',
+		},
+		{
+			key: 'blog',
+			name: 'Blog',
+			summary: 'A real blog section — posts, authors, categories',
+			description:
+				'A dedicated blog: post editor with rich text, cover images, categories and tags, author bylines, and per-post SEO — plus a Blog Grid content-block to list posts on any page. Included from the Growth plan up.',
+			type: 'addon',
+			active: blogActive.value,
+			location: 'in the sidebar under Content → Blog',
 		},
 		{
 			key: 'gtm',
