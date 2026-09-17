@@ -1,0 +1,101 @@
+import type { BlockSchema } from '#shared/types/cms'
+
+export default {
+	type: 'TrustBadges',
+	label: 'Trust Badges',
+	group: 'Social Proof',
+	fields: [
+		{ name: 'eyebrow', label: 'Eyebrow', type: 'text', default: '' },
+		{ name: 'heading', label: 'Heading', type: 'text', default: '' },
+		{
+			name: 'variant',
+			label: 'Style',
+			type: 'select',
+			default: 'row',
+			options: [
+				{ label: 'Row', value: 'row' },
+				{ label: 'Cards', value: 'cards' },
+				{ label: 'Row + stat', value: 'stat' },
+			],
+		},
+		{
+			name: 'items',
+			label: 'Badges',
+			type: 'repeater',
+			default: [
+				{
+					icon: 'lucide:sparkles',
+					name: 'Free consultation',
+					sub: 'No obligation quote',
+				},
+				{
+					icon: 'lucide:clock',
+					name: 'Fast turnaround',
+					sub: 'Most projects in 2 weeks',
+				},
+				{
+					icon: 'lucide:star',
+					name: '5-star rated',
+					sub: "By clients we've worked with",
+				},
+				{
+					icon: 'lucide:shield-check',
+					name: 'Satisfaction guaranteed',
+					sub: 'We make it right',
+				},
+				{
+					icon: 'lucide:heart',
+					name: 'Trusted locally',
+					sub: 'Years of repeat business',
+				},
+			],
+			fields: [
+				{
+					name: 'icon',
+					label: 'Icon',
+					type: 'select',
+					default: 'lucide:sparkles',
+					options: [
+						{ label: 'Alert', value: 'lucide:circle-alert' },
+						{ label: 'Award', value: 'lucide:award' },
+						{ label: 'Check circle', value: 'lucide:circle-check' },
+						{ label: 'Clock', value: 'lucide:clock' },
+						{ label: 'Dollar sign', value: 'lucide:dollar-sign' },
+						{ label: 'Gift', value: 'lucide:gift' },
+						{ label: 'Heart', value: 'lucide:heart' },
+						{ label: 'Layers', value: 'lucide:layers' },
+						{ label: 'Lock', value: 'lucide:lock' },
+						{ label: 'Question mark', value: 'lucide:circle-question-mark' },
+						{ label: 'Rocket', value: 'lucide:rocket' },
+						{ label: 'Settings', value: 'lucide:settings' },
+						{ label: 'Shield', value: 'lucide:shield' },
+						{ label: 'Shield check', value: 'lucide:shield-check' },
+						{ label: 'Smile', value: 'lucide:smile' },
+						{ label: 'Sparkles', value: 'lucide:sparkles' },
+						{ label: 'Star', value: 'lucide:star' },
+						{ label: 'Target', value: 'lucide:target' },
+						{ label: 'Thumbs up', value: 'lucide:thumbs-up' },
+						{ label: 'Trending up', value: 'lucide:trending-up' },
+						{ label: 'Users', value: 'lucide:users' },
+						{ label: 'Zap', value: 'lucide:zap' },
+					],
+				},
+				{ name: 'name', label: 'Label', type: 'text', default: '' },
+				{ name: 'sub', label: 'Short description', type: 'text', default: '' },
+			],
+		},
+		{
+			name: 'statValue',
+			label: 'Stat value (shown with the "Row + stat" style)',
+			type: 'text',
+			default: '',
+		},
+		{
+			name: 'statLabel',
+			label: 'Stat label (shown with the "Row + stat" style)',
+			type: 'text',
+			default: '',
+		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
+	],
+} satisfies BlockSchema
