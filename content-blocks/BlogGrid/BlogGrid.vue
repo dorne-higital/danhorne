@@ -1,6 +1,7 @@
 <template>
 	<section
 		v-if="posts?.length"
+		ref="sectionRef"
 		class="cb-blog-grid"
 		:class="minimalPadding ? 'small-padding' : ''"
 	>
@@ -47,7 +48,7 @@
 					:style="{ '--columns': safeColumns }"
 				>
 					<article
-						v-for="(post, index) in visiblePosts"
+						v-for="(post, index) in displayedPosts"
 						:key="post.id"
 						class="tile"
 					>
@@ -72,6 +73,12 @@
 								class="mono"
 							>
 								{{ post.title.trim().charAt(0).toUpperCase() }}
+							</span>
+							<span
+								v-if="post.status === 'draft'"
+								class="draft-badge"
+							>
+								Draft
 							</span>
 						</div>
 						<div class="text">
@@ -105,6 +112,58 @@
 						</div>
 					</article>
 				</div>
+
+				<nav
+					v-if="paginate && totalPages > 1"
+					class="pager"
+					aria-label="Blog pages"
+				>
+					<NuxtLink
+						v-if="page > 1"
+						:to="pageHref(page - 1)"
+						class="pager-link"
+						@click="scrollToTop"
+					>
+						<Icon name="lucide:arrow-left" />
+						Prev
+					</NuxtLink>
+					<span
+						v-else
+						class="pager-link disabled"
+					>
+						<Icon name="lucide:arrow-left" />
+						Prev
+					</span>
+
+					<NuxtLink
+						v-for="n in totalPages"
+						:key="n"
+						:to="pageHref(n)"
+						class="pager-number"
+						:class="{ active: n === page }"
+						:aria-current="n === page ? 'page' : undefined"
+						@click="scrollToTop"
+					>
+						{{ n }}
+					</NuxtLink>
+
+					<NuxtLink
+						v-if="page < totalPages"
+						:to="pageHref(page + 1)"
+						class="pager-link"
+						@click="scrollToTop"
+					>
+						Next
+						<Icon name="lucide:arrow-right" />
+					</NuxtLink>
+					<span
+						v-else
+						class="pager-link disabled"
+					>
+						Next
+						<Icon name="lucide:arrow-right" />
+					</span>
+				</nav>
 			</template>
 			<p
 				v-else
@@ -125,6 +184,8 @@
 			heading: string
 			caption?: string
 			columns?: number
+			paginate?: boolean
+			perPage?: number
 			limit?: number
 			minimalPadding?: boolean
 		}>(),
@@ -132,6 +193,8 @@
 			eyebrow: '',
 			caption: '',
 			columns: 3,
+			paginate: false,
+			perPage: 9,
 			limit: 0,
 			minimalPadding: false,
 		},
@@ -150,6 +213,10 @@
 
 	const posts = computed(() => {
 		const all = allPosts.value ?? []
+		// limit is a hard cap for a teaser use case (e.g. "latest 3 posts" on
+		// a homepage) — meaningless once Paginate is on, since that mode's
+		// whole point is showing every post, just split across pages.
+		if (props.paginate) return all
 		return props.limit > 0 ? all.slice(0, props.limit) : all
 	})
 
@@ -167,6 +234,64 @@
 		if (!activeCategory.value) return posts.value
 		return posts.value.filter((post) => post.category === activeCategory.value)
 	})
+
+	// URL is the single source of truth for the current page — `page` is
+	// derived from it (not a separate ref that then has to be synced back),
+	// so a NuxtLink click and a shared/bookmarked ?page=3 link both just
+	// work with no special-casing.
+	const route = useRoute()
+	const page = computed(() => {
+		const raw = Number(route.query.page)
+		return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 1
+	})
+
+	const perPageSafe = computed(() => Math.max(1, Math.round(props.perPage) || 9))
+
+	const totalPages = computed(() =>
+		props.paginate ? Math.max(1, Math.ceil(visiblePosts.value.length / perPageSafe.value)) : 1,
+	)
+
+	const displayedPosts = computed(() => {
+		if (!props.paginate) return visiblePosts.value
+		const start = (page.value - 1) * perPageSafe.value
+		return visiblePosts.value.slice(start, start + perPageSafe.value)
+	})
+
+	// Real <NuxtLink> hrefs rather than a click handler pushing router
+	// state, so every page is a crawlable, shareable, back-button-friendly
+	// URL — scoped to whatever page this block is actually placed on (not
+	// hardcoded to /blog), since it's a generic content-block. Page 1 has no
+	// ?page= param at all, so the canonical URL stays clean.
+	function pageHref(n: number) {
+		const query = { ...route.query } as Record<string, string>
+		if (n > 1) query.page = String(n)
+		else delete query.page
+		return { path: route.path, query }
+	}
+
+	// Changing the category filter should always land back on page 1 of the
+	// new filtered set — "page 2" meant something different under the old
+	// filter. Also catches a bookmarked/shared URL pointing past however
+	// many pages the current filter actually has.
+	watch(activeCategory, () => {
+		if (page.value !== 1) navigateTo(pageHref(1))
+	})
+	watch(totalPages, (value) => {
+		if (page.value > value) navigateTo(pageHref(value))
+	})
+
+	const sectionRef = ref<HTMLElement | null>(null)
+	// Same fixed-header offset TableOfContents.vue uses — a plain
+	// scrollIntoView lands the new page flush under the site's 72px header.
+	const HEADER_OFFSET = 72 + 16
+	function scrollToTop() {
+		requestAnimationFrame(() => {
+			const el = sectionRef.value
+			if (!el) return
+			const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET
+			window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
@@ -281,6 +406,18 @@
 				font-weight: var(--heading-font-weight);
 			}
 
+			.draft-badge {
+				background: var(--bg-secondary);
+				border-radius: var(--border-radius-pill);
+				color: var(--warning);
+				font-size: var(--eyebrow-size);
+				font-weight: 700;
+				padding: 2px var(--padding-sm);
+				position: absolute;
+				right: var(--padding-xs);
+				top: var(--padding-xs);
+			}
+
 			&.accent-1 {
 				background: var(--brand-primary);
 			}
@@ -355,6 +492,64 @@
 		.empty {
 			color: var(--text-secondary);
 			padding-block: var(--padding-md);
+		}
+
+		.pager {
+			align-items: center;
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--padding-xs);
+			justify-content: center;
+			margin-top: var(--padding-xl);
+		}
+
+		.pager-link,
+		.pager-number {
+			align-items: center;
+			background: var(--bg-secondary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-pill);
+			color: var(--text-secondary);
+			cursor: pointer;
+			display: inline-flex;
+			font-size: var(--eyebrow-size);
+			font-weight: 600;
+			gap: var(--padding-xs);
+			padding: var(--padding-xs) var(--padding-md);
+			text-decoration: none;
+			transition: var(--transition-base);
+
+			&:hover {
+				border-color: var(--border-strong);
+				color: var(--text-primary);
+			}
+		}
+
+		.pager-link svg {
+			height: 0.8125rem;
+			width: 0.8125rem;
+		}
+
+		.pager-link.disabled {
+			cursor: default;
+			opacity: 0.4;
+
+			&:hover {
+				border-color: var(--border);
+				color: var(--text-secondary);
+			}
+		}
+
+		.pager-number {
+			justify-content: center;
+			min-width: 2.25rem;
+			padding-inline: var(--padding-sm);
+
+			&.active {
+				background: var(--brand-primary);
+				border-color: var(--brand-primary);
+				color: var(--text-inverse);
+			}
 		}
 	}
 </style>

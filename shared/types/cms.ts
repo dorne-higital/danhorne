@@ -413,9 +413,10 @@ export interface PortfolioSite {
 
 export type PostStatus = 'draft' | 'published'
 
-// Blog post — see supabase/migrations/0004_posts.sql. Powers the /blog and
-// /blog/[slug] public routes plus the BlogGrid content-block, which reads
-// through GET /api/posts rather than taking posts as block props.
+// Blog post — see supabase/migrations/0004_posts.sql/0005_posts_blocks.sql.
+// Powers the /blog and /blog/[slug] public routes plus the BlogGrid
+// content-block, which reads through GET /api/posts rather than taking
+// posts as block props.
 export interface Post {
 	id: string
 	// Single path segment under the fixed /blog/ prefix (via slugify()), not
@@ -423,7 +424,9 @@ export interface Post {
 	slug: string
 	title: string
 	excerpt: string | null
-	content: string | null
+	// Body content — same shape/rendering as PageRecord.blocks (see
+	// BlockRenderer.vue), just without a separate draft copy to publish.
+	blocks: Block[]
 	cover_image: string | null
 	category: string | null
 	tags: string[]

@@ -1,0 +1,58 @@
+import type { BlockSchema } from '#shared/types/cms'
+
+export default {
+	type: 'CtaGrid',
+	label: 'CTA Grid',
+	group: 'Forms & CTA',
+	fields: [
+		{ name: 'heading', label: 'Heading (optional)', type: 'text', default: '' },
+		{ name: 'subheading', label: 'Subheading (optional)', type: 'text', default: '' },
+		{ name: 'columns', label: 'Columns', type: 'number', default: 3 },
+		{
+			name: 'items',
+			label: 'CTAs',
+			type: 'repeater',
+			default: [],
+			fields: [
+				{
+					name: 'icon',
+					label: 'Icon (optional)',
+					type: 'select',
+					default: '',
+					options: [
+						{ label: 'None', value: '' },
+						{ label: 'Alert', value: 'lucide:circle-alert' },
+						{ label: 'Award', value: 'lucide:award' },
+						{ label: 'Check circle', value: 'lucide:circle-check' },
+						{ label: 'Clock', value: 'lucide:clock' },
+						{ label: 'Dollar sign', value: 'lucide:dollar-sign' },
+						{ label: 'Gift', value: 'lucide:gift' },
+						{ label: 'Heart', value: 'lucide:heart' },
+						{ label: 'Layers', value: 'lucide:layers' },
+						{ label: 'Lock', value: 'lucide:lock' },
+						{ label: 'Question mark', value: 'lucide:circle-question-mark' },
+						{ label: 'Rocket', value: 'lucide:rocket' },
+						{ label: 'Settings', value: 'lucide:settings' },
+						{ label: 'Shield', value: 'lucide:shield' },
+						{ label: 'Smile', value: 'lucide:smile' },
+						{ label: 'Sparkles', value: 'lucide:sparkles' },
+						{ label: 'Star', value: 'lucide:star' },
+						{ label: 'Target', value: 'lucide:target' },
+						{ label: 'Users', value: 'lucide:users' },
+						{ label: 'Zap', value: 'lucide:zap' },
+					],
+				},
+				{ name: 'heading', label: 'Heading', type: 'text', default: '' },
+				{ name: 'description', label: 'Description', type: 'text', default: '' },
+				{ name: 'ctaLabel', label: 'Button label', type: 'text', default: 'Get in touch' },
+				{
+					name: 'ctaHref',
+					label: 'Button link (leave blank to open the contact form)',
+					type: 'text',
+					default: '',
+				},
+			],
+		},
+		{ name: 'minimalPadding', label: 'Minimal padding', type: 'boolean', default: false },
+	],
+} satisfies BlockSchema

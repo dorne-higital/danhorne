@@ -4,7 +4,7 @@ const PATCHABLE_FIELDS = [
 	'slug',
 	'title',
 	'excerpt',
-	'content',
+	'blocks',
 	'cover_image',
 	'category',
 	'tags',

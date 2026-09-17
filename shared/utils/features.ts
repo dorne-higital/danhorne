@@ -20,14 +20,18 @@ export type FeatureKey =
 // Most of these are one entry per admin sidebar item; pageHistory and
 // multiStepForms are narrower — capabilities inside the Pages/Forms editors
 // rather than whole sections. Either way, a site gets everything on by
-// default except the paid add-ons (submissions inbox, analytics, page
-// version history, multi-step/conditional forms) and 'portfolio' — an
-// internal-only section (see AdminSidebar.vue's role==='admin' gate), off by
-// default on every fresh clone of this template and flipped on directly in
-// the DB only for this site. Overrides live in site_settings.enabled_features,
+// default except whichever keys are false below — currently the paid
+// add-ons (submissions, analytics, blog, pageHistory, multiStepForms; see
+// shared/utils/planTiers.ts for which plan bundles which) and 'portfolio' —
+// an internal-only section (see AdminSidebar.vue's role==='admin' gate), off
+// by default on every fresh clone of this template and flipped on directly
+// in the DB only for this site. Overrides live in site_settings.enabled_features,
 // keyed by FeatureKey; a key absent from that jsonb object falls back to the
 // default below, and it's switched on per site directly in the DB (not via
 // PATCH /api/settings), so a client can't just enable a paid feature themselves.
+// This comment is a summary, not the source of truth — read the object below
+// directly rather than trusting a count here, it's drifted out of sync with
+// itself before.
 export const FEATURE_DEFAULTS: Record<FeatureKey, boolean> = {
 	pages: true,
 	menus: true,
@@ -58,4 +62,16 @@ export function isFeatureEnabled(
 	overrides: Partial<Record<FeatureKey, boolean>> | null | undefined,
 ): boolean {
 	return overrides?.[key] ?? FEATURE_DEFAULTS[key]
+}
+
+// Short display label per paid-off feature key — only the ones that ever
+// appear inside a shared/utils/planTiers.ts PLAN_TIERS.features array need
+// one. Used to build the Growth/Pro tier cards on /admin/integrations from
+// real entitlement data instead of a separately hand-typed features list.
+export const FEATURE_LABELS: Partial<Record<FeatureKey, string>> = {
+	submissions: 'Submissions Inbox',
+	analytics: 'Analytics',
+	blog: 'Blog',
+	pageHistory: 'Version History',
+	multiStepForms: 'Multi-step Forms',
 }

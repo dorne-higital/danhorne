@@ -4,14 +4,19 @@
 -- the bucket insert below is Supabase-only; swap in your own file storage
 -- if you're on Neon.
 --
--- Single init migration for a template repo — this is the full schema for a
--- brand new project, not an incremental history (squashed from a longer
--- migration sequence, numbering restarted from here). Every table has RLS
--- enabled with zero policies (bar profiles' own read policy): the app only
--- ever talks to these tables server-side via the service-role key (which
--- always bypasses RLS), so this just closes the direct-API hole that the
--- public anon key (shipped to every browser for Supabase Auth) would
--- otherwise have via Supabase's auto-generated REST API.
+-- Single init migration for a template repo — this is the full current
+-- schema for a brand new project (Portfolio and Blog included), not an
+-- incremental history. One file, one command sets up any new client site;
+-- 0002-0004 exist only so an already-provisioned site (one that ran an older
+-- copy of this file before Portfolio/Blog existed) can catch up column-by-
+-- column without re-running the whole thing — every statement in all of
+-- these files is idempotent (if not exists / on conflict do nothing), so
+-- re-running this file on a site that already ran 0002-0004 by hand is also
+-- always safe. Every table has RLS enabled with zero policies (bar profiles'
+-- own read policy): the app only ever talks to these tables server-side via
+-- the service-role key (which always bypasses RLS), so this just closes the
+-- direct-API hole that the public anon key (shipped to every browser for
+-- Supabase Auth) would otherwise have via Supabase's auto-generated REST API.
 
 create extension if not exists pgcrypto;
 
@@ -419,3 +424,114 @@ create index if not exists form_submissions_created_at_idx on form_submissions (
 create index if not exists form_submissions_status_idx on form_submissions (status);
 
 alter table form_submissions enable row level security;
+
+-- ─── Portfolio sites ───────────────────────────────────────────────────────
+-- Private "sites I've built" directory (see shared/utils/features.ts's
+-- 'portfolio' key + AdminSidebar.vue's role==='admin' gate — invisible to
+-- non-admin logins, off by default on every fresh clone of this template).
+-- Powers three public content-blocks (PortfolioCarousel/PortfolioGrid/
+-- PortfolioStats), all reading through GET /api/portfolio-sites.
+
+create table if not exists portfolio_sites (
+	id uuid primary key default gen_random_uuid(),
+	name text not null,
+	url text not null,
+	repo_url text,
+	description text,
+	-- string[], e.g. ["Nuxt","E-commerce","Branding"] — filter-pill source for
+	-- PortfolioGrid, same jsonb-array-of-scalars convention as
+	-- site_settings.enabled_features uses for object shape.
+	tags jsonb not null default '[]'::jsonb,
+	-- Card thumbnail for the carousel/grid — a plain public upload URL, same
+	-- as every other `image` field in the content-block schemas.
+	cover_image text,
+	-- [{url, alt}] — a gallery beyond the single cover image. Not surfaced by
+	-- any of the three v1 blocks, but the natural shape for a future
+	-- click-through case-study page without a second migration.
+	images jsonb not null default '[]'::jsonb,
+	client_name text,
+	completed_at date,
+	is_favourite boolean not null default false,
+	is_featured boolean not null default false,
+	status text not null default 'published' check (status in ('draft', 'published')),
+	-- Manual ordering control in the admin list/grid — lower first, same
+	-- ascending convention as everywhere else sort_order-like columns exist.
+	sort_order integer not null default 0,
+	-- Optional case-study detail page — a full path (e.g. /work/acme or
+	-- /projects/acme, admin's choice), not just a segment under a fixed
+	-- prefix. Served by app/pages/[...slug].vue's fallback (no CMS page
+	-- matched, so it tries this table next). Null means no detail page. The
+	-- partial unique index only enforces uniqueness among rows that actually
+	-- have a slug set.
+	slug text,
+	created_at timestamptz not null default now(),
+	updated_at timestamptz not null default now()
+);
+
+create index if not exists portfolio_sites_status_idx on portfolio_sites (status);
+create index if not exists portfolio_sites_sort_order_idx on portfolio_sites (sort_order);
+create unique index if not exists portfolio_sites_slug_idx on portfolio_sites (slug) where slug is not null;
+
+drop trigger if exists portfolio_sites_set_updated_at on portfolio_sites;
+create trigger portfolio_sites_set_updated_at
+before update on portfolio_sites
+for each row
+execute function set_updated_at();
+
+alter table portfolio_sites enable row level security;
+
+-- ─── Blog posts ────────────────────────────────────────────────────────────
+-- Real content type for the blog (see shared/utils/features.ts's 'blog' key —
+-- a paid add-on bundled into the Growth/Pro plans, living in AdminSidebar.vue's
+-- normal "Content" group, not the role-gated Admin group). Single-version
+-- like portfolio_sites (no draft/live split the way `pages` has, still saved
+-- straight to the live row) — the *body* is block-based exactly like pages
+-- are (same blocks jsonb shape, same admin canvas/picker/inspector, same
+-- public BlockRenderer.vue), just without a separate draft copy to publish.
+
+create table if not exists posts (
+	id uuid primary key default gen_random_uuid(),
+	-- Single path segment (via slugify(), not normalizePath()) — posts always
+	-- live under the fixed /blog/ prefix, unlike portfolio_sites.slug which is
+	-- a whole custom path.
+	slug text not null unique,
+	title text not null,
+	excerpt text,
+	-- Same shape/convention as pages.blocks — an ordered array of
+	-- {id, type, props, darkTheme?, surface?} objects, rendered by the same
+	-- BlockRenderer.vue. Lets a post mix Text/Image/Quote/Gallery/etc. blocks
+	-- anywhere in the body instead of one fixed rich-text blob.
+	blocks jsonb not null default '[]'::jsonb,
+	cover_image text,
+	category text,
+	-- string[], same jsonb-array-of-scalars convention as
+	-- portfolio_sites.tags.
+	tags jsonb not null default '[]'::jsonb,
+	author_name text,
+	author_photo text,
+	-- Freeform display string (e.g. "5 min read") rather than a computed
+	-- number, so an editor can override it same as any other authored field.
+	read_time text,
+	status text not null default 'draft' check (status in ('draft', 'published')),
+	published_at timestamptz,
+	-- Mirrors pages.seo's shape exactly (PageSeo: title/description/keywords/
+	-- ogImage) so the same admin SEO panel and scoreSeo() rubric apply.
+	seo jsonb,
+	-- Manual ordering control for BlogGrid, same ascending convention as
+	-- portfolio_sites.sort_order.
+	sort_order integer not null default 0,
+	created_at timestamptz not null default now(),
+	updated_at timestamptz not null default now()
+);
+
+create index if not exists posts_status_idx on posts (status);
+create index if not exists posts_sort_order_idx on posts (sort_order);
+create index if not exists posts_published_at_idx on posts (published_at);
+
+drop trigger if exists posts_set_updated_at on posts;
+create trigger posts_set_updated_at
+before update on posts
+for each row
+execute function set_updated_at();
+
+alter table posts enable row level security;

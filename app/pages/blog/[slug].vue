@@ -1,71 +1,29 @@
 <template>
+	<p
+		v-if="post?.status === 'draft'"
+		class="preview-banner"
+	>
+		Preview — this post isn't published, so only logged-in admins can see it at this URL.
+	</p>
 	<article
 		v-if="post"
 		class="post-detail"
 	>
-		<div class="sw">
+		<div class="back-bar sw">
 			<NuxtLink
 				to="/blog"
 				class="back"
 			>
-				← Blog
+				← All blogs
 			</NuxtLink>
-
-			<header class="head">
-				<span
-					v-if="post.category"
-					class="category"
-				>
-					{{ post.category }}
-				</span>
-				<h1 class="heading">{{ post.title }}</h1>
-				<p
-					v-if="post.excerpt"
-					class="excerpt"
-				>
-					{{ post.excerpt }}
-				</p>
-
-				<div
-					v-if="post.author_name || post.published_at || post.read_time"
-					class="byline"
-				>
-					<NuxtImg
-						v-if="post.author_photo"
-						class="author-photo"
-						:src="post.author_photo"
-						:alt="post.author_name || ''"
-					/>
-					<div class="byline-text">
-						<span
-							v-if="post.author_name"
-							class="author-name"
-						>
-							{{ post.author_name }}
-						</span>
-						<span class="byline-meta">
-							<template v-if="formattedDate">{{ formattedDate }}</template>
-							<template v-if="formattedDate && post.read_time"> · </template>
-							<template v-if="post.read_time">{{ post.read_time }}</template>
-						</span>
-					</div>
-				</div>
-			</header>
-
-			<NuxtImg
-				v-if="post.cover_image"
-				class="cover"
-				:src="post.cover_image"
-				:alt="post.title"
-			/>
-
-			<!-- eslint-disable-next-line vue/no-v-html -->
-			<div
-				v-if="post.content"
-				class="content prose"
-				v-html="post.content"
-			/>
 		</div>
+
+		<PostHero
+			:post="post"
+			:formatted-date="formattedDate"
+		/>
+
+		<BlockRenderer :blocks="post.blocks ?? []" />
 	</article>
 </template>
 
@@ -82,9 +40,18 @@
 		throw createError({ statusCode: 404, statusMessage: 'Post not found' })
 	}
 
+	// Fixed locale, not the visitor's own (toLocaleDateString(undefined, ...))
+	// — that resolves differently server- vs client-side (Node's default ICU
+	// locale data isn't guaranteed to match a given browser's), which was
+	// causing a real hydration mismatch here ("16 September 2026" vs
+	// "September 16, 2026"). en-GB matches this site's own locale either way.
 	const formattedDate = computed(() =>
 		post.value?.published_at
-			? new Date(post.value.published_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+			? new Date(post.value.published_at).toLocaleDateString('en-GB', {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+				})
 			: '',
 	)
 
@@ -101,93 +68,38 @@
 			seoTitle ? { property: 'og:title', content: seoTitle } : undefined,
 			seoDescription ? { property: 'og:description', content: seoDescription } : undefined,
 			ogImage ? { property: 'og:image', content: ogImage } : undefined,
+			// A draft only reachable because the viewer's logged in (see
+			// server/api/posts/by-slug/[slug].get.ts) shouldn't end up indexed.
+			post.value.status === 'draft' ? { name: 'robots', content: 'noindex, nofollow' } : undefined,
 		].filter((entry) => entry !== undefined),
 	})
 </script>
 
 <style lang="scss" scoped>
+	.preview-banner {
+		background: var(--warning-bg);
+		color: var(--warning);
+		font-size: var(--eyebrow-size);
+		font-weight: 600;
+		padding: var(--padding-sm) var(--padding-lg);
+		text-align: center;
+	}
+
 	.post-detail {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+	}
 
-		@media (width >= 768px) {
-			padding-block: calc(var(--padding-xl) * 1.5);
-		}
-
-		.sw {
-			max-width: 75ch;
-		}
+	// PostHero.vue is a full-bleed hero (like DiagonalSplit), so this bar is
+	// its own slim sw-constrained strip above it rather than living inside
+	// the hero, same reasoning [...slug].vue's portfolio detail keeps its
+	// back link outside the hero-style content.
+	.back-bar {
+		padding-block: var(--padding-md);
 
 		.back {
 			color: var(--text-secondary);
 			font-size: var(--eyebrow-size);
 			font-weight: 600;
-		}
-
-		.head {
-			margin-block: var(--padding-lg) var(--padding-xl);
-		}
-
-		.category {
-			color: var(--brand-primary);
-			display: block;
-			font-size: var(--eyebrow-size);
-			font-weight: 600;
-			letter-spacing: 0.04em;
-			margin-bottom: var(--padding-sm);
-			text-transform: uppercase;
-		}
-
-		.heading {
-			color: var(--text-primary);
-			font-family: var(--heading-font-family);
-			font-size: var(--h1-size);
-			font-weight: var(--heading-font-weight);
-			line-height: var(--leading-tight);
-		}
-
-		.excerpt {
-			color: var(--text-secondary);
-			font-size: 1.125rem;
-			line-height: var(--leading-normal);
-			margin-top: var(--padding-md);
-		}
-
-		.byline {
-			align-items: center;
-			display: flex;
-			gap: var(--padding-sm);
-			margin-top: var(--padding-lg);
-		}
-
-		.author-photo {
-			border-radius: 50%;
-			height: 2.75rem;
-			object-fit: cover;
-			width: 2.75rem;
-		}
-
-		.byline-text {
-			display: flex;
-			flex-direction: column;
-		}
-
-		.author-name {
-			color: var(--text-primary);
-			font-weight: 600;
-		}
-
-		.byline-meta {
-			color: var(--text-secondary);
-			font-size: var(--eyebrow-size);
-		}
-
-		.cover {
-			border-radius: var(--border-radius-lg);
-			box-shadow: var(--shadow-lg);
-			height: auto;
-			margin-bottom: var(--padding-xl);
-			width: 100%;
 		}
 	}
 </style>

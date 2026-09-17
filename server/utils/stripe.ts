@@ -1,5 +1,9 @@
 import Stripe from 'stripe'
+import { BASE_SEAT_LIMIT, PLAN_TIERS } from '#shared/utils/planTiers'
+import type { PlanTierKey } from '#shared/utils/planTiers'
 import type { FeatureKey } from '#shared/utils/features'
+
+export type { PlanTierKey } from '#shared/utils/planTiers'
 
 let client: Stripe | null = null
 
@@ -20,7 +24,6 @@ export function useStripe(): Stripe {
 }
 
 const BASE_STORAGE_MB = 500
-const BASE_SEAT_LIMIT = 2
 
 // Multiple client sites share one Stripe account, so Stripe fans every
 // webhook event out to every site's registered endpoint — not just the site
@@ -66,38 +69,29 @@ export function findStorageTierByPriceId(priceId: string): StorageTier | undefin
 	return getStorageTiers().find((tier) => tier.priceId === priceId)
 }
 
-export type PlanTierKey = 'growth' | 'pro'
-
 export interface PlanTier {
 	key: PlanTierKey
 	label: string
 	priceId: string
 	// Feature flags this plan turns on — merged in alongside whatever's
-	// already enabled, never turning something else off. See the plans &
-	// pricing doc for what each bundle is meant to include; keep these in
-	// sync with it if either changes.
+	// already enabled, never turning something else off. See
+	// shared/utils/planTiers.ts (the actual source of these) and the plans &
+	// pricing doc for what each bundle is meant to include.
 	features: FeatureKey[]
 	seatLimit: number | null
 }
 
+// Attaches each tier's real Stripe Price ID (server-only, from runtime
+// config) to the shared, isomorphic tier data in shared/utils/planTiers.ts —
+// that file is the one place to edit a tier's contents; this function never
+// needs a change just because a plan's features list did.
 export function getPlanTiers(): PlanTier[] {
 	const config = useRuntimeConfig()
-	return [
-		{
-			key: 'growth',
-			label: 'Growth',
-			priceId: config.stripePriceGrowth,
-			features: ['submissions', 'analytics', 'blog'],
-			seatLimit: 5,
-		},
-		{
-			key: 'pro',
-			label: 'Pro',
-			priceId: config.stripePricePro,
-			features: ['submissions', 'analytics', 'blog', 'pageHistory', 'multiStepForms'],
-			seatLimit: null,
-		},
-	]
+	const priceIds: Record<PlanTierKey, string> = {
+		growth: config.stripePriceGrowth,
+		pro: config.stripePricePro,
+	}
+	return PLAN_TIERS.map((tier) => ({ ...tier, priceId: priceIds[tier.key] }))
 }
 
 export function findPlanTierByPriceId(priceId: string): PlanTier | undefined {

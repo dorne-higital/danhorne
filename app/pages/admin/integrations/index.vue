@@ -315,6 +315,8 @@
 </template>
 
 <script setup lang="ts">
+	import type { PlanTierData, PlanTierKey } from '#shared/utils/planTiers'
+
 	type IntegrationKey =
 		| 'gtm'
 		| 'recaptcha'
@@ -398,30 +400,53 @@
 	const billingLoading = ref(false)
 	const billingError = ref('')
 
-	// Display-only — the real bundle contents live server-side in
-	// getPlanTiers() (server/utils/stripe.ts); keep these feature lists in
-	// sync with that and the plans & pricing doc if either changes.
+	function seatLabel(limit: number | null): string {
+		return limit === null ? 'Unlimited admin seats' : `${limit} admin seats`
+	}
+
+	function tierByKey(key: PlanTierKey) {
+		return PLAN_TIERS.find((tier) => tier.key === key)!
+	}
+
+	// Feature labels for whatever a tier grants beyond the previous tier —
+	// Pro's card shows only what it adds on top of Growth (a set difference
+	// against Growth.features), not a separately hand-typed list that could
+	// say something different from what getPlanTiers() actually applies on
+	// checkout. Real bundle contents live in shared/utils/planTiers.ts,
+	// shared by both this page and server/utils/stripe.ts.
+	function addedFeatureLabels(tier: PlanTierData, over?: PlanTierData): string[] {
+		const base = new Set(over?.features ?? [])
+		return tier.features.filter((key) => !base.has(key)).map((key) => FEATURE_LABELS[key] ?? key)
+	}
+
+	const growthTier = tierByKey('growth')
+	const proTier = tierByKey('pro')
+
+	// Starter isn't a purchasable PLAN_TIERS entry (it's just "what every
+	// site has by default"), so its baseline bullets stay hand-authored —
+	// only its seat count is derived, from the same BASE_SEAT_LIMIT
+	// revertSubscriptionInSettings() falls back to server-side.
 	const planTierCards = [
 		{
 			key: 'starter',
 			name: 'Starter',
 			priceLabel: 'Included',
 			rank: 0,
-			features: ['Pages, Menus, Uploads, Forms', 'SEO, Redirects, Layout', '2 admin seats'],
+			features: ['Pages, Menus, Uploads, Forms', 'SEO, Redirects, Layout', seatLabel(BASE_SEAT_LIMIT)],
 		},
 		{
 			key: 'growth',
 			name: 'Growth',
-			priceLabel: '£15/mo',
+			priceLabel: growthTier.priceLabel,
 			rank: 1,
-			features: ['Everything in Starter', 'Submissions Inbox', 'Analytics', 'Blog', '5 admin seats'],
+			features: ['Everything in Starter', ...addedFeatureLabels(growthTier), seatLabel(growthTier.seatLimit)],
 		},
 		{
 			key: 'pro',
 			name: 'Pro',
-			priceLabel: '£30/mo',
+			priceLabel: proTier.priceLabel,
 			rank: 2,
-			features: ['Everything in Growth', 'Version History', 'Multi-step Forms', 'Unlimited admin seats'],
+			features: ['Everything in Growth', ...addedFeatureLabels(proTier, growthTier), seatLabel(proTier.seatLimit)],
 		},
 	] as const
 
