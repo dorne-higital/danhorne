@@ -25,6 +25,8 @@ const FIELD_LABELS: Record<string, string> = {
 	background_color: 'colors',
 	site_name: 'site name',
 	logo_url: 'logo',
+	logo_text: 'logo text',
+	logo_highlight_text: 'logo text',
 	contact_form_id: 'contact form',
 	company: 'business info',
 	socials: 'socials',
@@ -50,6 +52,8 @@ interface Body {
 	background_color?: string
 	site_name?: string
 	logo_url?: string | null
+	logo_text?: string | null
+	logo_highlight_text?: string | null
 	contact_form_id?: string | null
 	company?: CompanyInfo | null
 	socials?: SocialLinks | null
@@ -75,10 +79,56 @@ interface Body {
 	// shared/utils/features.ts.
 }
 
+// This one endpoint backs three separate admin nav sections (Settings,
+// Layout, Integrations), each behind its own feature flag — so the gate has
+// to be per field-group, not one blanket check, same reasoning as the seo
+// vs. pages split in server/api/pages/[slug].put.ts.
+const LAYOUT_KEYS = [
+	'nav_style',
+	'footer_style',
+	'header_theme',
+	'footer_theme',
+	'header_cta_enabled',
+	'header_cta_label',
+	'header_cta_action',
+	'header_cta_url',
+] as const satisfies readonly (keyof Body)[]
+const INTEGRATIONS_KEYS = [
+	'gtm_id',
+	'gtm_enabled',
+	'recaptcha_site_key',
+	'recaptcha_secret_key',
+	'recaptcha_enabled',
+] as const satisfies readonly (keyof Body)[]
+const SETTINGS_KEYS = [
+	'primary_color',
+	'secondary_color',
+	'accent_color',
+	'background_color',
+	'site_name',
+	'logo_url',
+	'logo_text',
+	'logo_highlight_text',
+	'contact_form_id',
+	'company',
+	'socials',
+] as const satisfies readonly (keyof Body)[]
+
 export default defineEventHandler(async (event): Promise<SiteSettings> => {
 	const { user } = await requireAdminRole(event)
 
 	const body = await readBody<Body>(event)
+
+	if (LAYOUT_KEYS.some((key) => body[key] !== undefined)) {
+		await requireFeatureEnabled(event, 'layout', 'Layout')
+	}
+	if (INTEGRATIONS_KEYS.some((key) => body[key] !== undefined)) {
+		await requireFeatureEnabled(event, 'integrations', 'Integrations')
+	}
+	if (SETTINGS_KEYS.some((key) => body[key] !== undefined)) {
+		await requireFeatureEnabled(event, 'settings', 'Settings')
+	}
+
 	const update: Record<string, unknown> = {}
 
 	for (const key of ['primary_color', 'secondary_color', 'accent_color', 'background_color'] as const) {
@@ -98,6 +148,10 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 	}
 
 	if (body.logo_url !== undefined) update.logo_url = body.logo_url
+	// Empty string means "cleared" from the admin UI, same as logo_url above
+	// — both collapse to null rather than persisting "".
+	if (body.logo_text !== undefined) update.logo_text = body.logo_text?.trim() || null
+	if (body.logo_highlight_text !== undefined) update.logo_highlight_text = body.logo_highlight_text?.trim() || null
 	if (body.contact_form_id !== undefined) update.contact_form_id = body.contact_form_id
 	if (body.company !== undefined) update.company = body.company
 	if (body.socials !== undefined) update.socials = body.socials
@@ -236,7 +290,7 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 		.update(update)
 		.eq('id', 'default')
 		.select(
-			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, contact_form_id, company, socials, nav_style, footer_style, header_theme, footer_theme, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
+			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, logo_text, logo_highlight_text, contact_form_id, company, socials, nav_style, footer_style, header_theme, footer_theme, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
 		)
 		.single()
 

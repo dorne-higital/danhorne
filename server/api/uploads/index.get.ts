@@ -2,6 +2,7 @@ import type { UploadRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<UploadRecord[]> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'uploads', 'Uploads')
 
 	const supabase = useSupabase()
 	const { data, error } = await supabase.from('uploads').select('*').order('created_at', { ascending: false })

@@ -2,12 +2,15 @@ import type { PageSummary } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<PageSummary[]> => {
 	await requireAdminSession(event)
+	// Backs both /admin/pages and /admin/seo's page list — either feature
+	// grants read access, see requireAnyFeatureEnabled.
+	await requireAnyFeatureEnabled(event, ['pages', 'seo'], 'Pages')
 
 	const supabase = useSupabase()
 	const { data, error } = await supabase
 		.from('pages')
 		.select(
-			'id, slug, title, draft_title, seo, parent_id, status, updated_at, updated_by, updater:profiles(nickname), blocks, draft_blocks',
+			'id, slug, title, draft_title, seo, draft_seo, parent_id, status, updated_at, updated_by, updater:profiles(nickname), blocks, draft_blocks',
 		)
 		.order('updated_at', { ascending: false })
 
@@ -25,7 +28,10 @@ export default defineEventHandler(async (event): Promise<PageSummary[]> => {
 		...page,
 		updater: Array.isArray(page.updater) ? (page.updater[0] ?? null) : page.updater,
 		blocks_count: Array.isArray(blocks) ? blocks.length : 0,
-		has_draft_changes: page.title !== draft_title || JSON.stringify(blocks) !== JSON.stringify(draft_blocks),
+		has_draft_changes:
+			page.title !== draft_title ||
+			JSON.stringify(blocks) !== JSON.stringify(draft_blocks) ||
+			JSON.stringify(page.seo ?? null) !== JSON.stringify(page.draft_seo ?? null),
 	}))
 
 	return normalized as PageSummary[]

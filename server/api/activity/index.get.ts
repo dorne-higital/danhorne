@@ -11,6 +11,7 @@ const DEFAULT_PAGE_SIZE = 10
 // safe here.
 export default defineEventHandler(async (event): Promise<ActivityLogPage> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'activity', 'The activity log')
 
 	const query = getQuery(event)
 	const entityType = typeof query.entity_type === 'string' ? query.entity_type : undefined

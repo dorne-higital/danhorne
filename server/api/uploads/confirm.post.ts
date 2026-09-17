@@ -14,6 +14,7 @@ interface Body {
 // we can enforce size/type limits now that bytes never pass through us.
 export default defineEventHandler(async (event): Promise<UploadRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'uploads', 'Uploads')
 
 	const body = await readBody<Body>(event)
 	if (!body?.path || !body?.filename) {

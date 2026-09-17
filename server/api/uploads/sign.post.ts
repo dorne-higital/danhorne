@@ -17,6 +17,7 @@ interface Body {
 // affected by that limit.
 export default defineEventHandler(async (event): Promise<{ path: string; token: string }> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'uploads', 'Uploads')
 
 	const body = await readBody<Body>(event)
 	if (!body?.filename) {

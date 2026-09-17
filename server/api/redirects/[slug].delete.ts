@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'redirects', 'Redirects')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	if (!rawSlug) {

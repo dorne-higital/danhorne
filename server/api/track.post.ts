@@ -19,11 +19,28 @@ export default defineEventHandler(async (event) => {
 		return { ok: true }
 	}
 
+	const supabase = useSupabase()
+
+	// Only the admin-facing summary endpoint checked this before — a
+	// Starter-tier site (analytics off by default) would still silently
+	// accumulate page_views rows forever, the paid add-on only gating who
+	// could see them, not whether they were collected. Silent like every
+	// other skip in this handler, not a thrown error — this is a
+	// best-effort beacon, not something that should ever surface to the
+	// visitor.
+	const { data: settings } = await supabase
+		.from('site_settings')
+		.select('enabled_features')
+		.eq('id', 'default')
+		.maybeSingle()
+	if (!isFeatureEnabled('analytics', settings?.enabled_features)) {
+		return { ok: true }
+	}
+
 	const userAgent = getHeader(event, 'user-agent') ?? 'unknown'
 	const day = new Date().toISOString().slice(0, 10)
 	const { deviceType, browser } = parseUserAgent(userAgent)
 
-	const supabase = useSupabase()
 	const { error } = await supabase.from('page_views').insert({
 		path,
 		referrer: body?.referrer || null,

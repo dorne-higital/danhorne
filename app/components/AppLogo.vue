@@ -32,14 +32,17 @@
 </template>
 
 <script setup lang="ts">
-	defineProps<{
-		logoText?: string
-		highlightedText?: string
-	}>()
-
+	// No props — every caller just renders `<AppLogo />`. The two-tone text
+	// (logoText/highlightedText) used to be hardcoded per call site
+	// (AppHeader/AppFooter/AdminSidebar all passed the same literal 'dan'/
+	// 'horne.'), which meant a template user's own site_name never reached
+	// the actual logo mark. Now it's CMS-editable (admin/settings) and both
+	// being unset falls back to plain site_name below, same as before.
 	const { data: settings } = useSiteSettings()
 
 	const logoUrl = computed(() => settings.value?.logo_url || '')
+	const logoText = computed(() => settings.value?.logo_text || '')
+	const highlightedText = computed(() => settings.value?.logo_highlight_text || '')
 </script>
 
 <style lang="scss" scoped>

@@ -112,6 +112,7 @@ create table if not exists pages (
 	status text not null default 'draft' check (status in ('draft', 'published')),
 	preview_token uuid not null default gen_random_uuid(),
 	seo jsonb,
+	draft_seo jsonb,
 	parent_id text references pages (id) on delete set null,
 	updated_by uuid references profiles (id) on delete set null,
 	updated_at timestamptz not null default now()
@@ -225,6 +226,13 @@ create table if not exists site_settings (
 	background_color text not null,
 	site_name text not null,
 	logo_url text,
+	-- Optional two-tone logo text, shown by AppLogo.vue only when no
+	-- logo_url image is set — logo_text is the primary word, rendered
+	-- plain; logo_highlight_text is an optional suffix immediately after
+	-- it, rendered in --brand-primary. Both null falls back to plain
+	-- site_name, which is the fresh-install default.
+	logo_text text,
+	logo_highlight_text text,
 	contact_form_id uuid references forms (id) on delete set null,
 	company jsonb,
 	socials jsonb,
@@ -425,6 +433,25 @@ create index if not exists form_submissions_status_idx on form_submissions (stat
 
 alter table form_submissions enable row level security;
 
+-- ─── Rate limit hits ──────────────────────────────────────────────────────
+-- Backs the form-submit rate limit specifically — the in-memory limiter in
+-- server/utils/rateLimit.ts resets on cold start and isn't shared across
+-- concurrent serverless instances, which matters here because it's the only
+-- real spam guard once reCAPTCHA is off (the default). track.post.ts and
+-- track-404.post.ts stay on the cheap in-memory version — a DB write on
+-- every page view isn't worth it for those. `key` never stores a raw IP —
+-- see hashRateLimitKey in server/utils/rateLimit.ts.
+
+create table if not exists rate_limit_hits (
+	id uuid primary key default gen_random_uuid(),
+	key text not null,
+	created_at timestamptz not null default now()
+);
+
+create index if not exists rate_limit_hits_key_created_at_idx on rate_limit_hits (key, created_at);
+
+alter table rate_limit_hits enable row level security;
+
 -- ─── Portfolio sites ───────────────────────────────────────────────────────
 -- Private "sites I've built" directory (see shared/utils/features.ts's
 -- 'portfolio' key + AdminSidebar.vue's role==='admin' gate — invisible to
@@ -520,6 +547,11 @@ create table if not exists posts (
 	-- Manual ordering control for BlogGrid, same ascending convention as
 	-- portfolio_sites.sort_order.
 	sort_order integer not null default 0,
+	-- Same purpose as pages.preview_token — lets a draft post be shared via
+	-- /blog/:slug?preview=<token> with no login needed, since (unlike an
+	-- authenticated admin) a client reviewing a draft has no other way in.
+	-- Rotatable from the post editor if a link leaks.
+	preview_token uuid not null default gen_random_uuid(),
 	created_at timestamptz not null default now(),
 	updated_at timestamptz not null default now()
 );

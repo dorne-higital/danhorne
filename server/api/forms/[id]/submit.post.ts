@@ -4,6 +4,7 @@ import { isFieldVisible } from '#shared/utils/formFields'
 import { buildFormEmailHtml } from '../../../utils/formEmail'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const MAX_FIELD_LENGTH = 5000
 
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000
@@ -15,14 +16,18 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 400, statusMessage: 'Missing id' })
 	}
 
+	const supabase = useSupabase()
+
 	// Keyed by IP across all forms, not just this one — a spammer burning
-	// the Resend quota doesn't care which form they hit.
+	// the Resend quota doesn't care which form they hit. Database-backed
+	// (not the in-memory isRateLimited used elsewhere) so the cap holds
+	// across cold starts and concurrent serverless instances — this is the
+	// only real spam guard once reCAPTCHA is off, which it is by default.
 	const ip = getRequestIP(event, { xForwardedFor: true }) ?? 'unknown'
-	if (isRateLimited(`form-submit:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+	if (await isRateLimitedPersistent(supabase, `form-submit:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
 		throw createError({ statusCode: 429, statusMessage: 'Too many submissions — please try again later.' })
 	}
 
-	const supabase = useSupabase()
 	const { data: form, error: formError } = await supabase.from('forms').select('*').eq('id', id).maybeSingle()
 
 	if (formError) {
@@ -55,6 +60,11 @@ export default defineEventHandler(async (event) => {
 
 	const values = body.values ?? {}
 	const rows: { label: string; value: string }[] = []
+	// Only known field names, at a capped length each — the request body's
+	// raw `values` isn't trustworthy as-is: an attacker can add arbitrary
+	// extra keys or submit a field value of unbounded size, and both would
+	// otherwise land untouched in the stored jsonb row.
+	const storedValues: Record<string, string> = {}
 	let replyTo: string | undefined
 
 	for (const field of (form as FormRecord).fields) {
@@ -70,6 +80,10 @@ export default defineEventHandler(async (event) => {
 			throw createError({ statusCode: 400, statusMessage: `${field.label} is required.` })
 		}
 
+		if (raw.length > MAX_FIELD_LENGTH) {
+			throw createError({ statusCode: 400, statusMessage: `${field.label} is too long.` })
+		}
+
 		if (raw && field.type === 'email') {
 			if (!EMAIL_PATTERN.test(raw)) {
 				throw createError({ statusCode: 400, statusMessage: `${field.label} must be a valid email address.` })
@@ -77,7 +91,17 @@ export default defineEventHandler(async (event) => {
 			replyTo ??= raw
 		}
 
+		// The client renders a <select> constrained to the field's declared
+		// options, but that's only a UI convenience — without this, a raw
+		// value that matches no option flows straight into the email and the
+		// stored submission untouched.
+		if (raw && field.type === 'select' && field.options && !field.options.some((o) => o.value === raw)) {
+			throw createError({ statusCode: 400, statusMessage: `${field.label} has an invalid value.` })
+		}
+
 		if (!raw) continue
+
+		storedValues[field.name] = raw
 
 		if (field.type === 'select' && field.options) {
 			rows.push({ label: field.label, value: field.options.find((o) => o.value === raw)?.label ?? raw })
@@ -95,7 +119,7 @@ export default defineEventHandler(async (event) => {
 	// below stays the primary, must-succeed notification path.
 	const { error: insertError } = await supabase
 		.from('form_submissions')
-		.insert({ form_id: id, values, email: replyTo ?? null })
+		.insert({ form_id: id, values: storedValues, email: replyTo ?? null })
 	if (insertError) {
 		console.error('Failed to log form submission:', insertError.message)
 	}

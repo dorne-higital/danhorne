@@ -76,16 +76,18 @@ export interface PageRecord {
 	status: PageStatus
 	// Bearer secret for /:slug?preview=<token> — lets a draft (or an
 	// already-published page's pending changes) be previewed without a CMS
-	// login. Stable for the page's lifetime (no regenerate UI yet). Only
-	// returned to an authenticated admin session — see [slug].get.ts.
+	// login. Rotatable from the page editor (POST .../rotate-preview-token)
+	// if a link leaks. Only returned to an authenticated admin session —
+	// see [slug].get.ts.
 	preview_token?: string
 	// The working copy — what Save writes to and the editor edits. Only
 	// returned to an authenticated admin session; publishing copies these
-	// onto title/blocks above.
+	// onto title/blocks/seo above.
 	draft_title?: string
 	draft_blocks?: Block[]
-	// True once draft_title/draft_blocks differ from title/blocks. Only
-	// computed for an authenticated admin session.
+	draft_seo?: PageSeo | null
+	// True once draft_title/draft_blocks/draft_seo differ from
+	// title/blocks/seo. Only computed for an authenticated admin session.
 	has_draft_changes?: boolean
 	// Set by the public route when it served draft_title/draft_blocks
 	// instead of the published title/blocks (a never-published page, or a
@@ -278,6 +280,11 @@ export interface SiteSettings {
 	background_color: string
 	site_name: string
 	logo_url: string | null
+	// Two-tone logo text, used by AppLogo.vue only when logo_url is unset —
+	// logo_text plain, logo_highlight_text (optional) in --brand-primary
+	// immediately after it. Both null falls back to plain site_name.
+	logo_text: string | null
+	logo_highlight_text: string | null
 	contact_form_id: string | null
 	company: CompanyInfo | null
 	socials: SocialLinks | null
@@ -347,7 +354,15 @@ export interface FormRecord {
 	updated_at?: string
 }
 
-export type FormSummary = Omit<FormRecord, 'fields'>
+export interface FormSummary extends Omit<FormRecord, 'fields'> {
+	// Both computed server-side (server/api/forms/index.get.ts) purely so
+	// the delete confirm on /admin/forms can warn accurately before a
+	// cascade-delete (form_submissions.form_id is ON DELETE CASCADE) — not
+	// used anywhere else, so not worth carrying on the full FormRecord the
+	// single-form editor fetches.
+	submission_count: number
+	is_contact_form: boolean
+}
 
 // One row per submission of any form (Newsletter Signup, Contact, or any
 // FormBlock) — see server/api/forms/[id]/submit.post.ts, which inserts one
@@ -437,6 +452,26 @@ export interface Post {
 	published_at: string | null
 	seo: PageSeo | null
 	sort_order: number
+	// Bearer secret for /blog/:slug?preview=<token> — lets a draft post be
+	// previewed with no login needed. Rotatable from the post editor if a
+	// link leaks. Stripped from the public GET /api/posts/by-slug/:slug
+	// response for a non-admin request — see that route.
+	preview_token?: string
 	created_at: string
 	updated_at: string
+}
+
+// GET /api/admin/health — catches schema drift (a column added to
+// 0001_init.sql after a site was already provisioned, so re-running the
+// init file was a no-op for it) and missing Stripe env vars. Surfaced as a
+// dashboard nudge on /admin — see app/pages/admin/index.vue.
+export interface HealthCheck {
+	ok: boolean
+	missing: string[]
+}
+
+export interface HealthReport {
+	healthy: boolean
+	schema: HealthCheck
+	stripe: HealthCheck
 }

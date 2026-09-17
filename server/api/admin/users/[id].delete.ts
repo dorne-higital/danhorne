@@ -2,6 +2,7 @@
 // doesn't get orphaned or block deletion.
 export default defineEventHandler(async (event) => {
 	const { user } = await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'users', 'Users')
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {

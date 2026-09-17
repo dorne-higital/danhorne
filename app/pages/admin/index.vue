@@ -17,6 +17,7 @@
 					/>
 					<span class="message">{{ nudge.message }}</span>
 					<NuxtLink
+						v-if="nudge.to"
 						:to="nudge.to"
 						class="action"
 					>
@@ -144,6 +145,7 @@
 		ActivityLogPage,
 		AdminUser,
 		FormSummary,
+		HealthReport,
 		MenuItem,
 		MenuRecord,
 		MenuSummary,
@@ -170,9 +172,13 @@
 		immediate: isAdmin.value,
 	})
 	const activeUserCount = computed(() => users.value?.filter((user) => !user.banned).length)
+	const { data: health } = await useFetch<HealthReport>('/api/admin/health', {
+		key: 'admin-dashboard-health',
+		immediate: isAdmin.value,
+	})
 
 	const nudges = computed(() => {
-		const items: { key: string; message: string; to: string; actionLabel: string }[] = []
+		const items: { key: string; message: string; to?: string; actionLabel?: string }[] = []
 
 		if (pages.value && !pages.value.some((page) => page.slug === '/')) {
 			items.push({
@@ -221,6 +227,21 @@
 				to: '/admin/menus',
 				actionLabel: 'Review',
 			})
+		}
+
+		if (health.value && !health.value.healthy) {
+			const parts: string[] = []
+			if (health.value.schema.missing.length) {
+				parts.push(
+					`${health.value.schema.missing.length} database column${health.value.schema.missing.length > 1 ? 's' : ''} missing — re-run supabase/migrations/0001_init.sql`,
+				)
+			}
+			if (health.value.stripe.missing.length) {
+				parts.push(
+					`${health.value.stripe.missing.length} Stripe env var${health.value.stripe.missing.length > 1 ? 's' : ''} not set`,
+				)
+			}
+			items.push({ key: 'health-check', message: `Setup issue detected: ${parts.join('; ')}.` })
 		}
 
 		return items

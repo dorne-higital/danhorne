@@ -41,6 +41,21 @@ cp .env.example .env
 | `NUXT_PUBLIC_SUPABASE_URL`  | Same as `NUXT_SUPABASE_URL`         | Public — safe to ship to the browser                                                                                                          |
 | `NUXT_PUBLIC_SUPABASE_KEY`  | Supabase dashboard → Settings → API | The **anon/publishable** key (different from the service role key). Public — safe to ship to the browser                                      |
 
+### Self-serve checkout (Stripe) — optional
+
+Powers the storage/plan upgrade cards on `/admin/integrations` — a site can subscribe to a storage tier and a plan tier independently. **All of these are optional**: leave any of them blank and that row on `/admin/integrations` just shows current status with no checkout option, nothing else breaks. See `server/utils/stripe.ts` and the setup guide for how the Price IDs get created.
+
+| Variable                             | Where to get it                                                             | Notes                                                                                                       |
+| ------------------------------------ | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `NUXT_STRIPE_SECRET_KEY`             | Stripe dashboard → Developers → API keys                                    | Server-only. The checkout flow redirects to a Stripe-hosted page, so this is the only key it actually needs |
+| `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe dashboard → Developers → API keys                                    | Public — kept for future Stripe.js use, not required by the current redirect-based checkout                 |
+| `NUXT_STRIPE_WEBHOOK_SECRET`         | Stripe dashboard → Developers → Webhooks → (your endpoint) → Signing secret | Verifies incoming webhook events in `server/api/webhooks/stripe.post.ts`                                    |
+| `NUXT_STRIPE_PRICE_2GB`              | Stripe dashboard → Product catalog (or created via the API)                 | Recurring monthly Price ID for the 2GB storage tier                                                         |
+| `NUXT_STRIPE_PRICE_10GB`             | Same as above                                                               | Recurring monthly Price ID for the 10GB storage tier                                                        |
+| `NUXT_STRIPE_PRICE_UNLIMITED`        | Same as above                                                               | Recurring monthly Price ID for the unlimited storage tier                                                   |
+| `NUXT_STRIPE_PRICE_GROWTH`           | Same as above                                                               | Recurring monthly Price ID for the Growth plan tier — see the plans & pricing doc for what it includes      |
+| `NUXT_STRIPE_PRICE_PRO`              | Same as above                                                               | Recurring monthly Price ID for the Pro plan tier — see the plans & pricing doc for what it includes         |
+
 ## 3. Set up Supabase
 
 ### Database
@@ -142,6 +157,6 @@ server/api/             Nitro API routes (pages, menus, uploads, admin/users)
 server/utils/            Shared server code (Supabase client, admin auth checks)
 shared/types/            Types shared between client and server (Nuxt 4 shared/ dir)
 shared/utils/            Runtime helpers shared between client and server (auto-imported)
-supabase/migrations/     SQL migrations — run these in order against a fresh project
+supabase/migrations/     SQL migrations — a fresh install only needs 0001_init.sql (see step 3); the rest are incremental upgrades for a site that ran 0001 before that feature existed, each also folded into 0001_init.sql
 scripts/                add-block.mjs — the block scaffolding CLI
 ```

@@ -98,6 +98,8 @@
 				{{ error }}
 			</p>
 
+			<p class="hint">Saved to this page's draft — publish the page to make these changes live.</p>
+
 			<button
 				type="submit"
 				class="btn primary"
@@ -148,13 +150,18 @@
 		return 'lucide:x'
 	}
 
+	// Edits the draft copy, not what's live — same as every other field in
+	// the page editor. Falls back to the live seo for a page that's never
+	// had a draft_seo value written (e.g. one created before this column
+	// existed).
 	watch(
 		() => props.page,
 		(page) => {
-			seoTitle.value = page?.seo?.title ?? ''
-			seoDescription.value = page?.seo?.description ?? ''
-			seoKeywords.value = page?.seo?.keywords ?? ''
-			ogImage.value = page?.seo?.ogImage ?? ''
+			const seo = page?.draft_seo ?? page?.seo
+			seoTitle.value = seo?.title ?? ''
+			seoDescription.value = seo?.description ?? ''
+			seoKeywords.value = seo?.keywords ?? ''
+			ogImage.value = seo?.ogImage ?? ''
 		},
 		{ immediate: true },
 	)
@@ -208,6 +215,11 @@
 
 		textarea {
 			resize: vertical;
+		}
+
+		.hint {
+			color: var(--text-secondary);
+			font-size: 0.9375rem;
 		}
 
 		.og-image {

@@ -6,6 +6,7 @@ import type { RedirectRecord } from '#shared/types/cms'
 // that value.
 export default defineEventHandler(async (event): Promise<RedirectRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'redirects', 'Redirects')
 
 	const body = await readBody<{ old_slug?: string; new_slug?: string }>(event)
 	const oldSlug = body?.old_slug?.trim()

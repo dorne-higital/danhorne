@@ -55,6 +55,22 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		throw createError({ statusCode: 400, statusMessage: 'blocks must be an array' })
 	}
 
+	// Gated independently, not as one blanket check — PageSeoModal.vue sends
+	// only `{ seo }`, so that save must work under the 'seo' flag alone even
+	// if 'pages' happens to be off, and vice versa for everything else.
+	if (
+		body.title !== undefined ||
+		body.blocks !== undefined ||
+		body.status !== undefined ||
+		body.slug !== undefined ||
+		body.parent_id !== undefined
+	) {
+		await requireFeatureEnabled(event, 'pages', 'Pages')
+	}
+	if (body.seo !== undefined) {
+		await requireFeatureEnabled(event, 'seo', 'SEO')
+	}
+
 	const supabase = useSupabase()
 
 	// Fetched upfront (not just for the 404 check) — also needed to diff
@@ -70,12 +86,12 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		throw createError({ statusCode: 404, statusMessage: 'Page not found' })
 	}
 
-	// title/blocks are the working draft — saving never touches what's
+	// title/blocks/seo are the working draft — saving never touches what's
 	// actually live. Only POST /api/pages/:slug/publish does that.
 	const update: Record<string, unknown> = {}
 	if (body.blocks !== undefined) update.draft_blocks = sanitizeBlocks(body.blocks)
 	if (body.title) update.draft_title = body.title
-	if (body.seo !== undefined) update.seo = body.seo
+	if (body.seo !== undefined) update.draft_seo = body.seo
 	if (body.status !== undefined) update.status = body.status
 
 	if (body.slug !== undefined) {
@@ -130,13 +146,13 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	// Skip the snapshot for a pure status/slug/parent change (e.g.
 	// Unpublish) — nothing about the draft content actually moved, no point
 	// spending one of the 10 revision slots on it.
-	if (body.blocks !== undefined || body.title) {
+	if (body.blocks !== undefined || body.title || body.seo !== undefined) {
 		await recordPageRevision({
 			pageId: data.id,
 			title: data.draft_title,
 			slug: data.slug,
 			blocks: data.draft_blocks,
-			seo: data.seo,
+			seo: data.draft_seo,
 			actorId: user.sub,
 		})
 	}

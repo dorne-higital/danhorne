@@ -2,6 +2,7 @@ import type { PageRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pages', 'Pages')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	if (!rawSlug) {
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 			draft_blocks: source.draft_blocks,
 			draft_title: body.title,
 			seo: source.seo,
+			draft_seo: source.seo,
 			parent_id: source.parent_id,
 			status: 'draft',
 			updated_by: user.sub,
@@ -73,7 +75,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		title: data.draft_title,
 		slug: data.slug,
 		blocks: data.draft_blocks,
-		seo: data.seo,
+		seo: data.draft_seo,
 		actorId: user.sub,
 	})
 

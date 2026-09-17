@@ -198,11 +198,16 @@
 
 	// useFetch's data is a shallow ref, so mutating seoPage.seo in place
 	// wouldn't be seen by rows/sortedRows/averageScore — replace the page
-	// (and the array) with new references so those computeds re-run.
+	// (and the array) with new references so those computeds re-run. The
+	// score itself is computed from the live `seo` (what's actually
+	// published) so it deliberately doesn't move until the page is
+	// published — only draft_seo and has_draft_changes update here.
 	function handleSeoSaved(seo: PageSeo) {
 		if (!pages.value || !seoPage.value) return
 		const id = seoPage.value.id
-		pages.value = pages.value.map((page) => (page.id === id ? { ...page, seo } : page))
+		pages.value = pages.value.map((page) =>
+			page.id === id ? { ...page, draft_seo: seo, has_draft_changes: true } : page,
+		)
 		seoPage.value = pages.value.find((page) => page.id === id) ?? null
 	}
 </script>

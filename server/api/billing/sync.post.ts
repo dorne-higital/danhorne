@@ -6,6 +6,7 @@
 // into; this just closes the gap for the one moment there reliably is one.
 export default defineEventHandler(async (event): Promise<{ synced: boolean }> => {
 	await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'integrations', 'Integrations')
 
 	const supabase = useSupabase()
 	const { data: settings } = await supabase

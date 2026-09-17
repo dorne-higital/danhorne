@@ -1,4 +1,4 @@
-import type { Post } from '#shared/types/cms'
+import type { Block, Post } from '#shared/types/cms'
 
 const PATCHABLE_FIELDS = [
 	'slug',
@@ -43,6 +43,12 @@ export default defineEventHandler(async (event): Promise<Post> => {
 	// form regardless of what the admin typed.
 	if (typeof updates.slug === 'string') {
 		updates.slug = slugify(updates.slug)
+	}
+	// Same sanitize-on-write pass Pages runs (server/api/pages/[slug].put.ts)
+	// — posts share the identical Block[] shape and several blocks render
+	// their props with v-html, so this closes the same stored-XSS gap here.
+	if (Array.isArray(updates.blocks)) {
+		updates.blocks = sanitizeBlocks(updates.blocks as Block[])
 	}
 
 	const supabase = useSupabase()

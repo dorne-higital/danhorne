@@ -9,6 +9,7 @@ interface Body {
 
 export default defineEventHandler(async (event): Promise<FormRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'forms', 'Forms')
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -18,6 +19,19 @@ export default defineEventHandler(async (event): Promise<FormRecord> => {
 	const body = await readBody<Body>(event)
 	if (!Array.isArray(body?.fields)) {
 		throw createError({ statusCode: 400, statusMessage: 'fields must be an array' })
+	}
+
+	// Two fields sharing a name would otherwise silently share one entry in
+	// every future submission's values object — one field's answer
+	// clobbering the other's. The admin builder already guards against this
+	// client-side, but this is the only check that can't be bypassed.
+	const seenNames = new Set<string>()
+	for (const field of body.fields) {
+		if (!field.name) continue
+		if (seenNames.has(field.name)) {
+			throw createError({ statusCode: 400, statusMessage: `Duplicate field name: "${field.name}"` })
+		}
+		seenNames.add(field.name)
 	}
 
 	// Only gated when a field actually tries to use the paid capability —

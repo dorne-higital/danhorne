@@ -193,7 +193,7 @@
 			:open="showSeo"
 			:page="seoPage"
 			@update:open="(value) => (showSeo = value)"
-			@saved="(seo) => seoPage && (seoPage.seo = seo)"
+			@saved="onSeoSaved"
 		/>
 
 		<Modal
@@ -303,7 +303,7 @@
 </template>
 
 <script setup lang="ts">
-	import type { PageRecord, PageSummary } from '#shared/types/cms'
+	import type { PageRecord, PageSeo, PageSummary } from '#shared/types/cms'
 
 	definePageMeta({ layout: 'admin' })
 
@@ -382,6 +382,12 @@
 	function openSeoModal(page: PageSummary) {
 		seoPage.value = page
 		showSeo.value = true
+	}
+
+	function onSeoSaved(seo: PageSeo) {
+		if (!seoPage.value) return
+		seoPage.value.draft_seo = seo
+		seoPage.value.has_draft_changes = true
 	}
 
 	const showDuplicate = ref(false)

@@ -20,7 +20,9 @@
 					</p>
 					<a
 						v-if="viewAllHref"
-						:href="viewAllHref"
+						:href="normalizeHref(viewAllHref)"
+						:target="isExternalHref(viewAllHref) ? '_blank' : undefined"
+						:rel="isExternalHref(viewAllHref) ? 'noopener noreferrer' : undefined"
 						:title="viewAllLabel"
 						class="btn outline sm view-all-header"
 					>
@@ -60,7 +62,9 @@
 				>
 					<a
 						v-if="viewAllHref"
-						:href="viewAllHref"
+						:href="normalizeHref(viewAllHref)"
+						:target="isExternalHref(viewAllHref) ? '_blank' : undefined"
+						:rel="isExternalHref(viewAllHref) ? 'noopener noreferrer' : undefined"
 						:title="viewAllLabel"
 						class="btn outline sm view-all-mobile"
 					>

@@ -129,6 +129,7 @@
 
 	const { data: forms, refresh } = await useFetch<FormSummary[]>('/api/forms', { key: 'admin-forms-list' })
 	const { confirm } = useConfirm()
+	const toast = useToast()
 
 	const search = ref('')
 	const filteredForms = computed(() => {
@@ -163,7 +164,29 @@
 	}
 
 	async function deleteForm(form: FormSummary) {
-		if (!(await confirm(`Delete "${form.name}"? This can't be undone.`, { confirmLabel: 'Delete', danger: true })))
+		// Deleting the site's configured contact form doesn't just lose its
+		// submissions — it silently breaks the header "Say hello" modal (its
+		// contact_form_id goes null via ON DELETE SET NULL). Blocked outright
+		// rather than just warned about, since there's no real reason to ever
+		// do this without first picking a different contact form.
+		if (form.is_contact_form) {
+			toast.show(
+				`"${form.name}" is set as this site's contact form — change that in Settings before deleting it.`,
+				'error',
+			)
+			return
+		}
+
+		const submissionWarning =
+			form.submission_count > 0
+				? ` This will also permanently delete ${form.submission_count} submission${form.submission_count === 1 ? '' : 's'}.`
+				: ''
+		if (
+			!(await confirm(`Delete "${form.name}"?${submissionWarning} This can't be undone.`, {
+				confirmLabel: 'Delete',
+				danger: true,
+			}))
+		)
 			return
 		await $fetch(`/api/forms/${form.id}`, { method: 'DELETE' })
 		await refresh()

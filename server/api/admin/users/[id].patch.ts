@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	const { user: actor } = await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'users', 'Users')
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {
@@ -27,6 +28,25 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const supabase = useSupabase()
+
+	// The matching delete endpoint blocks removing your own account outright
+	// — demoting yourself isn't inherently unsafe (a team with other admins
+	// can do this fine), so this only blocks the case that actually locks
+	// everyone out: no other admin left to promote anyone back.
+	if (id === actor.sub && update.role === 'user') {
+		const { count } = await supabase
+			.from('profiles')
+			.select('id', { count: 'exact', head: true })
+			.eq('role', 'admin')
+			.neq('id', actor.sub)
+		if (!count) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: "You can't demote yourself — there's no other admin left to promote anyone back.",
+			})
+		}
+	}
+
 	const { data, error } = await supabase
 		.from('profiles')
 		.update(update)

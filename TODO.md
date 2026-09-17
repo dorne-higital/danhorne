@@ -8,7 +8,6 @@ Running list of known gaps/improvements for the CMS. Not urgent unless marked ot
 
 ## Known gaps, not urgent
 
-- [ ] Footer menu isn't wired up — `AppFooter.vue` has no menu rendering, only the hardcoded Connect/LinkedIn links.
 - [ ] Renaming a page's slug doesn't cascade to its children's slugs (parent/child pages) — they stay pointing at the old parent path.
 - [ ] Menu links don't auto-update when the page they point to gets its slug renamed.
 

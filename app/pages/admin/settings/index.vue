@@ -142,6 +142,28 @@
 						/>
 					</div>
 					<div class="field">
+						<label for="logo-text">Logo text (optional)</label>
+						<input
+							id="logo-text"
+							v-model="logoText"
+							type="text"
+							placeholder="Defaults to site name above"
+						/>
+					</div>
+					<div
+						v-if="logoText"
+						class="field"
+					>
+						<label for="logo-highlight-text">Logo highlight (optional)</label>
+						<input
+							id="logo-highlight-text"
+							v-model="logoHighlightText"
+							type="text"
+							placeholder="e.g. a suffix in the brand colour"
+						/>
+					</div>
+					<p class="hint">Only used when no logo image is uploaded above. Leave blank to show the site name as-is.</p>
+					<div class="field">
 						<label for="contact-form">Contact form</label>
 						<select
 							id="contact-form"
@@ -213,6 +235,8 @@
 
 	const siteName = ref(settings.value?.site_name ?? '')
 	const logoUrl = ref(settings.value?.logo_url ?? '')
+	const logoText = ref(settings.value?.logo_text ?? '')
+	const logoHighlightText = ref(settings.value?.logo_highlight_text ?? '')
 	const pickerOpen = ref(false)
 	const contactFormId = ref(settings.value?.contact_form_id ?? '')
 	const { data: forms } = useFetch<FormSummary[]>('/api/forms', { key: 'admin-settings-forms-list' })
@@ -237,6 +261,8 @@
 		if (!value) return
 		siteName.value = value.site_name
 		logoUrl.value = value.logo_url ?? ''
+		logoText.value = value.logo_text ?? ''
+		logoHighlightText.value = value.logo_highlight_text ?? ''
 		contactFormId.value = value.contact_form_id ?? ''
 		socials.facebook = value.socials?.facebook ?? ''
 		socials.instagram = value.socials?.instagram ?? ''
@@ -281,6 +307,11 @@
 				method: 'PATCH',
 				body: {
 					site_name: siteName.value,
+					logo_text: logoText.value,
+					// Clearing logo_text also clears the highlight — an
+					// orphaned highlight with no primary text to attach to
+					// isn't a state the UI exposes a way back out of.
+					logo_highlight_text: logoText.value ? logoHighlightText.value : '',
 					contact_form_id: contactFormId.value || null,
 				},
 			})

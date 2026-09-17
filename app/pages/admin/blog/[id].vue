@@ -44,15 +44,26 @@
 			</div>
 			<div class="actions">
 				<a
-					:href="`/blog/${slug}`"
+					:href="viewUrl"
 					target="_blank"
 					rel="noopener"
 					class="icon-btn"
-					title="View"
-					aria-label="View post in a new tab"
+					:title="status === 'draft' ? 'Preview' : 'View'"
+					:aria-label="status === 'draft' ? 'Preview draft in a new tab' : 'View post in a new tab'"
 				>
 					<Icon name="lucide:external-link" />
 				</a>
+				<button
+					v-if="status === 'draft'"
+					type="button"
+					class="icon-btn"
+					title="Rotate preview link"
+					aria-label="Rotate preview link, invalidating the current one"
+					:disabled="rotatingPreview"
+					@click="rotatePreviewLink"
+				>
+					<Icon name="lucide:refresh-cw" />
+				</button>
 				<button
 					type="button"
 					class="link-btn danger"
@@ -162,6 +173,14 @@
 	)
 	const publishedAtInput = ref(post.value.published_at ? post.value.published_at.slice(0, 10) : '')
 
+	// Unlike pages, a post has no draft/live content split — status is the
+	// only gate, so the token only ever matters while status is 'draft'.
+	const previewToken = ref(post.value.preview_token)
+	const rotatingPreview = ref(false)
+	const viewUrl = computed(() =>
+		status.value === 'draft' ? `/blog/${slug.value}?preview=${previewToken.value}` : `/blog/${slug.value}`,
+	)
+
 	// Single path segment — always auto-fills from the title for a post
 	// that's never had its slug hand-edited, same reasoning as
 	// admin/portfolio/[id].vue's slugTouched (an existing slug counts as
@@ -266,6 +285,29 @@
 			toast.show(getApiErrorMessage(err, 'Could not save post'), 'error')
 		} finally {
 			saving.value = false
+		}
+	}
+
+	async function rotatePreviewLink() {
+		if (
+			!(await confirm('Rotate the preview link? The current link will stop working immediately.', {
+				title: 'Rotate preview link',
+				confirmLabel: 'Rotate',
+				danger: true,
+			}))
+		)
+			return
+		rotatingPreview.value = true
+		try {
+			const updated = await $fetch<{ preview_token: string }>(`/api/posts/${id}/rotate-preview-token`, {
+				method: 'POST',
+			})
+			previewToken.value = updated.preview_token
+			toast.show('Preview link rotated — the old link no longer works.')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not rotate preview link'), 'error')
+		} finally {
+			rotatingPreview.value = false
 		}
 	}
 

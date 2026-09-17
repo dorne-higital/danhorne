@@ -4,10 +4,7 @@
 			to="/admin"
 			class="brand"
 		>
-			<AppLogo
-				:logo-text="'dan'"
-				:highlighted-text="'horne.'"
-			/>
+			<AppLogo />
 		</NuxtLink>
 
 		<div class="scroll-area">

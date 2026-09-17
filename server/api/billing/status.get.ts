@@ -12,6 +12,7 @@ interface BillingStatus {
 // never selects (stripe_customer_id, stripe_subscription_id, stripe_plan_subscription_id).
 export default defineEventHandler(async (event): Promise<BillingStatus> => {
 	await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'integrations', 'Integrations')
 
 	const supabase = useSupabase()
 	const { data } = await supabase

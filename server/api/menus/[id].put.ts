@@ -2,6 +2,7 @@ import type { MenuItem, MenuRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<MenuRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'menus', 'Menus')
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {

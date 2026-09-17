@@ -1,3 +1,5 @@
+import type { HealthCheck, HealthReport } from '#shared/types/cms'
+
 const SETTINGS_COLUMNS = [
 	'storage_limit_mb',
 	'stripe_customer_id',
@@ -16,17 +18,6 @@ const STRIPE_ENV_VARS = [
 	['NUXT_STRIPE_PRICE_GROWTH', 'stripePriceGrowth'],
 	['NUXT_STRIPE_PRICE_PRO', 'stripePricePro'],
 ] as const
-
-interface HealthCheck {
-	ok: boolean
-	missing: string[]
-}
-
-interface HealthReport {
-	healthy: boolean
-	schema: HealthCheck
-	stripe: HealthCheck
-}
 
 // Catches exactly the class of bug that bit a real client site: a column
 // added to supabase/migrations/0001_init.sql's site_settings table after a

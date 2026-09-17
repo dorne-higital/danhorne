@@ -10,6 +10,7 @@ interface Body {
 // this endpoint only ever needs the secret key, not the publishable one.
 export default defineEventHandler(async (event): Promise<{ url: string }> => {
 	const { user } = await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'integrations', 'Integrations')
 
 	const body = await readBody<Body>(event)
 	const tiers = body?.kind === 'plan' ? getPlanTiers() : getStorageTiers()

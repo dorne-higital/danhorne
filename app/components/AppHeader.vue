@@ -7,10 +7,7 @@
 			class="nav-container sw flex-between"
 			:data-nav-style="navStyle"
 		>
-			<AppLogo
-				:logo-text="'dan'"
-				:highlighted-text="'horne.'"
-			/>
+			<AppLogo />
 
 			<ul
 				v-if="menu?.items?.length"
@@ -67,11 +64,7 @@
 						:data-theme="headerTheme === 'light' ? undefined : headerTheme"
 					>
 						<div class="panel-head">
-							<AppLogo
-								:logo-text="'dan'"
-								:highlighted-text="'horne.'"
-								@click="mobileNavOpen = false"
-							/>
+							<AppLogo @click="mobileNavOpen = false" />
 							<button
 								type="button"
 								class="close"

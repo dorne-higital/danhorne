@@ -3,7 +3,7 @@
 		v-if="post?.status === 'draft'"
 		class="preview-banner"
 	>
-		Preview — this post isn't published, so only logged-in admins can see it at this URL.
+		Preview — this post isn't published yet.
 	</p>
 	<article
 		v-if="post"
@@ -32,8 +32,11 @@
 
 	const route = useRoute()
 	const slug = route.params.slug as string
+	const previewToken = typeof route.query.preview === 'string' ? route.query.preview : undefined
 
-	const { data: post } = await useFetch<Post>(`/api/posts/by-slug/${encodeURIComponent(slug)}`)
+	const { data: post } = await useFetch<Post>(`/api/posts/by-slug/${encodeURIComponent(slug)}`, {
+		query: previewToken ? { preview: previewToken } : undefined,
+	})
 
 	if (!post.value) {
 		$fetch('/api/track-404', { method: 'POST', body: { path: `/blog/${slug}` } }).catch(() => {})

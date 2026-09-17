@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pages', 'Pages')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	if (!rawSlug) {

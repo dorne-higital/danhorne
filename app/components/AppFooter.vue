@@ -8,10 +8,7 @@
 			class="sw simple-row"
 		>
 			<div class="brand-line">
-				<AppLogo
-					:logo-text="'dan'"
-					:highlighted-text="'horne.'"
-				/>
+				<AppLogo />
 				<p class="caption">© {{ year }} {{ company?.name || settings?.site_name || 'This site' }}</p>
 			</div>
 
@@ -60,10 +57,7 @@
 		>
 			<div class="footer-top">
 				<div class="brand">
-					<AppLogo
-						:logo-text="'dan'"
-						:highlighted-text="'horne.'"
-					/>
+					<AppLogo />
 					<ul
 						v-if="hasContactInfo"
 						class="text-secondary"

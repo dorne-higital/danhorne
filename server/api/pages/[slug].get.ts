@@ -18,7 +18,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const { data, error } = await supabase
 		.from('pages')
 		.select(
-			'id, slug, title, blocks, draft_title, draft_blocks, seo, parent_id, status, preview_token, updated_at, updated_by, updater:profiles(nickname)',
+			'id, slug, title, blocks, draft_title, draft_blocks, seo, draft_seo, parent_id, status, preview_token, updated_at, updated_by, updater:profiles(nickname)',
 		)
 		.eq('slug', slug)
 		.maybeSingle()
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		slug: data.slug,
 		title: showDraft ? data.draft_title : data.title,
 		blocks: showDraft ? data.draft_blocks : data.blocks,
-		seo: data.seo,
+		seo: showDraft ? data.draft_seo : data.seo,
 		parent_id: data.parent_id,
 		status: data.status,
 		updated_at: data.updated_at,
@@ -70,8 +70,11 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		resolved.preview_token = data.preview_token
 		resolved.draft_title = data.draft_title
 		resolved.draft_blocks = data.draft_blocks
+		resolved.draft_seo = data.draft_seo
 		resolved.has_draft_changes =
-			data.title !== data.draft_title || JSON.stringify(data.blocks) !== JSON.stringify(data.draft_blocks)
+			data.title !== data.draft_title ||
+			JSON.stringify(data.blocks) !== JSON.stringify(data.draft_blocks) ||
+			JSON.stringify(data.seo ?? null) !== JSON.stringify(data.draft_seo ?? null)
 	}
 
 	return resolved

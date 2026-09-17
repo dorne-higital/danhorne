@@ -23,7 +23,7 @@ export default defineEventHandler(async (event): Promise<Post> => {
 			slug,
 			title,
 			excerpt: body.excerpt?.trim() || null,
-			blocks: Array.isArray(body.blocks) ? body.blocks : [],
+			blocks: sanitizeBlocks(Array.isArray(body.blocks) ? body.blocks : []),
 			cover_image: body.cover_image || null,
 			category: body.category?.trim() || null,
 			tags: Array.isArray(body.tags) ? body.tags : [],

@@ -4,6 +4,7 @@
 // (Settings > Billing > Customer portal) before this will work.
 export default defineEventHandler(async (event): Promise<{ url: string }> => {
 	await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'integrations', 'Integrations')
 
 	const supabase = useSupabase()
 	const { data: settings } = await supabase

@@ -90,6 +90,16 @@
 				<button
 					type="button"
 					class="icon-btn"
+					title="Rotate preview link"
+					aria-label="Rotate preview link, invalidating the current one"
+					:disabled="rotatingPreview"
+					@click="rotatePreviewLink"
+				>
+					<Icon name="lucide:refresh-cw" />
+				</button>
+				<button
+					type="button"
+					class="icon-btn"
 					:class="{ locked: !pageHistoryEnabled }"
 					:title="pageHistoryEnabled ? 'Version history' : 'Version history — premium feature'"
 					:aria-label="pageHistoryEnabled ? 'Version history' : 'Version history — premium feature'"
@@ -193,22 +203,31 @@
 	const slugChanged = computed(() => slug.value !== originalSlug)
 	const parentId = ref(page.value.parent_id ?? '')
 	const status = ref<PageStatus>(page.value.status)
-	const previewToken = page.value.preview_token
+	const previewToken = ref(page.value.preview_token)
+	const rotatingPreview = ref(false)
 
 	// What's actually live right now — compared against title/blocks below
 	// to know whether there's anything worth publishing. Updated after a
 	// successful Publish so the comparison stays accurate going forward.
 	const publishedTitle = ref(page.value.title)
 	const publishedBlocks = ref(structuredClone(page.value.blocks))
+	// This editor doesn't edit SEO itself (that's PageSeoModal, opened from
+	// the pages/SEO lists) — draftSeo is just a snapshot of whatever's
+	// pending from there, so a pure SEO edit still shows up as something to
+	// publish here rather than only enabling the button once title/blocks
+	// also change.
+	const draftSeo = page.value.draft_seo ?? null
+	const publishedSeo = ref(page.value.seo ?? null)
 	const hasDraftChanges = computed(
 		() =>
 			title.value !== publishedTitle.value ||
-			JSON.stringify(blocks.value) !== JSON.stringify(publishedBlocks.value),
+			JSON.stringify(blocks.value) !== JSON.stringify(publishedBlocks.value) ||
+			JSON.stringify(draftSeo) !== JSON.stringify(publishedSeo.value),
 	)
 
 	// Always includes the preview token — for a published page this is what
 	// shows pending draft changes rather than what's already live.
-	const previewUrl = computed(() => `${originalSlug}?preview=${previewToken}`)
+	const previewUrl = computed(() => `${originalSlug}?preview=${previewToken.value}`)
 
 	const saving = ref(false)
 	const publishing = ref(false)
@@ -266,11 +285,35 @@
 			status.value = updated.status
 			publishedTitle.value = updated.title
 			publishedBlocks.value = structuredClone(updated.blocks)
+			publishedSeo.value = updated.seo ?? null
 			toast.show('Published.')
 		} catch (err) {
 			toast.show(getApiErrorMessage(err, 'Could not publish'), 'error')
 		} finally {
 			publishing.value = false
+		}
+	}
+
+	async function rotatePreviewLink() {
+		if (
+			!(await confirm('Rotate the preview link? The current link will stop working immediately.', {
+				title: 'Rotate preview link',
+				confirmLabel: 'Rotate',
+				danger: true,
+			}))
+		)
+			return
+		rotatingPreview.value = true
+		try {
+			const updated = await $fetch<{ preview_token: string }>(`/api/pages/${encodedSlug}/rotate-preview-token`, {
+				method: 'POST',
+			})
+			previewToken.value = updated.preview_token
+			toast.show('Preview link rotated — the old link no longer works.')
+		} catch (err) {
+			toast.show(getApiErrorMessage(err, 'Could not rotate preview link'), 'error')
+		} finally {
+			rotatingPreview.value = false
 		}
 	}
 

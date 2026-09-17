@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	const { user: actor } = await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'users', 'Users')
 
 	const body = await readBody<{ email?: string; first_name?: string; last_name?: string }>(event)
 	if (!body?.email) {

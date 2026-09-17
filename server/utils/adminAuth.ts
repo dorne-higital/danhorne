@@ -60,8 +60,22 @@ export async function requireFeatureEnabled(event: H3Event, key: FeatureKey, lab
 	}
 }
 
-// Guards every /api/submissions* and /api/forms/[id]/submissions* route —
-// the submissions inbox is a paid add-on.
+// Guards every /api/submissions* route — the submissions inbox is a paid
+// add-on.
 export function requireSubmissionsEnabled(event: H3Event): Promise<void> {
 	return requireFeatureEnabled(event, 'submissions', 'The submissions inbox')
+}
+
+// Same as requireFeatureEnabled, but passes if ANY of the given keys is
+// enabled — for a route two different admin sections both depend on (e.g.
+// GET /api/pages backs both /admin/pages and /admin/seo's page list), where
+// requiring a single specific key would 403 one section just because the
+// other happens to be the one that's off.
+export async function requireAnyFeatureEnabled(event: H3Event, keys: FeatureKey[], label: string): Promise<void> {
+	const supabase = useSupabase()
+	const { data } = await supabase.from('site_settings').select('enabled_features').eq('id', 'default').single()
+
+	if (!keys.some((key) => isFeatureEnabled(key, data?.enabled_features))) {
+		throw createError({ statusCode: 403, statusMessage: `${label} is not enabled on this site` })
+	}
 }

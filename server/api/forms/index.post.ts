@@ -2,6 +2,7 @@ import type { FormRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<FormRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'forms', 'Forms')
 
 	const body = await readBody<{ name?: string }>(event)
 	if (!body?.name) {

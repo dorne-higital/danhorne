@@ -2,6 +2,7 @@ import type { MenuSummary } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<MenuSummary[]> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'menus', 'Menus')
 
 	const supabase = useSupabase()
 	const { data, error } = await supabase

@@ -3,6 +3,7 @@
 // 404s again later it'll simply reappear as a fresh suggestion.
 export default defineEventHandler(async (event) => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'redirects', 'Redirects')
 
 	const rawPath = getRouterParam(event, 'path')
 	if (!rawPath) {

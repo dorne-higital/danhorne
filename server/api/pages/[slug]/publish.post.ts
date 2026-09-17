@@ -5,6 +5,7 @@ import type { PageRecord } from '#shared/types/cms'
 // the page published. Saving (PUT /api/pages/:slug) never does this itself.
 export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pages', 'Pages')
 
 	const rawSlug = getRouterParam(event, 'slug')
 	if (!rawSlug) {
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 
 	const { data: current } = await supabase
 		.from('pages')
-		.select('id, draft_title, draft_blocks')
+		.select('id, draft_title, draft_blocks, draft_seo')
 		.eq('slug', slug)
 		.maybeSingle()
 	if (!current) {
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 		.update({
 			title: current.draft_title,
 			blocks: current.draft_blocks,
+			seo: current.draft_seo,
 			status: 'published',
 			updated_by: user.sub,
 		})

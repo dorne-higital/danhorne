@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'menus', 'Menus')
 
 	const id = getRouterParam(event, 'id')
 	if (!id) {

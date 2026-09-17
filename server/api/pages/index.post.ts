@@ -2,6 +2,7 @@ import type { PageRecord } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<PageRecord> => {
 	const user = await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'pages', 'Pages')
 
 	const body = await readBody<{ id?: string; slug?: string; title?: string; parent_id?: string | null }>(event)
 	if (!body?.id || !body?.slug || !body?.title) {
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event): Promise<PageRecord> => {
 			draft_blocks: [],
 			parent_id: body.parent_id ?? null,
 			status: 'draft',
+			updated_by: user.sub,
 		})
 		.select('id, slug, title, blocks, draft_title, draft_blocks, parent_id, status, preview_token, updated_at')
 		.single()

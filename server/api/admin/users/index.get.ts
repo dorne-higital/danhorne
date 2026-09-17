@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
 	await requireAdminRole(event)
+	await requireFeatureEnabled(event, 'users', 'Users')
 
 	const supabase = useSupabase()
 

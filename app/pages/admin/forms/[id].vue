@@ -190,6 +190,7 @@
 										type="number"
 										min="1"
 										placeholder="1"
+										@change="onStepChange(element)"
 									/>
 								</div>
 							</div>
@@ -424,12 +425,26 @@
 
 	function onLabelInput(field: FormFieldDef) {
 		if (!nameTouched.has(field.id)) {
-			field.name = slugify(field.label)
+			field.name = uniqueFieldName(slugify(field.label), field)
 		}
 	}
 
 	function onNameInput(field: FormFieldDef) {
 		nameTouched.add(field.id)
+	}
+
+	// Two fields that slugify to the same name (e.g. both labeled "Email" on
+	// different steps) would otherwise silently share one entry in the
+	// submitted values object — one field's input clobbering the other's.
+	// Auto-numbering only covers the label→name auto-derive path; a manual
+	// edit via onNameInput is checked at save time instead (see save()).
+	function uniqueFieldName(base: string, field: FormFieldDef): string {
+		if (!base) return base
+		const taken = new Set(fields.value.filter((other) => other.id !== field.id).map((other) => other.name))
+		if (!taken.has(base)) return base
+		let suffix = 2
+		while (taken.has(`${base}${suffix}`)) suffix++
+		return `${base}${suffix}`
 	}
 
 	function slugify(value: string): string {
@@ -466,9 +481,26 @@
 		field.showIf = checked ? { field: '', equals: '' } : undefined
 	}
 
-	// A field can't depend on itself.
+	// A field can't depend on itself, or on a field from a later step — a
+	// forward-only visitor reaches this field's own step before that later
+	// field is ever shown, so its trigger value could never actually be set
+	// in time. A same-step dependency is fine: both fields are live and
+	// reactive on the page together, regardless of their order in the list.
 	function otherFields(field: FormFieldDef): FormFieldDef[] {
-		return fields.value.filter((other) => other.id !== field.id)
+		const step = field.step ?? 1
+		return fields.value.filter((other) => other.id !== field.id && (other.step ?? 1) <= step)
+	}
+
+	// Moving this field's own step can invalidate an already-configured
+	// dependency (e.g. dragging it earlier than the field it depends on) —
+	// cleared the same way changing the dependency itself clears "equals",
+	// rather than left silently pointing at a now-later step.
+	function onStepChange(field: FormFieldDef) {
+		if (!field.showIf) return
+		const dependsOn = fields.value.find((other) => other.name === field.showIf?.field)
+		if (dependsOn && (dependsOn.step ?? 1) > (field.step ?? 1)) {
+			field.showIf = { field: '', equals: '' }
+		}
 	}
 
 	// The dependency field's own value changed, so whatever "equals" value
@@ -485,7 +517,25 @@
 		return dependsOn?.type === 'select' ? (dependsOn.options ?? []) : []
 	}
 
+	// Catches a duplicate created by editing the Name (internal) field
+	// directly — the auto-derive path in onLabelInput already numbers around
+	// this, but a manual edit bypasses that entirely.
+	function findDuplicateFieldName(): string | null {
+		const seen = new Set<string>()
+		for (const field of fields.value) {
+			if (!field.name) continue
+			if (seen.has(field.name)) return field.name
+			seen.add(field.name)
+		}
+		return null
+	}
+
 	async function save() {
+		const duplicate = findDuplicateFieldName()
+		if (duplicate) {
+			toast.show(`Two fields both use the internal name "${duplicate}" — rename one before saving.`, 'error')
+			return
+		}
 		saving.value = true
 		try {
 			await $fetch(`/api/forms/${id}`, {

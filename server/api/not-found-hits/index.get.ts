@@ -2,6 +2,7 @@ import type { NotFoundHit } from '#shared/types/cms'
 
 export default defineEventHandler(async (event): Promise<NotFoundHit[]> => {
 	await requireAdminSession(event)
+	await requireFeatureEnabled(event, 'redirects', 'Redirects')
 
 	const supabase = useSupabase()
 
