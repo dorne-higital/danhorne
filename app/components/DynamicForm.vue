@@ -57,6 +57,10 @@
 				class="submit-error"
 				role="alert"
 			>
+				<Icon
+					name="lucide:x-circle"
+					aria-hidden="true"
+				/>
 				{{ submitError }}
 			</p>
 
@@ -116,6 +120,11 @@
 			v-else-if="form && submitted"
 			class="success"
 		>
+			<Icon
+				name="lucide:check-circle"
+				class="success-icon"
+				aria-hidden="true"
+			/>
 			<p class="success-title">Thanks!</p>
 			<p class="text-secondary">{{ form.success_message }}</p>
 		</div>
@@ -149,6 +158,13 @@
 
 	const props = defineProps<{
 		formId: string
+	}>()
+
+	// Lets a parent tint its own chrome (e.g. the shared contact Modal's
+	// border — see app/layouts/default.vue) to match the outcome, without
+	// this component reaching outside its own DOM to do it.
+	const emit = defineEmits<{
+		status: [value: 'success' | 'error' | null]
 	}>()
 
 	// Deliberately not awaited — this component can be rendered from inside
@@ -244,6 +260,7 @@
 
 		sending.value = true
 		submitError.value = ''
+		emit('status', null)
 
 		try {
 			// If reCAPTCHA is enabled, the server requires this token and
@@ -259,11 +276,13 @@
 			})
 
 			submitted.value = true
+			emit('status', 'success')
 		} catch (err) {
 			submitError.value = getApiErrorMessage(
 				err,
 				'Something went wrong sending that — please try again in a moment.',
 			)
+			emit('status', 'error')
 		} finally {
 			sending.value = false
 		}
@@ -314,6 +333,12 @@
 			padding-block: var(--padding-lg);
 			text-align: center;
 
+			&-icon {
+				color: var(--success);
+				font-size: 2.5rem;
+				margin-bottom: var(--padding-sm);
+			}
+
 			&-title {
 				font-family: var(--heading-font-family);
 				font-size: var(--h3-size);
@@ -334,10 +359,18 @@
 		}
 
 		.submit-error {
+			align-items: center;
 			color: var(--error);
+			display: flex;
 			font-size: var(--eyebrow-size);
 			font-weight: 600;
+			gap: var(--padding-xs);
 			margin-bottom: var(--padding-md);
+
+			svg {
+				flex-shrink: 0;
+				font-size: 1.125rem;
+			}
 		}
 
 		.recaptcha-notice {

@@ -9,12 +9,14 @@
 		<Modal
 			:open="isOpen"
 			:title="title"
+			:status="modalStatus"
 			size="lg"
 			@update:open="(value) => !value && close()"
 		>
 			<DynamicForm
 				v-if="resolvedFormId"
 				:form-id="resolvedFormId"
+				@status="(value) => (modalStatus = value)"
 			/>
 		</Modal>
 	</div>
@@ -22,6 +24,15 @@
 
 <script setup lang="ts">
 	const { isOpen, formId, title, close } = useAppModal()
+
+	// Owned here, not inside DynamicForm — it tints the shared Modal's own
+	// border (see app/components/ui/Modal.vue's status prop), which is a
+	// sibling to DynamicForm's DOM, not a descendant of it. Cleared on
+	// close so the next open (a different form, or a retry) starts neutral.
+	const modalStatus = ref<'success' | 'error' | null>(null)
+	watch(isOpen, (open) => {
+		if (!open) modalStatus.value = null
+	})
 
 	const { data: settings } = await useSiteSettings()
 

@@ -10,7 +10,7 @@
 				<div
 					ref="panelRef"
 					class="panel"
-					:class="size"
+					:class="[size, status]"
 					role="dialog"
 					aria-modal="true"
 					tabindex="-1"
@@ -57,12 +57,16 @@
 		size?: 'sm' | 'md' | 'lg' | 'full'
 		position?: 'center' | 'top'
 		title?: string
+		// Tints the panel border for a result state (e.g. a form's
+		// success/error outcome) — optional, most modals never set this.
+		status?: 'success' | 'error' | null
 	}
 
 	const props = withDefaults(defineProps<Props>(), {
 		size: 'md',
 		position: 'center',
 		title: undefined,
+		status: null,
 	})
 
 	const emit = defineEmits<{
@@ -195,6 +199,14 @@
 		&.full {
 			height: calc(100dvh - #{var(--padding-lg)} * 2);
 			max-width: none;
+		}
+
+		&.success {
+			border-color: var(--success);
+		}
+
+		&.error {
+			border-color: var(--error);
 		}
 
 		@media (width >= 640px) {
