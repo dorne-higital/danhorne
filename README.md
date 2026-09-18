@@ -157,6 +157,6 @@ server/api/             Nitro API routes (pages, menus, uploads, admin/users)
 server/utils/            Shared server code (Supabase client, admin auth checks)
 shared/types/            Types shared between client and server (Nuxt 4 shared/ dir)
 shared/utils/            Runtime helpers shared between client and server (auto-imported)
-supabase/migrations/     SQL migrations — a fresh install only needs 0001_init.sql (see step 3); the rest are incremental upgrades for a site that ran 0001 before that feature existed, each also folded into 0001_init.sql
+supabase/migrations/     SQL migrations — just 0001_init.sql (see step 3), the full current schema, re-squashed as it settles so a fresh install never needs more than one file
 scripts/                add-block.mjs — the block scaffolding CLI
 ```

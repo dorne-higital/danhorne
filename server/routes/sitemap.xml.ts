@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 	// Portfolio case-study pages — a separate table from pages above, so a
 	// separate query; `.not('slug', 'is', null)` since a portfolio site's
 	// slug (a full path, e.g. /work/acme — not just a segment) is optional
-	// (see supabase/migrations/0003_portfolio_sites_slug.sql).
+	// (see the portfolio_sites table in supabase/migrations/0001_init.sql).
 	const { data: portfolioSites, error: portfolioError } = await supabase
 		.from('portfolio_sites')
 		.select('slug, updated_at')

@@ -403,7 +403,8 @@ export interface PortfolioImage {
 	alt: string
 }
 
-// Private "sites I've built" directory — see supabase/migrations/0002_portfolio_sites.sql.
+// Private "sites I've built" directory — see the portfolio_sites table in
+// supabase/migrations/0001_init.sql.
 // Powers PortfolioCarousel/PortfolioGrid/PortfolioStats, which all read
 // through GET /api/portfolio-sites rather than taking this data as block props.
 export interface PortfolioSite {
@@ -432,7 +433,7 @@ export interface PortfolioSite {
 
 export type PostStatus = 'draft' | 'published'
 
-// Blog post — see supabase/migrations/0004_posts.sql/0005_posts_blocks.sql.
+// Blog post — see the posts table in supabase/migrations/0001_init.sql.
 // Powers the /blog and /blog/[slug] public routes plus the BlogGrid
 // content-block, which reads through GET /api/posts rather than taking
 // posts as block props.

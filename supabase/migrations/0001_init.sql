@@ -5,18 +5,17 @@
 -- if you're on Neon.
 --
 -- Single init migration for a template repo — this is the full current
--- schema for a brand new project (Portfolio and Blog included), not an
--- incremental history. One file, one command sets up any new client site;
--- 0002-0004 exist only so an already-provisioned site (one that ran an older
--- copy of this file before Portfolio/Blog existed) can catch up column-by-
--- column without re-running the whole thing — every statement in all of
--- these files is idempotent (if not exists / on conflict do nothing), so
--- re-running this file on a site that already ran 0002-0004 by hand is also
--- always safe. Every table has RLS enabled with zero policies (bar profiles'
--- own read policy): the app only ever talks to these tables server-side via
--- the service-role key (which always bypasses RLS), so this just closes the
--- direct-API hole that the public anon key (shipped to every browser for
--- Supabase Auth) would otherwise have via Supabase's auto-generated REST API.
+-- schema for a brand new project, not an incremental history. One file, one
+-- command sets up any new client site. This file is periodically re-squashed
+-- as the schema settles (most recently folding in favourite_blocks), so it's
+-- always the only migration a fresh clone needs to run — every statement is
+-- idempotent (if not exists / on conflict do nothing), so re-running it
+-- against an already-provisioned site is also always safe. Every table has
+-- RLS enabled with zero policies (bar profiles' own read policy): the app
+-- only ever talks to these tables server-side via the service-role key
+-- (which always bypasses RLS), so this just closes the direct-API hole that
+-- the public anon key (shipped to every browser for Supabase Auth) would
+-- otherwise have via Supabase's auto-generated REST API.
 
 create extension if not exists pgcrypto;
 
@@ -294,6 +293,11 @@ create table if not exists site_settings (
 	-- analytics), switched on per site directly in the DB (not via PATCH
 	-- /api/settings), so a client can't just enable them themselves for free.
 	enabled_features jsonb not null default '{}'::jsonb,
+	-- Content-block types an admin has starred, from either /admin/components
+	-- or the page-builder pickers (BlockPicker.vue, InsertBlockMenu.vue) —
+	-- site-wide, not per-user. Same jsonb-array-of-scalars convention as
+	-- portfolio_sites.tags.
+	favourite_blocks jsonb not null default '[]'::jsonb,
 	updated_at timestamptz not null default now()
 );
 
