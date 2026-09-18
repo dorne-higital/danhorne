@@ -57,8 +57,14 @@ export default defineNuxtConfig({
 		// upgrades just stay unavailable if these are blank.
 		stripeSecretKey: '',
 		stripeWebhookSecret: '',
-		stripePrice2gb: '',
-		stripePrice10gb: '',
+		// Nuxt's automatic camelCase→ENV_VAR derivation drops the underscore
+		// before a leading digit (stripePrice2gb → NUXT_STRIPE_PRICE2GB), which
+		// doesn't match the NUXT_STRIPE_PRICE_2GB/_10GB names documented in the
+		// README/.env.example and already set wherever this is deployed — so
+		// these two need an explicit env read instead of relying on the
+		// auto-derived name.
+		stripePrice2gb: process.env.NUXT_STRIPE_PRICE_2GB ?? '',
+		stripePrice10gb: process.env.NUXT_STRIPE_PRICE_10GB ?? '',
 		stripePriceUnlimited: '',
 		stripePriceGrowth: '',
 		stripePricePro: '',
