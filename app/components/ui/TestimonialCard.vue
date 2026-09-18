@@ -78,12 +78,19 @@
 		.glow {
 			background: color-mix(in srgb, var(--brand-primary) 20%, var(--bg-secondary) 38%);
 			border-radius: 50%;
-			bottom: -80px;
+			bottom: -40px;
 			filter: blur(2.5rem);
-			height: 220px;
+			height: 120px;
 			position: absolute;
-			right: -60px;
-			width: 220px;
+			right: -30px;
+			width: 120px;
+
+			@media (width >= 768px) {
+				bottom: -80px;
+				height: 220px;
+				right: -60px;
+				width: 220px;
+			}
 		}
 
 		.content {

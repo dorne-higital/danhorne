@@ -172,20 +172,34 @@
 
 			.glow-1 {
 				background: radial-gradient(circle, var(--brand-primary) 20%, transparent 70%);
-				height: 260px;
-				left: -60px;
+				height: 140px;
+				left: -40px;
 				opacity: 0.4;
-				top: -60px;
-				width: 260px;
+				top: -40px;
+				width: 140px;
+
+				@media (width >= 768px) {
+					height: 260px;
+					left: -60px;
+					top: -60px;
+					width: 260px;
+				}
 			}
 
 			.glow-2 {
 				background: radial-gradient(circle, var(--brand-primary) 10%, transparent 60%);
-				bottom: -80px;
-				height: 260px;
+				bottom: -50px;
+				height: 140px;
 				opacity: 0.25;
-				right: -60px;
-				width: 260px;
+				right: -40px;
+				width: 140px;
+
+				@media (width >= 768px) {
+					bottom: -80px;
+					height: 260px;
+					right: -60px;
+					width: 260px;
+				}
 			}
 
 			.content {
