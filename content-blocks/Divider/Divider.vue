@@ -72,7 +72,7 @@
 		}
 
 		&.size-lg {
-			padding-block: var(--padding-xl);
+			padding-block: var(--section-padding-block);
 		}
 
 		.wave {

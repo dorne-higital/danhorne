@@ -136,7 +136,7 @@
 		// two-column desktop layouts — left at that value on a
 		// phone-height viewport it reads as a big empty gap before
 		// anything shows.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);

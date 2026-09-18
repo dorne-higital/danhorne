@@ -132,7 +132,7 @@
 <style lang="scss" scoped>
 	.cb-split-cta {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);
@@ -228,7 +228,7 @@
 				display: flex;
 				flex-direction: column;
 				gap: var(--padding-md);
-				padding: var(--padding-xl) var(--padding-lg);
+				padding: var(--section-padding-block) var(--padding-lg);
 			}
 
 			@media (width >= 1024px) {

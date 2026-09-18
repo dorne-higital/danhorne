@@ -100,12 +100,7 @@
 	.cb-stat-hero {
 		background: var(--bg-primary);
 		color: var(--text-primary);
-
-		// Mobile-first: doubled padding and the wide inter-column gap below
-		// were fixed at every size, leaving a large empty gap above the
-		// eyebrow — and, pre-1024px where the layout is a single stacked
-		// column, an oversized gap between the content and the stats grid.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding: var(--padding-sm);

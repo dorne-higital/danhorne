@@ -90,10 +90,7 @@
 		background: var(--bg-primary);
 		color: var(--text-primary);
 		overflow: hidden;
-
-		// Mobile-first: doubled padding was fixed at every size, leaving a
-		// large empty gap above the eyebrow on phone-height viewports.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 		text-align: center;
 
 		&.small-padding {

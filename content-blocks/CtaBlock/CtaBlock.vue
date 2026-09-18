@@ -121,10 +121,7 @@
 
 <style lang="scss" scoped>
 	.cb-cta {
-		// Mobile-first: doubled outer padding plus the panel's own doubled
-		// inner padding stacked to ~256px of combined whitespace above and
-		// below the actual CTA copy on a phone-height viewport.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);
@@ -135,7 +132,7 @@
 
 			.panel {
 				border-radius: var(--border-radius-md);
-				padding: var(--padding-xl) var(--padding-md);
+				padding: var(--section-padding-block) var(--padding-md);
 
 				.content {
 					max-width: 100%;
@@ -156,7 +153,7 @@
 			border: 2px solid var(--border-strong);
 			border-radius: 32px;
 			overflow: hidden;
-			padding: var(--padding-xl) var(--padding-lg);
+			padding: var(--section-padding-block) var(--padding-lg);
 			position: relative;
 
 			@media (width >= 768px) {

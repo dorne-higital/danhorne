@@ -132,7 +132,7 @@
 			flex-direction: column;
 			gap: var(--padding-md);
 			justify-content: center;
-			padding: var(--padding-xl) var(--padding-lg);
+			padding: var(--section-padding-block) var(--padding-lg);
 			position: relative;
 
 			@media (width >= 1024px) {

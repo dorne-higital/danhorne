@@ -50,10 +50,7 @@
 <style lang="scss" scoped>
 	.cb-tiled-grid {
 		background: var(--bg-primary);
-
-		// Mobile-first: this was fixed at every size, leaving a large empty
-		// gap above the eyebrow on a phone-height viewport.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);

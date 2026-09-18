@@ -85,7 +85,7 @@
 <style lang="scss" scoped>
 	.cb-contact-details {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);

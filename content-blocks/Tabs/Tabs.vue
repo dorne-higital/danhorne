@@ -96,7 +96,7 @@
 <style lang="scss" scoped>
 	.cb-tabs {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);

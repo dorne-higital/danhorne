@@ -106,7 +106,7 @@
 <style lang="scss" scoped>
 	.cb-portfolio-gallery {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		@media (width >= 768px) {
 			padding-block: calc(var(--padding-xl) * 2);

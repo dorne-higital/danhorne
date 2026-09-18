@@ -73,7 +73,7 @@
 <style lang="scss" scoped>
 	.cb-section-heading {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.remove-padding {
 			padding: 0;

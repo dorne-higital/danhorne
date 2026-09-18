@@ -63,7 +63,14 @@
 			heading?: string
 			subheading?: string
 			columns?: number
-			items?: { id: string; icon?: string; heading?: string; description?: string; ctaLabel?: string; ctaHref?: string }[]
+			items?: {
+				id: string
+				icon?: string
+				heading?: string
+				description?: string
+				ctaLabel?: string
+				ctaHref?: string
+			}[]
 			minimalPadding?: boolean
 		}>(),
 		{
@@ -88,7 +95,7 @@
 	// its own button and destination.
 	.cb-cta-grid {
 		background: var(--bg-primary);
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding-block: var(--padding-sm);

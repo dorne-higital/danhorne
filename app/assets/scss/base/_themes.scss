@@ -80,6 +80,23 @@
 	--padding-md: 1.5rem;
 	--padding-lg: 2.5rem;
 	--padding-xl: 4rem;
+
+	/* Most content-blocks use this (not --padding-xl directly) for their
+	   outer top/bottom section whitespace, so it can shrink on mobile — see
+	   the @media override below — without touching each block's own SCSS.
+	   Defaults to --padding-xl so desktop is unchanged. */
+	--section-padding-block: var(--padding-xl);
+}
+
+/* Same 64px top+bottom section padding at every width left a
+   disproportionate amount of a phone-height viewport as empty space —
+   this alone doesn't fully solve that (some blocks stack extra internal
+   padding on top), but it's the single biggest lever, shared by ~60
+   content-blocks. */
+@media (width < 768px) {
+	:root {
+		--section-padding-block: var(--padding-lg);
+	}
 }
 
 /* DARK THEME â€” opt in per section with data-theme="dark" */

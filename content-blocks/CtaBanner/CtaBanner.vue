@@ -111,7 +111,7 @@
 			@media (width >= 640px) {
 				flex-direction: row;
 				justify-content: space-between;
-				padding-block: var(--padding-xl);
+				padding-block: var(--section-padding-block);
 			}
 		}
 

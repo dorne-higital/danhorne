@@ -105,7 +105,7 @@
 		// are tuned for the two-column desktop layout — left at those
 		// values on a phone-height viewport they read as a big empty gap
 		// above the eyebrow before anything else shows.
-		padding-block: var(--padding-xl);
+		padding-block: var(--section-padding-block);
 
 		&.small-padding {
 			padding: var(--padding-sm);
