@@ -71,6 +71,16 @@
 		background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
 		border-radius: var(--border-radius-md);
 		box-shadow: var(--shadow-md);
+
+		/* iOS Safari does not reliably clip a filter: blur() child (.glow
+		   below) to overflow: hidden + border-radius, so the blur bleeds past
+		   the rounded corner into a square. A mask-based clip sidesteps that
+		   bug; harmless no-op elsewhere. No autoprefixer in this build, so
+		   both the prefixed and standard property are declared explicitly,
+		   since older iOS Safari only recognizes the prefixed one. */
+		/* stylelint-disable-next-line property-no-vendor-prefix */
+		-webkit-mask-image: radial-gradient(white, white);
+		mask-image: radial-gradient(white, white);
 		overflow: hidden;
 		padding: var(--padding-lg);
 		position: relative;

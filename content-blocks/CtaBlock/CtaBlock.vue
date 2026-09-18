@@ -152,6 +152,17 @@
 			background: var(--bg-primary);
 			border: 2px solid var(--border-strong);
 			border-radius: 32px;
+
+			/* iOS Safari does not reliably clip a filter: blur() child (the
+			   .glow spans below) to overflow: hidden + border-radius, so the
+			   blur bleeds past the rounded corner into a square. A mask-based
+			   clip sidesteps that bug; harmless no-op elsewhere. No
+			   autoprefixer in this build, so both the prefixed and standard
+			   property are declared explicitly, since older iOS Safari only
+			   recognizes the prefixed one. */
+			/* stylelint-disable-next-line property-no-vendor-prefix */
+			-webkit-mask-image: radial-gradient(white, white);
+			mask-image: radial-gradient(white, white);
 			overflow: hidden;
 			padding: var(--section-padding-block) var(--padding-lg);
 			position: relative;
