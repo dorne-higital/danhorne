@@ -9,15 +9,31 @@
 			class="group"
 		>
 			<span class="group-heading">{{ group.name }}</span>
-			<button
+			<div
 				v-for="schema in group.schemas"
 				:key="schema.type"
-				type="button"
-				class="option"
-				@click="emit('select', schema.type)"
+				class="row"
 			>
-				{{ schema.label }}
-			</button>
+				<button
+					type="button"
+					class="option"
+					@click="emit('select', schema.type)"
+				>
+					{{ schema.label }}
+				</button>
+				<button
+					type="button"
+					class="heart"
+					:class="{ active: isFavourite(schema.type) }"
+					:aria-label="isFavourite(schema.type) ? 'Remove favourite' : 'Add favourite'"
+					@click.stop="toggleFavourite(schema.type)"
+				>
+					<Icon
+						name="lucide:heart"
+						mode="svg"
+					/>
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -32,7 +48,16 @@
 
 	// Reactive — see the identical comment in BlockPicker.vue.
 	const { data: settings } = useSiteSettings()
-	const groupedSchemas = computed(() => getGroupedBlockSchemas(settings.value?.enabled_features))
+	const { isFavourite, toggleFavourite } = useFavouriteBlocks()
+
+	// Favourites float to the top of each group — see the identical comment
+	// in /admin/components/index.vue.
+	const groupedSchemas = computed(() =>
+		getGroupedBlockSchemas(settings.value?.enabled_features).map((group) => ({
+			...group,
+			schemas: [...group.schemas].sort((a, b) => Number(isFavourite(b.type)) - Number(isFavourite(a.type))),
+		})),
+	)
 
 	function onDocumentClick() {
 		emit('close')
@@ -78,20 +103,54 @@
 			text-transform: uppercase;
 		}
 
+		.row {
+			align-items: stretch;
+			display: flex;
+		}
+
 		.option {
 			background: none;
 			border: none;
 			border-radius: var(--border-radius-sm);
 			cursor: pointer;
-			display: block;
+			flex: 1 1 auto;
 			font-size: 0.9375rem;
 			font-weight: 600;
+			min-width: 0;
 			padding: var(--padding-xs) var(--padding-sm);
 			text-align: left;
-			width: 100%;
 
 			&:hover {
 				background: var(--bg-secondary);
+			}
+		}
+
+		.heart {
+			align-items: center;
+			background: none;
+			border: none;
+			border-radius: var(--border-radius-sm);
+			color: var(--text-secondary);
+			cursor: pointer;
+			display: flex;
+			flex-shrink: 0;
+			justify-content: center;
+			width: 1.75rem;
+
+			&:hover {
+				background: var(--bg-secondary);
+				color: var(--text-primary);
+			}
+
+			&.active {
+				color: var(--brand-primary);
+
+				// See the identical comment in /admin/components/index.vue —
+				// lucide's path carries its own fill="none", which an
+				// ancestor's fill can't override.
+				:deep(svg path) {
+					fill: currentcolor;
+				}
 			}
 		}
 	}

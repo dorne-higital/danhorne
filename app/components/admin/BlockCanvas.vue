@@ -13,7 +13,7 @@
 					:class="{ selected: element.id === selectedBlockId }"
 					@click="emit('select', element.id)"
 				>
-					<div class="insert-zone insert-top">
+					<div class="insert-seam insert-top">
 						<button
 							type="button"
 							class="insert-btn"
@@ -30,14 +30,6 @@
 					</div>
 
 					<div class="block-toolbar">
-						<button
-							type="button"
-							class="collapse-toggle"
-							:aria-label="isCollapsed(element.id) ? 'Expand block' : 'Collapse block'"
-							@click.stop="toggleCollapse(element.id)"
-						>
-							<Icon :name="isCollapsed(element.id) ? 'lucide:chevron-right' : 'lucide:chevron-down'" />
-						</button>
 						<span
 							class="drag-handle"
 							aria-hidden="true"
@@ -47,17 +39,41 @@
 						<span class="block-label">{{ element.type }}</span>
 						<button
 							type="button"
-							class="remove"
+							class="tool-btn"
+							aria-label="Move block up"
+							:disabled="index === 0"
+							@click.stop="moveBlock(index, index - 1)"
+						>
+							<Icon name="lucide:arrow-up" />
+						</button>
+						<button
+							type="button"
+							class="tool-btn"
+							aria-label="Move block down"
+							:disabled="index === blocks.length - 1"
+							@click.stop="moveBlock(index, index + 1)"
+						>
+							<Icon name="lucide:arrow-down" />
+						</button>
+						<button
+							type="button"
+							class="tool-btn"
+							aria-label="Duplicate block"
+							@click.stop="duplicateBlock(index)"
+						>
+							<Icon name="lucide:copy" />
+						</button>
+						<button
+							type="button"
+							class="tool-btn danger"
+							aria-label="Delete block"
 							@click.stop="emit('remove', element.id)"
 						>
-							Remove
+							<Icon name="lucide:trash-2" />
 						</button>
 					</div>
 
-					<div
-						v-show="!isCollapsed(element.id)"
-						class="block-preview"
-					>
+					<div class="block-preview">
 						<ScaledBlockPreview>
 							<component
 								:is="resolveComponent(element.type)"
@@ -69,8 +85,13 @@
 					</div>
 
 					<div
+						class="selection-frame"
+						aria-hidden="true"
+					/>
+
+					<div
 						v-if="index === blocks.length - 1"
-						class="insert-zone insert-bottom"
+						class="insert-seam insert-bottom"
 					>
 						<button
 							type="button"
@@ -93,7 +114,7 @@
 				v-if="!blocks.length"
 				#footer
 			>
-				<p class="empty">Drag a block from the left to get started.</p>
+				<p class="empty">Drag a block from the left, or use the + above to get started.</p>
 			</template>
 		</draggable>
 	</div>
@@ -115,24 +136,28 @@
 		remove: [id: string]
 	}>()
 
-	const collapsedBlocks = ref(new Set<string>())
-
-	function isCollapsed(id: string): boolean {
-		return collapsedBlocks.value.has(id)
-	}
-
-	function toggleCollapse(id: string) {
-		if (collapsedBlocks.value.has(id)) {
-			collapsedBlocks.value.delete(id)
-		} else {
-			collapsedBlocks.value.add(id)
-		}
-	}
-
 	const localBlocks = computed({
 		get: () => props.blocks,
 		set: (value: Block[]) => emit('update:blocks', value),
 	})
+
+	function moveBlock(from: number, to: number) {
+		if (to < 0 || to >= localBlocks.value.length) return
+		const updated = [...localBlocks.value]
+		const [moved] = updated.splice(from, 1)
+		updated.splice(to, 0, moved)
+		localBlocks.value = updated
+	}
+
+	function duplicateBlock(index: number) {
+		const original = props.blocks[index]
+		if (!original) return
+		const copy: Block = { ...structuredClone(original), id: crypto.randomUUID() }
+		const updated = [...localBlocks.value]
+		updated.splice(index + 1, 0, copy)
+		localBlocks.value = updated
+		emit('select', copy.id)
+	}
 
 	const insertMenuOpenAt = ref<number | null>(null)
 
@@ -159,46 +184,68 @@
 	.block-canvas {
 		display: flex;
 		flex-direction: column;
-		gap: var(--padding-md);
 		min-height: 100%;
 
 		.list {
 			display: flex;
 			flex-direction: column;
-			gap: var(--padding-md);
 			min-height: 12rem;
 		}
 
+		// No border, gap, or permanent header between blocks — this is meant
+		// to look like the real page (see BlockRenderer.vue, which stacks
+		// blocks with zero wrapper chrome), not a list of cards.
 		.block-wrapper {
-			border: 1px solid var(--border);
-			border-radius: var(--border-radius-md);
 			cursor: pointer;
 			position: relative;
-			transition: border-color var(--transition-base);
 
-			&.selected {
+			&:hover .block-toolbar {
+				opacity: 1;
+				pointer-events: auto;
+			}
+
+			&:hover .selection-frame {
+				border-color: var(--border-strong);
+			}
+
+			&.selected .selection-frame {
 				border-color: var(--brand-secondary);
 			}
 		}
 
-		.insert-zone {
+		// A dedicated overlay rather than an outline/box-shadow directly on
+		// .block-wrapper — every block's own content fills the wrapper
+		// edge-to-edge with an opaque background, which paints over (hides)
+		// an inset box-shadow/outline on the wrapper itself, since those are
+		// part of the wrapper's own background layer, painted BEFORE its
+		// children. A separate absolutely-positioned sibling, positioned
+		// after .block-preview in source order, always paints above it.
+		.selection-frame {
+			border: 2px solid transparent;
+			inset: 0;
+			pointer-events: none;
+			position: absolute;
+			z-index: 3;
+		}
+
+		.insert-seam {
 			align-items: center;
 			display: flex;
-			height: var(--padding-md);
+			height: 28px;
 			justify-content: center;
 			left: 0;
 			opacity: 0;
 			position: absolute;
 			right: 0;
 			transition: opacity var(--transition-base);
-			z-index: 5;
+			z-index: 6;
 
 			&.insert-top {
-				top: calc(var(--padding-md) * -1);
+				top: -14px;
 			}
 
 			&.insert-bottom {
-				bottom: calc(var(--padding-md) * -1);
+				bottom: -14px;
 			}
 
 			&:hover,
@@ -227,24 +274,24 @@
 
 		.block-toolbar {
 			align-items: center;
-			background: var(--bg-secondary);
-			border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-sm);
+			box-shadow: var(--shadow-md);
 			display: flex;
-			font-size: 0.9375rem;
-			gap: var(--padding-sm);
-			padding: var(--padding-xs) var(--padding-sm);
-
-			.collapse-toggle {
-				align-items: center;
-				background: none;
-				border: none;
-				color: var(--text-primary);
-				cursor: pointer;
-				display: flex;
-			}
+			gap: 2px;
+			opacity: 0;
+			padding: 3px;
+			pointer-events: none;
+			position: absolute;
+			right: var(--padding-xs);
+			top: var(--padding-xs);
+			transition: opacity var(--transition-base);
+			z-index: 7;
 
 			.drag-handle {
 				cursor: grab;
+				padding: 0 4px;
 
 				&:active {
 					cursor: grabbing;
@@ -252,17 +299,48 @@
 			}
 
 			.block-label {
-				flex: 1;
+				font-size: 0.8125rem;
 				font-weight: 600;
+				padding-right: 4px;
+				white-space: nowrap;
+			}
+		}
+
+		.tool-btn {
+			align-items: center;
+			background: none;
+			border: none;
+			border-radius: var(--border-radius-sm);
+			color: var(--text-secondary);
+			cursor: pointer;
+			display: flex;
+			height: 1.5rem;
+			justify-content: center;
+			width: 1.5rem;
+
+			svg {
+				height: 0.9375rem;
+				width: 0.9375rem;
 			}
 
-			.remove {
-				background: none;
-				border: none;
+			&:hover {
+				background: var(--bg-secondary);
+				color: var(--text-primary);
+			}
+
+			&:disabled {
+				cursor: default;
+				opacity: 0.4;
+
+				&:hover {
+					background: none;
+					color: var(--text-secondary);
+				}
+			}
+
+			&.danger:hover {
+				background: var(--error-bg);
 				color: var(--error);
-				cursor: pointer;
-				font-size: 0.9375rem;
-				font-weight: 600;
 			}
 		}
 
@@ -274,6 +352,7 @@
 			border: 2px dashed var(--border-strong);
 			border-radius: var(--border-radius-md);
 			color: var(--text-secondary);
+			margin: var(--padding-lg);
 			padding: var(--padding-xl);
 			text-align: center;
 		}

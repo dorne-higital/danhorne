@@ -16,6 +16,7 @@ export type FeatureKey =
 	| 'multiStepForms'
 	| 'portfolio'
 	| 'blog'
+	| 'componentLibrary'
 
 // Most of these are one entry per admin sidebar item; pageHistory and
 // multiStepForms are narrower — capabilities inside the Pages/Forms editors
@@ -55,6 +56,11 @@ export const FEATURE_DEFAULTS: Record<FeatureKey, boolean> = {
 	// isn't internal-only, so it shows as a normal (locked-until-paid)
 	// Content nav item rather than living behind the admin-role gate.
 	blog: false,
+	// Same shape as 'portfolio' — a dev-only style-guide/sandbox for
+	// reviewing content-block types and their settings, not a feature a
+	// client site needs. Off on every fresh clone, behind the admin-role
+	// gate in AdminSidebar.vue, flipped on directly in the DB only here.
+	componentLibrary: false,
 }
 
 export function isFeatureEnabled(

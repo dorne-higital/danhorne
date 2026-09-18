@@ -7,7 +7,6 @@ import type {
 	SiteSettings,
 	SocialLinks,
 } from '#shared/types/cms'
-
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
 const GTM_ID = /^GTM-[A-Z0-9]+$/i
 const NAV_STYLES: NavStyle[] = ['default', 'centered']
@@ -43,6 +42,7 @@ const FIELD_LABELS: Record<string, string> = {
 	recaptcha_site_key: 'reCAPTCHA',
 	recaptcha_secret_key: 'reCAPTCHA',
 	recaptcha_enabled: 'reCAPTCHA',
+	favourite_blocks: 'favourite blocks',
 }
 
 interface Body {
@@ -77,6 +77,7 @@ interface Body {
 	// (submissions, analytics) are switched on per site directly in the DB,
 	// not something a client's own admin login can self-serve. See
 	// shared/utils/features.ts.
+	favourite_blocks?: string[]
 }
 
 // This one endpoint backs three separate admin nav sections (Settings,
@@ -281,6 +282,22 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 		}
 	}
 
+	// Not gated behind any requireFeatureEnabled check — favourites aren't
+	// tied to the componentLibrary flag (an internal-only feature), since
+	// BlockPicker.vue/InsertBlockMenu.vue use this on every real site.
+	//
+	// Deliberately not cross-checked against content-blocks/registry.ts here
+	// — that module's import.meta.glob() only resolves inside the Vite/client
+	// build, not Nitro's server bundle, so importing it server-side crashes
+	// the whole app at runtime. A stale/renamed type lingering in the list is
+	// a much cheaper failure mode than that.
+	if (body.favourite_blocks !== undefined) {
+		if (!Array.isArray(body.favourite_blocks) || body.favourite_blocks.some((type) => typeof type !== 'string')) {
+			throw createError({ statusCode: 400, statusMessage: 'favourite_blocks must be an array of strings' })
+		}
+		update.favourite_blocks = [...new Set(body.favourite_blocks)]
+	}
+
 	if (Object.keys(update).length === 0) {
 		throw createError({ statusCode: 400, statusMessage: 'Nothing to update' })
 	}
@@ -290,7 +307,7 @@ export default defineEventHandler(async (event): Promise<SiteSettings> => {
 		.update(update)
 		.eq('id', 'default')
 		.select(
-			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, logo_text, logo_highlight_text, contact_form_id, company, socials, nav_style, footer_style, header_theme, footer_theme, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key',
+			'id, primary_color, secondary_color, accent_color, background_color, site_name, logo_url, logo_text, logo_highlight_text, contact_form_id, company, socials, nav_style, footer_style, header_theme, footer_theme, header_cta_enabled, header_cta_label, header_cta_action, header_cta_url, gtm_id, gtm_enabled, recaptcha_site_key, recaptcha_enabled, recaptcha_secret_key, favourite_blocks',
 		)
 		.single()
 

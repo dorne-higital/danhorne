@@ -142,8 +142,23 @@
 			— you'll need to fix those manually.
 		</p>
 
-		<div class="editor-body">
-			<BlockPicker class="col picker" />
+		<div
+			class="editor-body"
+			:style="{ gridTemplateColumns: pickerCollapsed ? '0px 1fr 320px' : '240px 1fr 320px' }"
+		>
+			<BlockPicker
+				v-show="!pickerCollapsed"
+				class="col picker"
+			/>
+			<button
+				type="button"
+				class="picker-toggle"
+				:class="{ collapsed: pickerCollapsed }"
+				:aria-label="pickerCollapsed ? 'Show block picker' : 'Hide block picker'"
+				@click="pickerCollapsed = !pickerCollapsed"
+			>
+				<Icon name="lucide:chevron-left" />
+			</button>
 			<BlockCanvas
 				class="col canvas"
 				:blocks="blocks"
@@ -235,6 +250,27 @@
 	const historyOpen = ref(false)
 	const toast = useToast()
 	const { confirm } = useConfirm()
+
+	const PICKER_COLLAPSED_KEY = 'admin-page-picker-collapsed'
+	const pickerCollapsed = ref(false)
+
+	onMounted(() => {
+		try {
+			pickerCollapsed.value = localStorage.getItem(PICKER_COLLAPSED_KEY) === '1'
+		} catch {
+			pickerCollapsed.value = false
+		}
+	})
+
+	watch(pickerCollapsed, (value) => {
+		if (!import.meta.client) return
+		try {
+			localStorage.setItem(PICKER_COLLAPSED_KEY, value ? '1' : '0')
+		} catch {
+			// Storage unavailable (private mode, quota) — collapse state just
+			// won't persist across visits, nothing else depends on it.
+		}
+	})
 
 	const { data: settings } = await useSiteSettings()
 	const pageHistoryEnabled = computed(() => isFeatureEnabled('pageHistory', settings.value?.enabled_features))
@@ -454,8 +490,9 @@
 		.editor-body {
 			display: grid;
 			flex: 1;
-			grid-template-columns: 240px 1fr 320px;
 			min-height: 0;
+			position: relative;
+			transition: grid-template-columns var(--transition-base);
 		}
 
 		.col {
@@ -463,16 +500,65 @@
 			overflow-y: auto;
 			padding: var(--padding-lg);
 
+			// Pinned explicitly — v-show hiding the picker sets display:none,
+			// and a display:none child is dropped from grid placement
+			// entirely, which would otherwise shift canvas/inspector left
+			// into the wrong tracks (canvas squeezed into the 0px column,
+			// inspector stretching to fill the 1fr one) the moment the
+			// picker collapses.
 			&.picker {
 				border-right: 1px solid var(--border);
+				grid-column: 1;
 			}
 
 			&.canvas {
 				background: var(--bg-secondary);
+				grid-column: 2;
 			}
 
 			&.inspector {
 				border-left: 1px solid var(--border);
+				grid-column: 3;
+			}
+		}
+
+		.picker-toggle {
+			align-items: center;
+			background: var(--bg-primary);
+			border: 1px solid var(--border);
+			border-radius: var(--border-radius-pill);
+			color: var(--text-secondary);
+			cursor: pointer;
+			display: flex;
+			height: 1.75rem;
+			justify-content: center;
+			left: 240px;
+			position: absolute;
+			top: var(--padding-lg);
+			transform: translateX(-50%);
+			transition:
+				left var(--transition-base),
+				color var(--transition-base);
+			width: 1.75rem;
+			z-index: 10;
+
+			svg {
+				height: 1rem;
+				transition: transform var(--transition-base);
+				width: 1rem;
+			}
+
+			&:hover {
+				border-color: var(--text-primary);
+				color: var(--text-primary);
+			}
+
+			&.collapsed {
+				left: 0;
+
+				svg {
+					transform: rotate(180deg);
+				}
 			}
 		}
 	}

@@ -196,6 +196,9 @@
 					// defaults off (shared/utils/features.ts), enabled only on my
 					// own site directly in the DB, same as every other paid add-on.
 					{ label: 'Portfolio', to: '/admin/portfolio', feature: 'portfolio' },
+					// Live preview/sandbox for every content-block type — same
+					// internal-only pattern as Portfolio above.
+					{ label: 'Components', to: '/admin/components', feature: 'componentLibrary' },
 				],
 			})
 		}

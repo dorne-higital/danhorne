@@ -312,6 +312,10 @@ export interface SiteSettings {
 	// shared/utils/features.ts (FEATURE_DEFAULTS, isFeatureEnabled) for the
 	// full key list and which ones default off.
 	enabled_features: Partial<Record<FeatureKey, boolean>>
+	// Content-block `type` strings the admin has starred — shown first (and
+	// heart-highlighted) in BlockPicker.vue, InsertBlockMenu.vue, and the
+	// /admin/components style guide. Site-wide, not per-user.
+	favourite_blocks: string[]
 	// Total Storage budget for uploads, in MB — null means unlimited. See
 	// server/utils/storageUsage.ts.
 	storage_limit_mb: number | null
